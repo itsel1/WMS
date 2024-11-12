@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.trans.ocs.OcsMapper">
+	<select id ="selectListInfoForOCS" parameterType="String" resultType="com.example.temp.trans.ocs.ApiOrderOcsVO">
+		SELECT 	
+			ISNULL(NNO,'') AS NNO,
+			ISNULL(DSTN_NATION,'') AS DSTN_NATION,
+			ISNULL(ORG_STATION,'') AS ORG_STATION,
+			'A' AS shippingType,
+			ISNULL(ORDER_NO,'') AS ORDER_NO,
+			'' AS orderNo2,
+			ISNULL(ORDER_DATE,'') AS ORDER_DATE,
+			ISNULL(SHIPPER_NAME,'') AS SHIPPER_NAME,
+			ISNULL(SHIPPER_TEL,'') AS SHIPPER_TEL,
+			ISNULL(SHIPPER_ADDR,'') AS SHIPPER_ADDR,
+			ISNULL(SHIPPER_ADDR_DETAIL,'') AS SHIPPER_ADDR_DETAIL,
+			ISNULL(CNEE_NAME,'') AS CNEE_NAME,
+			ISNULL(NATIVE_CNEE_NAME,'') AS NATIVE_CNEE_NAME,
+			ISNULL(CNEE_TEL,'') AS CNEE_TEL,
+			ISNULL(CNEE_HP,'') AS CNEE_HP,
+			ISNULL(CNEE_ZIP,'') AS CNEE_ZIP,
+			ISNULL(CNEE_STATE,'') AS CNEE_STATE,
+			ISNULL(CNEE_CITY,'') AS CNEE_CITY,
+			ISNULL(CNEE_DISTRICT,'') AS CNEE_DISTRICT,
+			'' AS receiverDistrict,
+			ISNULL(CNEE_ADDR,'') AS CNEE_ADDR,
+			ISNULL(CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL,
+			ISNULL(CNEE_EMAIL,'') AS CNEE_EMAIL,
+			ISNULL(CUSTOMS_NO,'') AS CUSTOMS_NO,
+			ISNULL(USER_WTA,'') AS USER_WTA,
+			ISNULL(WT_UNIT,'') AS WT_UNIT,
+			ISNULL(BOX_CNT,'') AS BOX_CNT,
+			ISNULL((SELECT CHG_CURRENCY FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO ='1'),'') AS CHG_CURRENCY,
+			ISNULL((SELECT UNIT_CURRENCY FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO ='1'),'') AS UNIT_CURRENCY,
+			ISNULL(DLV_REQ_MSG,'') AS DLV_REQ_MSG,
+			ISNULL(NATIVE_CNEE_ADDR,'') AS NATIVE_CNEE_ADDR,
+			ISNULL(NATIVE_CNEE_ADDR_DETAIL,'') AS NATIVE_CNEE_ADDR_DETAIL,
+			'' AS userData1,
+			'' AS userData2,
+			'' AS userData3,	
+			ISNULL(USER_WIDTH,'0.0') AS USER_WIDTH,
+			ISNULL(USER_LENGTH,'0.0') AS USER_LENGTH,
+			ISNULL(USER_HEIGHT,'0.0') AS USER_HEIGHT,
+			ISNULL(DIM_UNIT,'') AS DIM_UNIT,
+			'' AS delvNo,
+			'' AS delvCom
+		FROM TB_ORDER_LIST F1 WHERE NNO = #{nno}
+	</select>	
+	
+	<select id ="selectItemInfoForOCS" parameterType="String" resultType="com.example.temp.trans.ocs.ApiOrderItemOcsVO">
+		SELECT 
+			ISNULL(ITEM_DETAIL,'') AS ITEM_DETAIL,
+			ISNULL(ITEM_CNT,'') AS ITEM_CNT,
+			ISNULL(UNIT_VALUE,'') AS UNIT_VALUE,
+			ISNULL(USER_ID,'') AS USER_ID,
+			ISNULL(QTY_UNIT, '') AS QTY_UNIT
+		FROM TB_ORDER_ITEM WHERE NNO = #{nno}
+	</select>
+	
+	<select id ="selectNationName" parameterType="String" resultType="String">
+		select NATION_E_NAME FROM TB_NATION_CODE WHERE NATION_CODE = #{dstnNation}
+	</select>
+	
+	<update id="updateHawbNo" parameterType="hashMap">
+		UPDATE TB_ORDER_LIST SET HAWB_NO = #{hawbNo} WHERE NNO = #{nno};
+		UPDATE TB_EXPLICENCE SET EXP_REG_NO = #{hawbNo} WHERE NNO = #{nno};
+	</update>
+</mapper>

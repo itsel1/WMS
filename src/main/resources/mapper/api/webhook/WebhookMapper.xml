@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.api.webhook.mapper.WebhookMapper">
+	<insert id="insertSoluTrkData" parameterType="com.example.temp.api.webhook.vo.SoluTrkVO">
+		INSERT INTO TB_SOLUGATE_TRK_LIST ( 
+			NNO, 
+			HAWB_NO, 
+			TRACKING_NUM, 
+			[STATUS], 
+			STATUS_DESCRIPTION, 
+			DETAILS, 
+			CHECKPOINTER_STATUS, 
+			[TYPE], 
+			ISSUE_DATE_TIME
+		) VALUES ( 
+			#{nno},
+			#{hawbNo},
+			#{trackingNum}, 
+			#{status}, 
+			#{statusDescription}, 
+			#{details}, 
+			#{checkpointerStatus}, 
+			#{type}, 
+			#{issueDateTime}
+		);
+	</insert>
+</mapper>

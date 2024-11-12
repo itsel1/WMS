@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.trans.cse.CseMapper">
+	<update id="updateHawb" parameterType="hashMap">
+		UPDATE TB_ORDER_LIST SET SHIPPER_REFERENCE = #{shipperReference}, HAWB_NO = #{hawbNo} WHERE NNO = #{nno};
+		UPDATE TB_EXPLICENCE SET EXP_REG_NO = #{hawbNo} WHERE NNO = #{nno};
+	</update>
+	
+	<select id="selectAciPodInfo" parameterType="hashMap" resultType="hashMap">
+		SELECT
+			(
+			SUBSTRING(F1.W_DATE,0,5)+'-'+SUBSTRING(F1.W_DATE,5,2)+'-'+SUBSTRING(F1.W_DATE,7,2)+' '+SUBSTRING(F1.W_DATE,9,2)+':'+SUBSTRING(F1.W_DATE,11,2)+':'+SUBSTRING(F1.W_DATE,13,2)
+			) as orderDate,
+			ISNULL(FORMAT(F2.W_DATE,'yyyy-MM-dd HH:mm:ss'),'')as hawbDate,
+			F1.NNO as nno
+			FROM TB_ORDER_LIST F1 LEFT OUTER JOIN TB_HAWB F2 ON F1.NNO = F2.NNO
+  			WHERE F1.HAWB_NO = #{hawbNo};
+	</select>
+	<select id="selectCseShipmentInfo" parameterType="String" resultType="com.example.temp.trans.cse.CseOrderVO">
+		SELECT 
+			ISNULL(F2.NNO,'') AS NNO,
+			ISNULL(USER_ID,'') AS [USER_ID],
+			ISNULL(SHIPPER_NAME,'') AS SHIPPER_NAME,
+			ISNULL((SELECT NATION_CODE FROM TB_STATION WHERE STATION_CODE = ORG_STATION),'')  AS SHIPPER_CNTRY,
+			ISNULL(SHIPPER_ADDR,'') AS SHIPPER_ADDR,
+			ISNULL(SHIPPER_ADDR_DETAIL,'') AS SHIPPER_ADDR_DETAIL,
+			ISNULL(SHIPPER_CITY,'') AS SHIPPER_CITY,
+			ISNULL(SHIPPER_ZIP,'') AS SHIPPER_ZIP,
+			(CASE WHEN SHIPPER_HP = '00NECwQh10Wxb0w0BjtJlw==' THEN SHIPPER_TEL ELSE SHIPPER_HP END) AS SHIPPER_HP,
+			(CASE WHEN SHIPPER_TEL = '00NECwQh10Wxb0w0BjtJlw==' THEN SHIPPER_HP ELSE SHIPPER_TEL END) AS SHIPPER_TEL,
+			ISNULL(CNEE_NAME,'') AS CNEE_NAME,
+			ISNULL(DSTN_NATION,'') AS DSTN_NATION,
+			ISNULL(CNEE_ADDR,'') AS CNEE_ADDR,
+			ISNULL(CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL,
+			ISNULL(CNEE_CITY,'') AS CNEE_CITY,
+			ISNULL(CNEE_ZIP,'') AS CNEE_ZIP,
+			(CASE WHEN CNEE_HP = '00NECwQh10Wxb0w0BjtJlw==' THEN CNEE_TEL ELSE CNEE_HP END) AS CNEE_HP,
+			(CASE WHEN CNEE_TEL = '00NECwQh10Wxb0w0BjtJlw==' THEN CNEE_HP ELSE CNEE_TEL END) AS CNEE_TEL,
+			--총 가격
+			(select SUM(UNIT_VALUE) FROM TB_ORDER_ITEM F1 WHERE F1.NNO =F2.NNO) AS TOTAL_VALUE,
+			--화폐단위
+			(select TOP 1 ISNULL(UNIT_CURRENCY, CHG_CURRENCY) FROM TB_ORDER_ITEM F1 WHERE F1.NNO =F2.NNO) AS CURRENCY,
+			PAYMENT,
+			--제조국
+			(select TOP 1 ISNULL(MAKE_CNTRY, 'KR') FROM TB_ORDER_ITEM F1 WHERE F1.NNO =F2.NNO) AS MAKE_CNTRY,			
+			--청구 무게 단위
+			ISNULL(WT_UNIT,'KG') AS WT_UNIT,
+			--아이템 개수
+			(select COUNT(UNIT_VALUE) FROM TB_ORDER_ITEM F1 WHERE F1.NNO =F2.NNO) AS ITEM_CNT,
+			(select ITEM_DETAIL FROM TB_ORDER_ITEM F1 WHERE F1.NNO =F2.NNO AND SUB_NO ='1') AS ITEM_NAME,
+			ISNULL(USER_LENGTH,'0') AS USER_LENGTH,
+			ISNULL(USER_WIDTH,'0') AS USER_WIDTH,
+			ISNULL(USER_HEIGHT,'0')  AS USER_HEIGHT,
+			ISNULL(USER_WTC,(USER_LENGTH*USER_WIDTH*USER_HEIGHT)/(SELECT PER_DIM FROM TB_TRANS_COM WHERE TRANS_CODE = 'GTS')) AS USER_WTC,
+			--Service Type
+			ISNULL(USER_WTA,0) AS USER_WTA,
+			ISNULL(W_USER_ID,USER_ID) AS W_USER_ID
+		FROM TB_ORDER_LIST F2 WHERE NNO = #{nno};
+	</select>
+	<select id="selectOrderDate" parameterType="String" resultType="String">
+		select LEFT(W_DATE,4)+'-'+SUBSTRING(W_DATE,5,2)+'-'+SUBSTRING(W_DATE,7,2)+' '+SUBSTRING(W_DATE,9,2)+':'+SUBSTRING(W_DATE,11,2) 
+			FROM TB_ORDER_LIST WHERE HAWB_NO = #{hawbNo}
+	</select>
+	<select id="selectOzonTrack" parameterType="hashMap" resultType="hashMap">
+		SELECT EVENT_NAME as eventName, EVENT_DESCRIPTION as eventDescription, EVENT_ID as eventId FROM TB_MATCHING_POD WHERE TRANS_CODE = #{transCode} AND REFERENCE = #{reference}
+	</select>
+	<!-- <select id ="selectGtsShipmentItemInfo" parameterType="" resultType="">
+	</select> -->
+</mapper>

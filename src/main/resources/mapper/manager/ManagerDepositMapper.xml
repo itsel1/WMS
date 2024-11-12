@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.manager.mapper.ManagerDepositMapper">
+
+	<select id="selectStationList" resultType="hashMap">
+		SELECT
+			ISNULL(STATION_CODE,'') AS stationCode,
+			ISNULL(STATION_NAME,'') AS stationName
+		FROM TB_STATION
+		WHERE STATION_CODE NOT IN ('111') 
+	</select>
+	
+	<select id="selectDepositListCnt" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*)
+		FROM (SELECT 
+				ROW_NUMBER() OVER(ORDER BY W_DATE DESC) ROWNUM,
+				IDX,
+				USER_ID,
+				ORG_STATION,
+				ISNULL(PAY_TYPE,'') AS PAY_TYPE,
+				ISNULL(APPLY_DATE,'') AS APPLY_DATE,
+				ISNULL(RECEIVED_DATE,'') AS RECEIVED_DATE,
+				ISNULL(APPLY_AMT,'') AS APPLY_AMT,
+				ISNULL(RECEIVED_AMT,'') AS RECEIVED_AMT,
+				ISNULL(RECEIVED_CURRENCY,'') AS RECEIVED_CURRENCY,
+				ISNULL(DEPOSIT_AMT,'') AS DEPOSIT_AMT,
+				ISNULL(DEPOSIT_CURRENCY,'') AS DEPOSIT_CURRENCY,
+				ISNULL(DEPOSIT_AMT_TOTAL,'') AS DEPOSIT_AMT_TOTAL,
+				ISNULL(EXCHANGE_RATE,'') AS EXCHANGE_RATE,
+				ISNULL(REMARK,'') AS REMARK,
+				ISNULL(DEPOSITOR,'') AS DEPOSITOR
+			FROM TB_DEPOSIT_REC
+			WHERE 1=1
+			<if test="fromDate != null and fromDate != ''">
+				AND RECEIVED_DATE <![CDATA[ >= ]]> #{fromDate}
+			</if>
+			<if test="toDate != null and toDate != ''">
+				AND RECEIVED_DATE <![CDATA[ <= ]]> #{toDate}
+			</if>
+			<if test="stationCode != null and stationCode != ''">
+				AND ORG_STATION = #{stationCode}
+			</if>
+			<if test="acntName != null and acntName != ''">
+				AND DEPOSITOR LIKE CONCAT('%', #{acntName},'%')
+			</if>
+			
+			) M1 
+	</select>
+	
+	<select id="selectDepositList" parameterType="hashMap" resultType="com.example.temp.manager.vo.DepositVO">
+		SELECT *
+		FROM (SELECT 
+				ROW_NUMBER() OVER(ORDER BY W_DATE DESC) ROWNUM,
+				IDX,
+				USER_ID,
+				ORG_STATION,
+				ISNULL(PAY_TYPE,'') AS PAY_TYPE,
+				ISNULL(APPLY_DATE,'') AS APPLY_DATE,
+				ISNULL(RECEIVED_DATE,'') AS RECEIVED_DATE,
+				ISNULL(APPLY_AMT,'') AS APPLY_AMT,
+				ISNULL(RECEIVED_AMT,'') AS RECEIVED_AMT,
+				ISNULL(RECEIVED_CURRENCY,'') AS RECEIVED_CURRENCY,
+				ISNULL(DEPOSIT_AMT,'') AS DEPOSIT_AMT,
+				ISNULL(DEPOSIT_CURRENCY,'') AS DEPOSIT_CURRENCY,
+				ISNULL(DEPOSIT_AMT_TOTAL,'') AS DEPOSIT_AMT_TOTAL,
+				ISNULL(EXCHANGE_RATE,'') AS EXCHANGE_RATE,
+				ISNULL(REMARK,'') AS REMARK,
+				ISNULL(DEPOSITOR,'') AS DEPOSITOR
+			FROM TB_DEPOSIT_REC
+			WHERE 1=1
+			<if test="fromDate != null and fromDate != ''">
+				AND RECEIVED_DATE <![CDATA[ >= ]]> #{fromDate}
+			</if>
+			<if test="toDate != null and toDate != ''">
+				AND RECEIVED_DATE <![CDATA[ <= ]]> #{toDate}
+			</if>
+			<if test="stationCode != null and stationCode != ''">
+				AND ORG_STATION = #{stationCode}
+			</if>
+			<if test="acntName != null and acntName != ''">
+				AND DEPOSITOR LIKE CONCAT('%', #{acntName},'%')
+			</if>
+			
+			) M1 WHERE M1.ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd}
+	</select>
+	
+	<select id="selectDepositRecInfo" parameterType="hashMap" resultType="com.example.temp.manager.vo.DepositVO">
+		SELECT
+			IDX,
+			USER_ID,
+			ISNULL((SELECT COM_NAME FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID),'') AS COM_NAME,
+			(SELECT STATION_NAME FROM TB_STATION WHERE STATION_CODE = F1.ORG_STATION) AS ORG_STATION,
+			ISNULL(PAY_TYPE,'') AS PAY_TYPE,
+			ISNULL(CONCAT(SUBSTRING(APPLY_DATE,1,4),'-',SUBSTRING(APPLY_DATE,5,2),'-',SUBSTRING(APPLY_DATE,7,2)),'') AS APPLY_DATE,
+			ISNULL(APPLY_AMT,0) AS APPLY_AMT,
+			ISNULL(DEPOSITOR,'') AS DEPOSITOR,
+			ISNULL(RECEIVED_CURRENCY,'') AS RECEIVED_CURRENCY,
+			ISNULL(RECEIVED_DATE,'') AS RECEIVED_DATE,
+			ISNULL(RECEIVED_AMT,0) AS RECEIVED_AMT,
+			ISNULL(DEPOSIT_AMT,0) AS DEPOSIT_AMT,
+			ISNULL(DEPOSIT_CURRENCY,'') AS DEPOSIT_CURRENCY,
+			ISNULL(EXCHANGE_RATE,0) AS EXCHANGE_RATE,
+			ISNULL(REMARK,'') AS REMARK
+		FROM TB_DEPOSIT_REC F1
+		WHERE IDX = #{idx} AND USER_ID = #{userId}
+	</select>
+	
+	<select id="selectDepositAmtTot" parameterType="hashMap" resultType="Double">
+		SELECT 
+			ISNULL(SUM(DEPOSIT_AMT),0) AS DEPOSIT_AMT
+		FROM TB_DEPOSIT_REC
+		WHERE USER_ID = #{userId}
+	</select>
+
+	<update id="updateDepositRecInfo" parameterType="hashMap">
+		UPDATE TB_DEPOSIT_REC
+		SET RECEIVED_DATE = #{receivedDate}, RECEIVED_AMT = #{receivedAmt}, DEPOSIT_CURRENCY = #{depositCurrency}, EXCHANGE_RATE = #{exchangeRate},
+			DEPOSIT_AMT = #{depositAmt}, REMARK = #{remark}, W_DATE = GETDATE(), DEPOSIT_AMT_TOTAL = #{depositTot}
+		WHERE IDX = #{idx} AND USER_ID = #{userId}
+	</update>
+	
+	<update id="deleteDepositRecInfo" parameterType="hashMap">
+		UPDATE TB_DEPOSIT_REC
+		SET RECEIVED_DATE = '', RECEIVED_AMT = '', DEPOSIT_CURRENCY = '', EXCHANGE_RATE = '',
+			DEPOSIT_AMT = '', REMARK = '', W_DATE = GETDATE(), DEPOSIT_AMT_TOTAL = DEPOSIT_AMT_TOTAL - DEPOSIT_AMT
+		WHERE IDX = #{idx} AND USER_ID = #{userId}
+	</update>
+	
+	<select id="selectUserList" resultType="com.example.temp.manager.vo.DepositVO" parameterType="hashMap">
+		SELECT USER_ID
+		FROM TB_USER_TRANS_COM
+		WHERE ORG_NATION = (SELECT NATION_CODE FROM TB_STATION WHERE STATION_CODE = #{orgStation}) GROUP BY USER_ID
+	</select>
+	
+	<select id="selectCurrencyList" resultType="com.example.temp.manager.vo.CurrencyVO">
+		SELECT * FROM TB_CURRENCY
+		WHERE NATION_CODE IN (SELECT NATION_CODE FROM TB_STATION) OR NATION_CODE IN (SELECT NATION_CODE FROM TB_NATION_CODE WHERE NATION_THR_CODE = 'FRA')
+		ORDER BY NATION_E_NAME
+	</select>
+	
+	<insert id="insertDepositRecInfo" parameterType="hashMap">
+		INSERT INTO TB_DEPOSIT_REC
+			(USER_ID, ORG_STATION, PAY_TYPE, RECEIVED_CURRENCY, W_DATE, W_USER_ID, W_USER_IP, DEPOSITOR, APPLY_AMT, APPLY_DATE)
+		VALUES
+			(
+			#{userId},
+			#{orgStation},
+			#{payType},
+			#{receivedCurrency},
+			GETDATE(),
+			#{wUserId},
+			#{wUserIp},
+			#{depositor},
+			#{applyAmt},
+			#{applyDate}
+			)
+	</insert>
+	
+	<delete id="deleteDepositApplyInfo" parameterType="hashMap">
+		DELETE FROM TB_DEPOSIT_REC
+		WHERE IDX = #{idx} AND USER_ID = #{userId}
+	</delete>
+</mapper>

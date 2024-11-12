@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.trans.itemCarry.ItcMapper">
+	
+	<select id="selectOrderInfo" parameterType="String" resultType="com.example.temp.api.aci.vo.ApiOrderListVO">
+		SELECT 
+			NNO,
+			ORDER_NO,
+			ORDER_TYPE,
+			ORG_STATION,
+			HAWB_NO,
+			SHIPPER_NAME,
+			SHIPPER_ADDR,
+			SHIPPER_ADDR_DETAIL,
+			CNEE_NAME,
+			SHIPPER_TEL,
+			SHIPPER_HP,
+			CNEE_TEL,
+			CNEE_HP,
+			CNEE_ZIP,
+			CNEE_ADDR,
+			CNEE_ADDR_DETAIL,
+			WT_UNIT,
+			USER_WTA,
+			USER_LENGTH,
+			USER_WIDTH,
+			USER_HEIGHT,
+			W_USER_ID
+		FROM TB_ORDER_LIST WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectOrderItemTakeIn" parameterType="String" resultType="com.example.temp.trans.itemCarry.ItcItemVO">
+		SELECT 
+			F1.NNO,
+			F1.SUB_NO,
+			F1.ITEM_URL,
+			F1.BRAND,
+			F1.HS_CODE,
+			F1.ITEM_DETAIL,
+			F1.MAKE_CNTRY,
+			ISNULL(CHG_CURRENCY,(SELECT UNIT_CURRENCY FROM TB_TAKEIN_CODE WHERE CUS_ITEM_CODE = F1.CUS_ITEM_CODE AND USER_ID = F1.USER_ID)) as CHG_CURRENCY,
+			F1.UNIT_VALUE,
+			F1.ITEM_CNT,
+			F1.ITEM_METERIAL,
+			F1.CUS_ITEM_CODE
+		FROM TB_ORDER_ITEM F1 WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectOrderItem" parameterType="String" resultType="com.example.temp.trans.itemCarry.ItcItemVO">
+		SELECT 
+			NNO,
+			SUB_NO,
+			ITEM_URL,
+			BRAND,
+			HS_CODE,
+			ITEM_DETAIL,
+			MAKE_CNTRY,
+			CHG_CURRENCY,
+			UNIT_VALUE,
+			ITEM_CNT,
+			ITEM_METERIAL,
+			CUS_ITEM_CODE
+		FROM TB_ORDER_ITEM WHERE NNO = #{nno}
+	</select>
+	
+	<update id="updateHawbOrderList" parameterType="com.example.temp.manager.vo.ProcedureVO">
+		UPDATE TB_ORDER_LIST SET HAWB_NO = #{rstHawbNo} WHERE NNO = #{rstNno}
+	</update>
+	
+	<select id="selectUserId" parameterType="String" resultType="String">
+		SELECT [USER_ID] FROM TB_ORDER_LIST WHERE NNO = #{nno}
+	</select> 
+	
+	<select id="selectOrderInfoHawb" parameterType="String" resultType="com.example.temp.api.aci.vo.ApiOrderListVO">
+		SELECT 
+			NNO,
+			ORDER_NO,
+			ORG_STATION,
+			HAWB_NO,
+			SHIPPER_NAME,
+			CNEE_NAME,
+			SHIPPER_TEL,
+			SHIPPER_HP,
+			CNEE_TEL,
+			CNEE_HP,
+			CNEE_ZIP,
+			CNEE_ADDR,
+			CNEE_ADDR_DETAIL,
+			WT_UNIT,
+			ISNULL((SELECT TOP 1 WTA FROM TB_HAWB WHERE NNO = #{nno}),USER_WTA) AS USER_WTA,
+			ISNULL((SELECT TOP 1 WIDTH FROM TB_VOLUME WHERE NNO = #{nno}),USER_WIDTH) AS USER_WIDTH,
+			ISNULL((SELECT TOP 1 HEIGHT FROM TB_VOLUME WHERE NNO = #{nno}),USER_HEIGHT) AS USER_HEIGHT,
+			ISNULL((SELECT TOP 1 LENGTH FROM TB_VOLUME WHERE NNO = #{nno}),USER_LENGTH) AS USER_LENGTH,
+			W_USER_ID
+		FROM TB_ORDER_LIST WHERE NNO = #{nno}
+	</select>
+	<select id="selectAciPodInfo" parameterType="hashMap" resultType="hashMap">
+		SELECT
+			(
+			SUBSTRING(F1.W_DATE,0,5)+'-'+SUBSTRING(F1.W_DATE,5,2)+'-'+SUBSTRING(F1.W_DATE,7,2)+' '+SUBSTRING(F1.W_DATE,9,2)+':'+SUBSTRING(F1.W_DATE,11,2)+':'+SUBSTRING(F1.W_DATE,13,2)
+			) as orderDate,
+			ISNULL(FORMAT(F2.W_DATE,'yyyy-MM-dd HH:mm:ss'),'')as hawbDate
+			FROM TB_ORDER_LIST F1 LEFT OUTER JOIN TB_HAWB F2 ON F1.NNO = F2.NNO
+  			WHERE F1.HAWB_NO = #{hawbNo};
+	</select>
+	<select id="selectAciInfo" parameterType="String" resultType="hashMap">
+		SELECT LOGIN_ID as apiId, API_KEY as apiKey FROM TB_ITEM_CARRY WHERE ORG_STATION = #{orgStation}
+	</select>
+</mapper>

@@ -1,0 +1,1641 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.manager.mapper.ManagerInvoiceMapper">
+
+	<select id="selectEtcType" parameterType="hashMap" resultType="hashMap">
+		SELECT CODE as code ,
+               NAME as name 
+ 	     FROM TB_CODE 
+ 	    WHERE CODE_DIV = 'ETC_TYPE'
+	</select>
+	
+	<select id="selectEtcCnt" parameterType="hashMap" resultType="integer">			
+			SELECT COUNT(*)
+			 FROM TB_ETC
+			 WHERE ISNULL(HAWB_NO,'') LIKE CONCAT('%',#{hawbNo},'%')
+			   AND ISNULL(ETC_TYPE,'') LIKE CONCAT('%',#{etcType},'%')
+			   AND USER_ID LIKE  CONCAT('%',#{userId},'%')
+			   AND ORG_STATION = #{orgStation}
+	</select>
+	
+
+	<select id="selectEtc" parameterType="hashMap" resultType="hashMap">
+		SELECT * FROM ( 
+						SELECT  ROW_NUMBER() OVER(ORDER BY W_DATE DESC, ETC_DATE DESC) ROWNUM , 
+						        ROW_NUMBER() OVER(ORDER BY ETC_DATE DESC ) num ,
+						        ISNULL(idx,'') AS idx ,
+								ISNULL(NNO,'') AS nno ,
+								ISNULL(ORG_STATION,'') AS orgStation ,
+								ISNULL(USER_ID,'') AS userId ,
+								ISNULL(ETC_DATE,'') AS etcDate,
+								ISNULL(ETC_TYPE,'') AS etcType ,
+								ISNULL((SELECT NAME FROM TB_CODE WHERE CODE_DIV = 'ETC_TYPE' AND CODE = F1.ETC_TYPE),'') as etcName,
+								ISNULL(HAWB_NO,'') AS hawbNo ,
+								ISNULL(ETC_VALUE,0) AS etcValue ,
+								ISNULL(ETC_CURRENCY,'') AS etcCurrency ,
+								ISNULL(REMARK,'') AS remark ,
+								ISNULL(W_USER_ID,'') AS wUserId ,
+								ISNULL(W_USER_IP,'') AS wUserIp ,
+								ISNULL(CONVERT(VARCHAR(10),W_DATE,23),'') AS wDate 
+						 FROM TB_ETC F1
+						WHERE ISNULL(HAWB_NO,'') LIKE CONCAT('%',#{hawbNo},'%') 
+						  AND ISNULL(ETC_TYPE,'') LIKE CONCAT('%',#{etcType},'%')
+						  AND USER_ID LIKE  CONCAT('%',#{userId},'%')
+						  AND ORG_STATION = #{orgStation}
+						 ) M1
+			        WHERE ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd}
+	</select>
+	
+	<select id="selectEtcInfoRow" parameterType="hashMap" resultType="hashMap">
+		SELECT IDX as idx ,
+		       NNO as nno ,
+               ORG_STATION as orgStation ,
+               USER_ID as userId ,
+               ETC_DATE as etcDate ,
+               ETC_TYPE as etcType ,
+               HAWB_NO as hawbNo ,
+               ETC_VALUE as etcValue ,
+               ETC_CURRENCY as etcCurrency ,
+               REMARK as remark ,
+               W_USER_ID as wUserId ,
+               W_USER_IP as wUserIp ,
+               W_DATE  as wDate 
+          FROM TB_ETC 
+         WHERE idx = #{idx} 
+           AND USER_ID = #{userId}
+           AND ORG_STATION = #{orgStation}	
+	</select>
+	
+	<delete id="deleteTakeinEtc" parameterType="hashMap">
+		DELETE FROM TB_ETC
+		WHERE NNO = #{nno} AND ETC_TYPE = 'ETC_FEE'
+	</delete>
+	
+	<select id="selectCurrencyList" parameterType="hashMap" resultType="hashMap">
+
+		SELECT CODE as code, 
+		       NAME as name,
+		       ISNULL(CASE WHEN CODE = (SELECT CURRENCY FROM TB_STATION WHERE STATION_CODE = #{orgStation}) THEN 'CHKED' ELSE '' END,'') chk
+		  FROM TB_CODE 
+		 WHERE CODE_DIV = 'CURRENCY'
+	</select>
+
+	<select id="mgrEctInUp" parameterType="hashMap" resultType="hashMap">
+		DECLARE
+				@IDX NVARCHAR(50),
+				@ORG_STATION NVARCHAR(3),
+				@USER_ID NVARCHAR(50),
+				@ETC_DATE NVARCHAR(10),
+				@ETC_TYPE NVARCHAR(30),
+				@NNO NVARCHAR(50),
+				@HAWB_NO NVARCHAR(50),
+				@ETC_VALUE FLOAT,
+				@ETC_CURRENCY NVARCHAR(5),
+				@REMARK NVARCHAR(500),
+				@W_USER_ID NVARCHAR(50),
+				@W_USER_IP NVARCHAR(50),
+				@RST_STATUS NVARCHAR(10) ,
+				@RST_CODE NVARCHAR(10) ,
+				@RST_MSG  NVARCHAR(100) 
+				
+				SET @IDX = #{idx}
+				SET @ORG_STATION = #{orgStation}
+				SET @USER_ID = #{userId}
+				SET @NNO = #{nno}
+				SET @ETC_DATE = #{etcDate}
+				SET @ETC_TYPE = #{etcType}
+				SET @HAWB_NO = #{hawbNo}
+				SET @ETC_VALUE = #{etcValue}
+				SET @ETC_CURRENCY = #{etcCurrency}
+				SET @REMARK = #{remark}
+				SET @W_USER_ID = #{wUserId}
+				SET @W_USER_IP = #{wUserIp}
+				
+				EXEC SP_ETC_MERGE
+				@IDX,
+				@ORG_STATION,
+				@USER_ID,
+				@ETC_DATE,
+				@ETC_TYPE,
+				@NNO,
+				@HAWB_NO,
+				@ETC_VALUE,
+				@ETC_CURRENCY,
+				@REMARK,
+				@W_USER_ID ,
+				@W_USER_IP ,
+				@RST_STATUS OUTPUT ,
+				@RST_CODE OUTPUT ,
+				@RST_MSG OUTPUT 
+				
+				SELECT @RST_STATUS as  rstStatus , @RST_CODE as rstCode , @RST_MSG as rstMsg;
+	</select>
+	
+	<select id="insertEtcExcel" parameterType="hashMap" resultType="hashMap">
+		DECLARE
+				@IDX NVARCHAR(50),
+				@ORG_STATION NVARCHAR(3),
+				@USER_ID NVARCHAR(50),
+				@ETC_DATE NVARCHAR(10),
+				@ETC_TYPE NVARCHAR(30),
+				@NNO NVARCHAR(50),
+				@HAWB_NO NVARCHAR(50),
+				@ETC_VALUE FLOAT,
+				@ETC_CURRENCY NVARCHAR(5),
+				@REMARK NVARCHAR(500),
+				@W_USER_ID NVARCHAR(50),
+				@W_USER_IP NVARCHAR(50),
+				@RST_STATUS NVARCHAR(10) ,
+				@RST_CODE NVARCHAR(10) ,
+				@RST_MSG  NVARCHAR(100) 
+				
+				SET @IDX = #{idx}
+				SET @ORG_STATION = #{orgStation}
+				SET @USER_ID = ISNULL((SELECT USER_ID FROM TB_ORDER_LIST WHERE HAWB_NO = #{hawbNo}),(SELECT USER_ID FROM TB_ORDER_LIST WHERE HAWB_NO = (SELECT KEY_HAWB_NO FROM TB_MATCHING_INFO WHERE VALUE_MATCH_NO =#{hawbNo})))
+				SET @NNO = ISNULL((SELECT NNO FROM TB_ORDER_LIST WHERE HAWB_NO = #{hawbNo}),(SELECT NNO FROM TB_ORDER_LIST WHERE HAWB_NO = (SELECT KEY_HAWB_NO FROM TB_MATCHING_INFO WHERE VALUE_MATCH_NO =#{hawbNo})))
+				SET @ETC_DATE = #{etcDate}
+				SET @ETC_TYPE = #{etcType}
+				SET @HAWB_NO = ISNULL((SELECT KEY_HAWB_NO FROM TB_MATCHING_INFO WHERE VALUE_MATCH_NO =#{hawbNo}),#{hawbNo})
+				SET @ETC_VALUE = #{etcValue}
+				SET @ETC_CURRENCY = #{etcCurrency}
+				SET @REMARK = #{remark}
+				SET @W_USER_ID = #{wUserId}
+				SET @W_USER_IP = #{wUserIp}
+				
+				EXEC SP_ETC_MERGE
+				@IDX,
+				@ORG_STATION,
+				@USER_ID,
+				@ETC_DATE,
+				@ETC_TYPE,
+				@NNO,
+				@HAWB_NO,
+				@ETC_VALUE,
+				@ETC_CURRENCY,
+				@REMARK,
+				@W_USER_ID ,
+				@W_USER_IP ,
+				@RST_STATUS OUTPUT ,
+				@RST_CODE OUTPUT ,
+				@RST_MSG OUTPUT 
+				
+				SELECT @RST_STATUS as  rstStatus , @RST_CODE as rstCode , @RST_MSG as rstMsg;
+	</select>
+	
+	<select id="mgrEctDel" parameterType="hashMap" resultType="hashMap">
+	
+			DECLARE
+				@IDX NVARCHAR(50),
+				@ORG_STATION NVARCHAR(3),
+				@USER_ID NVARCHAR(50),
+				@W_USER_ID NVARCHAR(50),
+				@W_USER_IP NVARCHAR(50),
+				@RST_STATUS NVARCHAR(10) ,
+				@RST_CODE NVARCHAR(10) ,
+				@RST_MSG  NVARCHAR(100) 
+				
+				SET @IDX = #{idx}
+				SET @ORG_STATION = #{orgStation}
+				SET @USER_ID = #{userId}
+				SET @W_USER_ID = #{wUserId}
+				SET @W_USER_IP = #{wUserIp}
+				
+				EXEC SP_ETC_DEL
+				@IDX,
+				@ORG_STATION,
+				@USER_ID,
+				@W_USER_ID ,
+				@W_USER_IP ,
+				@RST_STATUS OUTPUT ,
+				@RST_CODE OUTPUT ,
+				@RST_MSG OUTPUT 
+				
+				SELECT @RST_STATUS as  rstStatus , @RST_CODE as rstCode , @RST_MSG as rstMsg;
+	</select>
+	
+	<select id="selectInvListCnt" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*)
+		 FROM (  
+		 	SELECT
+		         USER_ID ,
+		         ORG_STATION, 
+		         SUBSTRING(MAX(INV_DATE),1,6) INV_MONTH , 
+		         INVOICE_NO , 
+		         MAX(INV_FROM_DATE) FROM_DATE , 
+		         MAX(INV_TO_DATE) TO_DATE, 
+		         (SELECT COUNT(DISTINCT F1.NNO) 
+		         FROM TB_INVOICE F1, TB_HAWB F2 
+		         WHERE F1.NNO = F2.NNO 
+			         AND F1.USER_ID = F2.USER_ID
+			         AND F1.ORG_STATION = F2.ORG_STATION 
+			         AND F1.INVOICE_NO = M1.INVOICE_NO 
+			         AND F1.USER_ID = M1.USER_ID 
+			         AND F1.ORG_STATION = M1.ORG_STATION) AS BL_CNT,
+		         CONVERT(DECIMAL(38,2),SUM(INV_AMT)) TOTAL_INV_AMT,
+		         MAX(W_DATE) AS W_DATE
+		    FROM TB_INVOICE M1
+		   WHERE USER_ID LIKE CONCAT('%',#{userId},'%')
+		     AND ORG_STATION = #{orgStation}
+		     <if test="dlvType != null and dlvType == 'In'">
+		     	AND INVOICE_NO IN (SELECT INVOICE_NO FROM TB_INVOICE WHERE NNO IN (SELECT NNO FROM TB_HAWB WHERE USER_ID = M1.USER_ID AND NNO = M1.NNO
+		     						AND TRANS_CODE = 'CJ' AND ORG_STATION = M1.ORG_STATION))
+		     </if>
+		     <if test="dlvType != null and dlvType == 'Out'">
+		     	AND INVOICE_NO IN (SELECT INVOICE_NO FROM TB_INVOICE WHERE NNO IN (SELECT NNO FROM TB_HAWB WHERE USER_ID = M1.USER_ID AND NNO = M1.NNO
+		     						AND TRANS_CODE != 'CJ' AND ORG_STATION = M1.ORG_STATION))
+		     </if>
+		    GROUP BY ORG_STATION ,
+		             USER_ID , 
+		             INVOICE_NO
+		    <if test="invMonth != null and invMonth != ''">
+		    	HAVING SUBSTRING(MAX(INV_DATE),1,6) = #{invMonth}
+		    </if>
+		  ) M2
+		<!-- SELECT COUNT(*)
+			 FROM (  
+			  SELECT RANK() OVER(ORDER BY SUBSTRING(MAX(INV_DATE),1,6) DESC , USER_ID)  ROWNUM , 
+			         USER_ID , 
+			         SUBSTRING(MAX(INV_DATE),1,6) INV_MONTH , 
+			         INVOICE_NO , 
+			         MAX(INV_FROM_DATE) FROM_DATE , 
+			         MAX(INV_FROM_DATE) TO_DATE, 
+			         (SELECT COUNT(*) FROM TB_INVOICE A1 
+			           WHERE NNO IN (SELECT NNO FROM TB_HAWB WHERE USER_ID =A1.USER_ID AND ORG_STATION = A1.ORG_STATION)
+			             AND INVOICE_NO = F1.INVOICE_NO
+			             AND USER_ID = F1.USER_ID 
+			             AND ORG_STATION = F1.ORG_STATION 
+			           GROUP BY NNO) AS BL_CNT,
+			         CONVERT(DECIMAL(38,2),SUM(INV_AMT)) TOTAL_INV_AMT
+			    FROM TB_INVOICE F1
+			   WHERE USER_ID LIKE CONCAT('%',#{userId},'%')
+			     AND ORG_STATION =  #{orgStation}
+			    GROUP BY ORG_STATION , 
+			             USER_ID , 
+			             INVOICE_NO
+			  ) M1  -->
+	</select>
+	
+	<select id="selectInvList" parameterType="hashMap" resultType="hashMap">
+		SELECT *
+		 FROM (  
+		  SELECT 
+		  		ROW_NUMBER() OVER(ORDER BY SUBSTRING(MAX(INV_DATE),1,6) DESC, MAX(W_DATE) DESC)  ROWNUM,
+		         USER_ID ,
+		         ORG_STATION, 
+		         SUBSTRING(MAX(INV_DATE),1,6) INV_MONTH , 
+		         INVOICE_NO , 
+		         (SELECT COUNT(*) FROM TB_INVOICE 
+		           WHERE INV_TYPE IN ('ETC_FEE', 'ETC')
+		             AND INVOICE_NO = M1.INVOICE_NO 
+		             AND USER_ID = M1.USER_ID 
+		             AND ORG_STATION = M1.ORG_STATION
+		           ) ETC_ORDER_CNT,
+		         MAX(INV_FROM_DATE) FROM_DATE , 
+		         MAX(INV_TO_DATE) TO_DATE, 
+	             (SELECT COUNT(*) FROM TB_INVOICE WHERE INV_TYPE = 'Dlv' AND INVOICE_NO = M1.INVOICE_NO AND USER_ID = M1.USER_ID AND ORG_STATION = M1.ORG_STATION  ) BL_CNT,
+		         CONVERT(DECIMAL(38,2),SUM(INV_AMT)) TOTAL_INV_AMT,
+		         MAX(W_DATE) AS W_DATE
+		    FROM TB_INVOICE M1
+		   WHERE USER_ID LIKE CONCAT('%',#{userId},'%')
+		     AND ORG_STATION = #{orgStation}
+		     <if test="dlvType != null and dlvType == 'In'">
+		     	AND INVOICE_NO IN (SELECT INVOICE_NO FROM TB_INVOICE WHERE NNO IN (SELECT NNO FROM TB_HAWB WHERE USER_ID = M1.USER_ID AND NNO = M1.NNO
+		     						AND TRANS_CODE = 'CJ' AND ORG_STATION = M1.ORG_STATION))
+		     </if>
+		     <if test="dlvType != null and dlvType == 'Out'">
+		     	AND INVOICE_NO IN (SELECT INVOICE_NO FROM TB_INVOICE WHERE NNO IN (SELECT NNO FROM TB_HAWB WHERE USER_ID = M1.USER_ID AND NNO = M1.NNO
+		     						AND TRANS_CODE != 'CJ' AND ORG_STATION = M1.ORG_STATION))
+		     </if>
+		    GROUP BY ORG_STATION , 
+		             USER_ID , 
+		             INVOICE_NO 
+		    <if test="invMonth != null and invMonth != ''">
+		    	HAVING SUBSTRING(MAX(INV_DATE),1,6) = #{invMonth}
+		    </if>
+		  ) M2
+		  WHERE
+		  	M2.ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd} ORDER BY ROWNUM ASC
+			<!-- SELECT 
+			       USER_ID,
+			       ORG_STATION,
+			       INV_MONTH,
+			       INVOICE_NO,
+			       FROM_DATE,
+			       TO_DATE,
+			       (SELECT COUNT(DISTINCT F1.NNO) 
+			          FROM TB_INVOICE F1 , 
+			               TB_HAWB F2
+			         WHERE F1.NNO = F2.NNO
+			           AND F1.USER_ID = F2.USER_ID
+			           AND F1.ORG_STATION = F2.ORG_STATION
+			           AND F1.INVOICE_NO = M1.INVOICE_NO 
+			           AND F1.USER_ID = M1.USER_ID 
+			           AND F1.ORG_STATION = M1.ORG_STATION) AS BL_CNT,
+			       TOTAL_INV_AMT
+			 FROM (  
+			  SELECT RANK() OVER(ORDER BY SUBSTRING(MAX(INV_DATE),1,6) DESC , USER_ID)  ROWNUM ,
+			         ORG_STATION, 
+			         USER_ID ,
+			         SUBSTRING(MAX(INV_DATE),1,6) INV_MONTH , 
+			         INVOICE_NO , 
+			         MAX(INV_FROM_DATE) FROM_DATE , 
+			         MAX(INV_TO_DATE) TO_DATE, 
+			         CONVERT(DECIMAL(38,2),SUM(INV_AMT)) TOTAL_INV_AMT
+			    FROM TB_INVOICE 
+			   WHERE USER_ID LIKE CONCAT('%',#{userId},'%')
+			     AND ORG_STATION =  #{orgStation}
+			    GROUP BY ORG_STATION , 
+			             USER_ID , 
+			             INVOICE_NO 
+			  ) M1 
+			   WHERE ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd} ORDER BY INV_MONTH ASC -->
+	</select>
+	
+	
+	<select id="selectUnPricelist" parameterType="hashMap" resultType="hashMap">
+		DECLARE 
+			@FROM_DATE NVARCHAR(10),
+			@TO_DATE NVARCHAR(10),
+			@USER_ID NVARCHAR(50),
+			@ORG_STATION NVARCHAR(3)
+			
+			SET @ORG_STATION = #{orgStation}
+			SET @USER_ID = ''
+			
+		  SELECT USER_ID , 
+	           INV_MONTH , 
+	           SUM(CASE WHEN D_TYPE = 'BL' THEN  BL_CNT  ELSE 0 END ) BL_CNT, 
+	           SUM(CASE WHEN D_TYPE = 'ETC_FEE' THEN  BL_CNT  ELSE 0 END ) ETC_CNT
+	    FROM (
+		SELECT UPPER(USER_ID) AS USER_ID ,
+	           SUBSTRING(CONVERT(NVARCHAR(10),ETC_DATE,112),1,6) INV_MONTH,
+	           COUNT(*) BL_CNT ,
+	           'ETC_FEE' AS D_TYPE 
+ 	      FROM TB_ETC F1
+			WHERE USER_ID LIKE CONCAT('%',@USER_ID,'%')
+	        AND ETC_TYPE = 'ETC_FEE'
+	        AND F1.NNO NOT IN (SELECT NNO FROM TB_INVOICE WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION =F1.ORG_STATION)
+	        AND ORG_STATION = @ORG_STATION
+	        GROUP BY USER_ID ,SUBSTRING(CONVERT(NVARCHAR(10),ETC_DATE,112),1,6)
+	        UNION ALL
+			SELECT UPPER(USER_ID) AS USER_ID ,
+				   SUBSTRING(F2.DEP_DATE,1,6) INV_MONTH,
+				   COUNT(*) BL_CNT  ,
+				   'BL' AS D_TYPE 
+			FROM TB_HAWB F1 ,
+			      TB_MAWB F2
+			WHERE F1.MAWB_NO = F2.MAWB_NO
+				AND F1.ORG_STATION = F2.ORG_STATION
+			    AND ISNULL(F2.DEP_DATE,'') != ''
+			    AND F1.USER_ID LIKE CONCAT('%',@USER_ID,'%')
+			    AND F1.NNO NOT IN (SELECT NNO FROM TB_INVOICE WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION =F1.ORG_STATION)
+			    AND F1.ORG_STATION = @ORG_STATION
+			GROUP BY USER_ID ,  SUBSTRING(F2.DEP_DATE,1,6)
+			) M1 GROUP BY USER_ID , INV_MONTH
+		ORDER BY INV_MONTH DESC , USER_ID
+	</select>
+	
+		<select id="selectPricelistCnt" parameterType="hashMap" resultType="integer">
+		
+		DECLARE @FROM_DATE NVARCHAR(10),
+				@TO_DATE NVARCHAR(10),
+				@USER_ID NVARCHAR(50),
+				@ORG_STATION NVARCHAR(3)
+				
+				SET @FROM_DATE = #{fromDate}
+				SET @TO_DATE = #{toDate}
+				SET @ORG_STATION = #{orgStation}
+				SET @USER_ID = #{userId}
+				
+				
+		SELECT COUNT(*)
+		FROM (
+			SELECT 
+				ROW_NUMBER() OVER(ORDER BY USER_ID) ROWNUM,
+				*
+			FROM 
+				(SELECT 
+						F1.ORG_STATION ,
+				         UPPER(F1.USER_ID) AS USER_ID ,
+				         @FROM_DATE AS FROM_DATE, 
+				         @TO_DATE AS TO_DATE,
+				         'Y' AS PRICE_YN,
+				         
+				         (SELECT COUNT(*) FROM TB_INVOICE WHERE INV_TYPE = 'Dlv' AND INV_DATE BETWEEN @FROM_DATE AND  @TO_DATE AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) AS PRICE_BL,
+				         (SELECT COUNT(*) FROM TB_INVOICE WHERE INV_TYPE = 'ETC_FEE' AND INV_DATE BETWEEN @FROM_DATE AND @TO_DATE AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) AS ETC_BL,
+				          COUNT(*) - (SELECT COUNT(*) FROM TB_INVOICE WHERE  INV_TYPE = 'Dlv' AND INV_DATE BETWEEN @FROM_DATE AND  @TO_DATE AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION)  AS UNPRICE_BL_CNT
+				FROM TB_HAWB F1, TB_ORDER_LIST F2
+				WHERE F1.NNO = F2.NNO 
+				  AND F1.USER_ID = F2.USER_ID
+				  AND F1.ORG_STATION = F2.ORG_STATION
+				  AND F1.MAWB_NO IN (SELECT MAWB_NO FROM TB_MAWB WHERE DEP_DATE BETWEEN @FROM_DATE AND @TO_DATE AND ORG_STATION = @ORG_STATION)
+				  AND F1.USER_ID LIKE CONCAT('%',@USER_ID,'%')
+				  AND F1.ORG_STATION = @ORG_STATION
+				GROUP BY F1.ORG_STATION,  F1.USER_ID
+				UNION ALL
+				SELECT 
+						F1.ORG_STATION ,
+				         UPPER(F1.USER_ID) AS USER_ID ,
+				         @FROM_DATE AS FROM_DATE, 
+				         @TO_DATE AS TO_DATE,
+				         'Y' AS PRICE_YN,
+				         (SELECT COUNT(*) FROM TB_INVOICE WHERE INV_TYPE = 'Dlv' AND INV_DATE BETWEEN @FROM_DATE AND  @TO_DATE AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) AS PRICE_BL,
+				          (SELECT COUNT(*) FROM TB_ETC WHERE ETC_TYPE = 'ETC_FEE' AND CONVERT(NVARCHAR(10),ETC_DATE,112) BETWEEN @FROM_DATE AND  @TO_DATE AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) AS ETC_BL ,
+	                    COUNT(*) - (SELECT COUNT(*) FROM TB_INVOICE WHERE  INV_TYPE = 'ETC_FEE' AND INV_DATE BETWEEN @FROM_DATE AND  @TO_DATE AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) AS UNPRICE_BL_CNT
+				FROM TB_ETC F1
+				WHERE
+					F1.ETC_DATE BETWEEN @FROM_DATE AND @TO_DATE
+	            	AND F1.ETC_TYPE = 'ETC_FEE'
+	            	AND F1.USER_ID LIKE CONCAT('%',@USER_ID,'%') 
+	            	AND F1.ORG_STATION = @ORG_STATION
+	           		GROUP BY F1.ORG_STATION , F1.USER_ID
+				) M1
+		GROUP BY ORG_STATION, USER_ID, FROM_DATE, TO_DATE, PRICE_YN, PRICE_BL, ETC_BL, UNPRICE_BL_CNT
+		) A1
+	</select>
+	
+		
+	<select id="selectPricelist" parameterType="hashMap" resultType="hashMap">
+		DECLARE @FROM_DATE NVARCHAR(10),
+				@TO_DATE NVARCHAR(10),
+				@USER_ID NVARCHAR(50),
+				@ORG_STATION NVARCHAR(3)
+				
+		SET @FROM_DATE = #{fromDate}
+		SET @TO_DATE = #{toDate}
+		SET @ORG_STATION = #{orgStation}
+		SET @USER_ID = #{userId}
+		
+		SELECT *
+		FROM (
+			SELECT 
+				ROW_NUMBER() OVER(ORDER BY USER_ID) ROWNUM,
+				*
+			FROM 
+				(SELECT 
+						F1.ORG_STATION ,
+				         UPPER(F1.USER_ID) AS USER_ID ,
+				         @FROM_DATE AS FROM_DATE, 
+				         @TO_DATE AS TO_DATE,
+				         'Y' AS PRICE_YN,
+				         
+				         (SELECT COUNT(*) FROM TB_INVOICE WHERE INV_TYPE = 'Dlv' AND INV_DATE BETWEEN @FROM_DATE AND  @TO_DATE AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) AS PRICE_BL,
+				         (SELECT COUNT(*) FROM TB_INVOICE WHERE INV_TYPE = 'ETC_FEE' AND INV_DATE BETWEEN @FROM_DATE AND @TO_DATE AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) AS ETC_BL,
+				          COUNT(*) - (SELECT COUNT(*) FROM TB_INVOICE WHERE  INV_TYPE = 'Dlv' AND INV_DATE BETWEEN @FROM_DATE AND  @TO_DATE AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION)  AS UNPRICE_BL_CNT
+				FROM TB_HAWB F1, TB_ORDER_LIST F2
+				WHERE F1.NNO = F2.NNO 
+				  AND F1.USER_ID = F2.USER_ID
+				  AND F1.ORG_STATION = F2.ORG_STATION
+				  AND F1.MAWB_NO IN (SELECT MAWB_NO FROM TB_MAWB WHERE DEP_DATE BETWEEN @FROM_DATE AND @TO_DATE AND ORG_STATION = @ORG_STATION)
+				  AND F1.USER_ID LIKE CONCAT('%',@USER_ID,'%')
+				  AND F1.ORG_STATION = @ORG_STATION
+				GROUP BY F1.ORG_STATION,  F1.USER_ID
+				UNION ALL
+				SELECT 
+						F1.ORG_STATION ,
+				         UPPER(F1.USER_ID) AS USER_ID ,
+				         @FROM_DATE AS FROM_DATE, 
+				         @TO_DATE AS TO_DATE,
+				         'Y' AS PRICE_YN,
+				         (SELECT COUNT(*) FROM TB_INVOICE WHERE INV_TYPE = 'Dlv' AND INV_DATE BETWEEN @FROM_DATE AND  @TO_DATE AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) AS PRICE_BL,
+				          (SELECT COUNT(*) FROM TB_ETC WHERE ETC_TYPE = 'ETC_FEE' AND CONVERT(NVARCHAR(10),ETC_DATE,112) BETWEEN @FROM_DATE AND  @TO_DATE AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) AS ETC_BL ,
+	                    COUNT(*) - (SELECT COUNT(*) FROM TB_INVOICE WHERE  INV_TYPE = 'ETC_FEE' AND INV_DATE BETWEEN @FROM_DATE AND  @TO_DATE AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) AS UNPRICE_BL_CNT
+				FROM TB_ETC F1
+				WHERE
+					F1.ETC_DATE BETWEEN @FROM_DATE AND @TO_DATE
+	            	AND F1.ETC_TYPE = 'ETC_FEE'
+	            	AND F1.USER_ID LIKE CONCAT('%',@USER_ID,'%') 
+	            	AND F1.ORG_STATION = @ORG_STATION
+	           		GROUP BY F1.ORG_STATION , F1.USER_ID
+				) M1
+		GROUP BY ORG_STATION, USER_ID, FROM_DATE, TO_DATE, PRICE_YN, PRICE_BL, ETC_BL, UNPRICE_BL_CNT
+		) A1
+		WHERE ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd}
+		ORDER BY ROWNUM
+
+	</select>
+	
+	
+<!-- 	<select id="spInvoiceApply" parameterType="hashMap" resultType="hashMap">
+		
+		DECLARE  @ORG_STATION NVARCHAR(3),
+		 @USER_ID NVARCHAR(50),
+		 @FROM_DATE NVARCHAR(10),
+		 @TO_DATE NVARCHAR(10),
+         @W_USER_ID NVARCHAR(50) ,
+         @W_USER_IP NVARCHAR(10) ,
+         @RST_STATUS NVARCHAR(10) ,
+		 @RST_CODE NVARCHAR(10) ,
+         @RST_MSG  NVARCHAR(100) 
+
+		 SET @ORG_STATION = #{orgStation}   
+		 SET @USER_ID  = #{userId}
+		 SET @FROM_DATE = #{fromDate}
+		 SET @TO_DATE = #{toDate}
+		 SET @W_USER_ID = #{wUserId}
+		 SET @W_USER_IP = #{wUserIp}
+
+		 EXEC SP_INVOICE_APPLY
+		 @ORG_STATION ,
+		 @USER_ID ,
+		 @FROM_DATE ,
+		 @TO_DATE ,
+		 @W_USER_ID ,
+		 @W_USER_IP ,
+		 @RST_STATUS OUTPUT,
+		 @RST_CODE OUTPUT,
+		 @RST_MSG  OUTPUT
+		 
+		 SELECT @RST_STATUS as rstStatus, @RST_CODE as rstCode ,@RST_MSG as rstMsg
+		 
+	</select> -->
+	
+	<select id="spInvoiceApply" parameterType="hashMap" resultType="hashMap">
+		
+		DECLARE  @ORG_STATION NVARCHAR(3),
+		 @USER_ID NVARCHAR(50),
+		 @FROM_DATE NVARCHAR(10),
+		 @TO_DATE NVARCHAR(10),
+         @W_USER_ID NVARCHAR(50) ,
+         @W_USER_IP NVARCHAR(10) ,
+         @RST_STATUS NVARCHAR(10) ,
+		 @RST_CODE NVARCHAR(10) ,
+         @RST_MSG  NVARCHAR(100) 
+
+		 SET @ORG_STATION = #{orgStation}   
+		 SET @USER_ID  = #{userId}
+		 SET @FROM_DATE = #{fromDate}
+		 SET @TO_DATE = #{toDate}
+		 SET @W_USER_ID = #{wUserId}
+		 SET @W_USER_IP = #{wUserIp}
+
+		 EXEC SP_INVOICE_APPLY_BK3
+		 @ORG_STATION ,
+		 @USER_ID ,
+		 @FROM_DATE ,
+		 @TO_DATE ,
+		 @W_USER_ID ,
+		 @W_USER_IP ,
+		 @RST_STATUS OUTPUT,
+		 @RST_CODE OUTPUT,
+		 @RST_MSG  OUTPUT
+		 
+		 SELECT @RST_STATUS as rstStatus, @RST_CODE as rstCode ,@RST_MSG as rstMsg
+		 
+	</select>
+	
+
+	<select id="invoiceExcelDown" parameterType="hashMap" resultType="hashMap">
+		SELECT DISTINCT * FROM (
+			SELECT   ISNULL(F1.INV_DATE,'') AS INV_DATE,
+			         F1.ORG_STATION ,
+			         ISNULL(F3.DSTN_NATION,'') AS DSTN_NATION ,
+			         ISNULL(F3.ORDER_NO,'') AS ORDER_NO, 
+			         F2.HAWB_NO,
+			         ISNULL(F2.AGENCY_BL,'') AS AGENCY_BL,
+			         ISNULL(ORDER_TYPE,'') AS ORDER_TYPE ,
+			         ISNULL((SELECT NAME FROM TB_CODE WHERE CODE_DIV = 'ORDER_TYPE' AND CODE = F3.ORDER_TYPE),'') AS  ORDER_TYPE_NAME,
+			         ISNULL(F3.SHIPPER_NAME,'') AS SHIPPER_NAME ,
+					 ISNULL(F3.CNEE_NAME,'') AS CNEE_NAME ,
+					 ISNULL(F3.CNEE_STATE,'') AS CNEE_STATE,
+					 ISNULL(F3.CNEE_CITY,'') AS CNEE_CITY,
+					 ISNULL(F3.CNEE_ZIP,'') AS CNEE_ZIP,
+					 ISNULL(F3.CNEE_ADDR,'') AS CNEE_ADDR,
+					 ISNULL(F3.CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL,
+					 (SELECT BOX_CNT FROM TB_HAWB WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) AS BOX_CNT,
+			         (SELECT COUNT(*) FROM TB_HAWB_ITEM WHERE NNO = F1.NNO AND USER_ID =F1.USER_ID AND ORG_STATION = F1.ORG_STATION)  SKU_CNT ,
+			         ISNULL((SELECT SUM(ITEM_CNT) FROM TB_HAWB_ITEM WHERE NNO = F1.NNO AND USER_ID =F1.USER_ID AND ORG_STATION = F1.ORG_STATION),'')  TOTAL_ITEM_CNT ,
+			        ISNULL(STUFF((
+			          SELECT ',' , (SELECT ITEM_DETAIL FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO = A1.SUB_NO AND USER_ID = A1.USER_ID AND ORG_STATION = A1.ORG_STATION)
+			          FROM TB_HAWB_ITEM A1
+			          WHERE NNO = F1.NNO 
+			            AND USER_ID = F1.USER_ID
+			            AND ORG_STATION = F1.ORG_STATION
+			            FOR XML PATH('')), 1, 1, ''),'') ITEM_DETATIL ,
+			          ISNULL(STUFF((
+			          SELECT ',' , (SELECT CUS_ITEM_CODE FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO = A1.SUB_NO AND USER_ID = A1.USER_ID AND ORG_STATION = A1.ORG_STATION)
+			          FROM TB_HAWB_ITEM A1
+			          WHERE NNO = F1.NNO 
+			            AND USER_ID = F1.USER_ID
+			            AND ORG_STATION = F1.ORG_STATION
+			            FOR XML PATH('')), 1, 1, ''),'') CUS_ITEM_CODE ,
+			          ISNULL(STUFF((
+			          SELECT ',' ,  CONCAT(WIDTH,'*',HEIGHT,'*',LENGTH,'/',PER)
+			          FROM TB_VOLUME A1
+			          WHERE NNO = F1.NNO 
+			            AND USER_ID = F1.USER_ID
+			            AND ORG_STATION = F1.ORG_STATION
+			            FOR XML PATH('')), 1, 1, ''),'') VOLUME,
+			            ISNULL(F2.APPLY_WTA,0) AS WTA,
+			            ISNULL(F2.APPLY_WTC,0) AS WTC,
+			            ISNULL(F2.APPLY_WT,0) AS INV_WT,
+			            ISNULL((    
+				         SELECT SUM(AAA.UNIT_VALUE*AAA.ITEM_CNT) FROM 
+				         
+				         (
+					         SELECT
+						         (SELECT UNIT_VALUE FROM TB_TAKEIN_CODE WHERE CUS_ITEM_CODE = K1.CUS_ITEM_CODE) AS UNIT_VALUE,
+						         ITEM_CNT
+						     FROM TB_ORDER_ITEM K1 WHERE NNO = F1.NNO
+						 ) AS AAA ),0) UNIT, 
+			            ISNULL(dbo.FN_DELIVERY_CHG(F1.ORG_STATION,F1.USER_ID,F1.NNO,'APP_WT'),0) AS DLV_APPLY_WT,
+						ISNULL((SELECT SUM(INV_AMT) FROM TB_INVOICE WHERE NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND INV_TYPE = 'DLV' AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),'') AS  DLV_AMT,
+						ISNULL((SELECT SUM(INV_AMT) FROM TB_INVOICE WHERE NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND INV_TYPE = 'Clearance' AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),'') AS  CLEARANCE_AMT,
+						ISNULL((SELECT SUM(INV_AMT) FROM TB_INVOICE WHERE NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND INV_TYPE = 'ExportDecl' AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),'') AS  EXPORTDECL_AMT,
+						ISNULL((SELECT SUM(INV_AMT) FROM TB_INVOICE WHERE NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND INV_TYPE = 'PAP' AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),'') AS  PAP_AMT,
+						ISNULL((SELECT SUM(INV_AMT) FROM TB_INVOICE WHERE NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND INV_TYPE = 'ETC' AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),'') AS ETC_AMT
+			  FROM TB_INVOICE F1 ,
+			       VI_APPLY_WT_INFO F2  ,
+			       TB_ORDER_LIST F3
+			 WHERE (SELECT HAWB_NO FROM TB_HAWB WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) = F2.HAWB_NO
+			   AND F1.USER_ID = F2.USER_ID
+			   AND F1.ORG_STATION = F2.ORG_STATION
+			   AND F1.NNO = F3.NNO
+			   AND F1.USER_ID = F3.USER_ID
+			   AND F1.ORG_STATION = F3.ORG_STATION
+			   AND F1.INVOICE_NO =  #{invoiceNo}
+			   AND F1.USER_ID = #{userId}
+			   AND F1.ORG_STATION = #{orgStation}
+			 ) M1
+			 ORDER BY M1.INV_DATE
+	</select>
+	
+	
+	<select id="selectARListCnt" parameterType="hashMap" resultType="integer">
+		SELECT count(*) FROM (
+				SELECT RANK() OVER(ORDER BY USER_ID) ROWNUM,
+				       UPPER(USER_ID) AS userId , 
+				       (SELECT UPPER(COM_NAME) FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) comName ,
+				       INVOICE_NO AS invoiceNo,
+				       MAX(INV_FROM_DATE) AS invFromDate,
+				       MAX(INV_TO_DATE) AS invToDate,
+				       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) invAmt , 
+				       CONVERT(DECIMAL(38,2),(SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION)) as receivedAmt , 
+				       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) - CONVERT(DECIMAL(38,2),(SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION)) AS BalanceAmt,
+				        (SELECT COUNT(*) FROM TB_INVOICE WHERE INV_TYPE = 'Dlv' AND INVOICE_NO = F1.INVOICE_NO  and USER_ID = F1.USER_ID AND ORG_STATION =F1.ORG_STATION) AS blCnt
+				  FROM TB_INVOICE F1 
+				 WHERE INVOICE_NO NOT IN (SELECT INVOICE_NO FROM TB_INVOICE_COMFIRM WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND  ORG_STATION = F1.ORG_STATION)
+				   AND ORG_STATION = #{orgStation}
+				   <if test='userId != null and userId != ""'>
+				   		AND USER_ID LIKE CONCAT('%', #{userId}, '%')
+				   </if>
+				GROUP BY ORG_STATION,USER_ID, INVOICE_NO
+				) M1
+				
+		<!-- SELECT count(*) FROM (
+			SELECT RANK() OVER(ORDER BY USER_ID) ROWNUM,
+			       UPPER(USER_ID) AS USER_ID , 
+			       (SELECT UPPER(COM_NAME) FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) COM_NAME ,
+			       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) INV_AMT , 
+			       0 RECEIVED_AMT , 
+			       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) - 0 AS BALANCE_AMT
+			  FROM TB_INVOICE F1 
+			 WHERE INVOICE_NO NOT IN (SELECT INVOICE_NO FROM TB_INVOICE_COMFIRM WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND  ORG_STATION = F1.ORG_STATION)
+			   AND ORG_STATION = #{orgStation}
+			GROUP BY USER_ID
+			) M1 -->
+	</select>
+	
+	<select id="selectBoxSizeList" parameterType ="String" resultType="hashMap">
+		SELECT
+			CODE AS code,
+			NAME AS name,
+			ISNULL(CASE WHEN CODE = (SELECT BOX_TYPE FROM TB_TAKEIN_ETC_ORDER WHERE NNO = #{nno}) THEN 'CHK' ELSE '' END, '') AS boxChk
+		FROM TB_CODE WHERE CODE_DIV = 'BOX_SIZE'
+	</select>
+	
+	<select id="selectClearance" parameterType="String" resultType="hashMap">
+		SELECT 
+			ISNULL(ORG_STATION,'') as orgStation,
+			ISNULL(USER_ID,'') as userId,
+			ISNULL(HAWB_NO,'') as hawbNo,
+			ISNULL((SELECT VALUE_MATCH_NO FROM TB_MATCHING_INFO WHERE KEY_HAWB_NO = F1.HAWB_NO),'') as agencyBl,
+			CONVERT(CHAR(19), W_DATE, 20) AS wDate
+		FROM TB_CLEARANCE F1
+		<if test='startDate != null and startDate != "" and endDate != null and endDate != ""'> 
+			WHERE W_DATE BETWEEN #{startDate}+' 00:00:00' AND #{endDate}+' 23:59:59'
+		</if>
+		ORDER BY W_DATE 
+	</select>
+	
+	<select id="selectClearanceCnt" parameterType="String" resultType="hashMap">
+		SELECT f1.wDate, COUNT(wDate) AS clearanceCnt FROM (select ORG_STATION as orgStation,
+			USER_ID as userId,
+			HAWB_NO as hawbNo,
+			CONVERT(CHAR(8), W_DATE, 112) AS wDate
+			 FROM TB_CLEARANCE 
+			 <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'> 
+				WHERE W_DATE BETWEEN #{startDate}+' 00:00:00' AND #{endDate}+' 23:59:59'
+			</if>
+			 ) AS F1 GROUP BY F1.wDate
+			 Order by F1.wDate desc
+	</select>
+	
+	<insert id="insertClearance" parameterType="hashMap">
+		INSERT INTO 
+			TB_CLEARANCE (
+				ORG_STATION, 
+				[USER_ID], 
+				HAWB_NO, 
+				W_USER_ID, 
+				W_USER_IP, 
+				W_DATE
+			) VALUES ( 
+				#{orgStation}, 
+				(SELECT USER_ID FROM TB_HAWB WHERE HAWB_NO = ISNULL((SELECT KEY_HAWB_NO FROM TB_MATCHING_INFO WHERE VALUE_MATCH_NO =#{hawbNo}),#{hawbNo})), 
+				ISNULL((SELECT KEY_HAWB_NO FROM TB_MATCHING_INFO WHERE VALUE_MATCH_NO =#{hawbNo}),#{hawbNo}), 
+				#{wUserId}, 
+				#{wUserIp}, 
+				GETDATE());
+	</insert>
+	
+	<select id="selectChkClearance" parameterType="hashMap" resultType="String">
+		select ISNULL(hawb_no,'') from tb_clearance where hawb_no = #{hawbNo}
+	</select>
+
+
+
+	<select id="selectARList" parameterType="hashMap" resultType="hashMap">
+		SELECT * FROM (
+			SELECT RANK() OVER(ORDER BY USER_ID) ROWNUM,
+			       UPPER(USER_ID) AS userId , 
+			       (SELECT UPPER(COM_NAME) FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) comName ,
+			       INVOICE_NO AS invoiceNo,
+			       MAX(INV_FROM_DATE) AS invFromDate,
+			       MAX(INV_TO_DATE) AS invToDate,
+			       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) invAmt , 
+			       CONVERT(DECIMAL(38,2),(SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION)) as receivedAmt , 
+			       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) - CONVERT(DECIMAL(38,2),(SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION)) AS BalanceAmt,
+			        (SELECT COUNT(*) FROM TB_INVOICE WHERE INV_TYPE = 'Dlv' AND INVOICE_NO = F1.INVOICE_NO  and USER_ID = F1.USER_ID AND ORG_STATION =F1.ORG_STATION) AS blCnt
+			  FROM TB_INVOICE F1 
+			 WHERE INVOICE_NO NOT IN (SELECT INVOICE_NO FROM TB_INVOICE_COMFIRM WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND  ORG_STATION = F1.ORG_STATION)
+			   AND ORG_STATION = #{orgStation}
+			   <if test='userId != null and userId != ""'>
+			   		AND USER_ID LIKE CONCAT('%', #{userId}, '%')
+			   </if>
+			GROUP BY ORG_STATION,USER_ID, INVOICE_NO
+			) M1
+		WHERE ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd} ORDER BY ROWNUM
+	</select>
+	
+	<select id="selectARComfirmCnt" parameterType="hashMap" resultType="integer">
+		SELECT count(*) FROM (
+			SELECT RANK() OVER(ORDER BY USER_ID) ROWNUM,
+			       UPPER(USER_ID) AS USER_ID , 
+			       (SELECT UPPER(COM_NAME) FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) COM_NAME ,
+			       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) INV_AMT , 
+			       0 RECEIVED_AMT , 
+			       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) - 0 AS BALANCE_AMT
+			  FROM TB_INVOICE F1 
+			 WHERE INVOICE_NO IN (SELECT INVOICE_NO FROM TB_INVOICE_COMFIRM WHERE DECISION_YN = 'N' AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND  ORG_STATION = F1.ORG_STATION)
+			   AND ORG_STATION = #{orgStation}
+			   <if test='userId != null and userId != ""'>
+			   		AND USER_ID LIKE CONCAT('%', #{userId}, '%')
+			   </if>
+			GROUP BY USER_ID
+			) M1
+	</select>
+	
+	<select id="selectARComfirmList" parameterType="hashMap" resultType="hashMap">
+		SELECT * FROM (
+			SELECT RANK() OVER(ORDER BY USER_ID) ROWNUM,
+			       UPPER(USER_ID) AS userId , 
+			       (SELECT UPPER(COM_NAME) FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) comName ,
+			       INVOICE_NO AS invoiceNo,
+			       MAX(INV_FROM_DATE) AS invFromDate,
+			       MAX(INV_TO_DATE) AS invToDate,
+			       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) invAmt , 
+			       CONVERT(DECIMAL(38,2),(SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION)) as receivedAmt , 
+			       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) - CONVERT(DECIMAL(38,2),(SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION)) AS BalanceAmt,
+			        (SELECT COUNT(*) FROM TB_INVOICE WHERE INV_TYPE = 'Dlv' AND INVOICE_NO = F1.INVOICE_NO  and USER_ID = F1.USER_ID AND ORG_STATION =F1.ORG_STATION) AS blCnt
+			  FROM TB_INVOICE F1 
+			 WHERE INVOICE_NO IN (SELECT INVOICE_NO FROM TB_INVOICE_COMFIRM WHERE DECISION_YN = 'N' AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND  ORG_STATION = F1.ORG_STATION)
+			   AND ORG_STATION = #{orgStation}
+			GROUP BY ORG_STATION,USER_ID, INVOICE_NO
+			) M1
+		WHERE ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd}
+	</select>
+	
+	<select id="selectARDecisionCnt" parameterType="hashMap" resultType="integer">
+		SELECT count(*) FROM (
+			SELECT RANK() OVER(ORDER BY USER_ID) ROWNUM,
+			       UPPER(USER_ID) AS USER_ID , 
+			       (SELECT UPPER(COM_NAME) FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) COM_NAME ,
+			       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) INV_AMT , 
+			       0 RECEIVED_AMT , 
+			       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) - 0 AS BALANCE_AMT
+			  FROM TB_INVOICE F1 
+			 WHERE INVOICE_NO IN (SELECT INVOICE_NO FROM TB_INVOICE_COMFIRM WHERE DECISION_YN = 'Y' AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND  ORG_STATION = F1.ORG_STATION)
+			   AND ORG_STATION = #{orgStation}
+			GROUP BY USER_ID
+			) M1
+	</select>
+	
+	<select id="selectARDecisionList" parameterType="hashMap" resultType="hashMap">
+		SELECT * FROM (
+			SELECT RANK() OVER(ORDER BY USER_ID) ROWNUM,
+			       UPPER(USER_ID) AS userId , 
+			       (SELECT UPPER(COM_NAME) FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) comName ,
+			       INVOICE_NO AS invoiceNo,
+			       MAX(INV_FROM_DATE) AS invFromDate,
+			       MAX(INV_TO_DATE) AS invToDate,
+			       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) invAmt , 
+			       CONVERT(DECIMAL(38,2),(SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION)) as receivedAmt , 
+			       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) - CONVERT(DECIMAL(38,2),(SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION)) AS BalanceAmt,
+			        (SELECT COUNT(*) FROM TB_INVOICE WHERE INV_TYPE = 'Dlv' AND INVOICE_NO = F1.INVOICE_NO  and USER_ID = F1.USER_ID AND ORG_STATION =F1.ORG_STATION) AS blCnt
+			  FROM TB_INVOICE F1 
+			 WHERE INVOICE_NO IN (SELECT INVOICE_NO FROM TB_INVOICE_COMFIRM WHERE DECISION_YN = 'Y' AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND  ORG_STATION = F1.ORG_STATION)
+			   AND ORG_STATION = #{orgStation}
+			GROUP BY ORG_STATION,USER_ID, INVOICE_NO
+			) M1
+		WHERE ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd}
+	</select>
+
+	
+	<select id="selectUserInfo" parameterType="hashMap" resultType="hashMap">
+			SELECT USER_ID , 
+			       COM_NAME , 
+			       USER_TEL , 
+			       USER_ADDR , 
+			       USER_ADDR_DETAIL,
+			       (SELECT SUBSTRING(MAX(INV_FROM_DATE),1,6) FROM TB_INVOICE WHERE INVOICE_NO = #{invoiceNo} AND USER_ID = #{userId}) INV_MONTH 
+			  FROM TB_CUSTOMER
+			 WHERE USER_ID = #{userId}
+	</select>
+	
+	
+	<select id="selectreceivedCodeList" parameterType="hashMap" resultType="hashMap">
+			SELECT ORG_STATION,RECEIVED_CODE,RECEIVED_NAME,W_USER_ID,W_USER_IP,W_DATE
+			  FROM TB_RECEIVED_CODE
+			 WHERE ORG_STATION = #{orgStation}
+	</select>
+	
+	
+	<select id="selectInvoiceInfo" parameterType="hashMap" resultType="hashMap">
+			SELECT CONVERT(NVARCHAR(10),GETDATE(),112) AS DUE_DATE,
+			       ISNULL(MAX(STATION_ADDR),'') AS STATION_ADDR , 
+			       ISNULL(MAX(STATION_TEL),'') AS STATION_TEL ,
+			       MAX(INVOICE_NO) AS INVOICE_NO ,
+			       MIN(INV_FROM_DATE) AS INV_FROM_DATE ,
+			       MIN(INV_TO_DATE) AS INV_TO_DATE ,
+			       CONVERT(DECIMAL(38,2),SUM(INV_AMT)) AS TOTAL_VALUE ,
+			       MAX(COM_NAME) AS COM_NAME,
+			       MAX(USER_ADDR) AS USER_ADDR ,
+			       MAX(USER_ADDR_DETAIL) AS USER_ADDR_DETAIL ,
+			       MAX(USER_TEL) AS USER_TEL       
+			  FROM TB_INVOICE F1 ,
+			       TB_STATION F2 ,
+			       TB_CUSTOMER F3
+			 WHERE F1.ORG_STATION = F2.STATION_CODE
+			   AND F1.USER_ID = F3.USER_ID
+			   AND F1.INVOICE_NO =  #{invoiceNo}
+			   AND F1.USER_ID = #{userId}
+			   AND F1.ORG_STATION = #{orgStation}
+	</select>
+	
+	<select id="selectInvoiceStatusList" parameterType="hashMap" resultType="hashMap">
+		SELECT ORG_STATION AS orgStation,
+		       USER_ID AS userId,
+		       INVOICE_NO AS invoiceNo,
+		       (SELECT CURRENCY FROM TB_STATION WHERE STATION_CODE = F1.ORG_STATION) AS orgCurrency,
+		       CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)) invAmt , 
+			   ISNULL(CONVERT(DECIMAL(38,2),(SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION)),0) as receivedAmt , 
+			   ISNULL(CONVERT(DECIMAL(38,2) ,SUM(INV_AMT)),0) - ISNULL(CONVERT(DECIMAL(38,2),(SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION)),0) AS balanceAmt
+		  FROM TB_INVOICE F1 
+		 WHERE F1.INVOICE_NO =  #{invoiceNo}
+		   AND F1.USER_ID = #{userId}
+		   AND F1.ORG_STATION = #{orgStation}
+		 GROUP BY F1.ORG_STATION,F1.USER_ID,F1.INVOICE_NO
+	</select>
+
+	<select id="selecInvoiceList" parameterType="hashMap" resultType="hashMap">
+			SELECT ISNULL((SELECT DEP_DATE FROM TB_MAWB WHERE MAWB_NO = F2.MAWB_NO AND ORG_STATION = F2.ORG_STATION),'') DEP_DATE,
+			       F2.HAWB_NO,
+			       F3.ORDER_NO,
+			       F3.CNEE_NAME,
+			       F2.DSTN_NATION,
+			       ISNULL((SELECT APPLY_WT FROM VI_APPLY_WT_INFO WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),'') APPLY_WT ,
+			       F2.BOX_CNT,
+/*
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'Dlv' AND NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) DLV_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'FSC' AND NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) FSC_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'Insp' AND NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) INSP_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'AddBL' AND NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) ADDBL_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'Clearance' AND NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) CLEARANCE_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'Quarantine' AND NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) QUARANTINE_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'ExportDecl' AND NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) EXPORT_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'PaP' AND NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) PAP_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'SURCHR' AND NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) SUR_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'ETC' AND NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) ETC_CHG
+*/
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'Dlv' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) DLV_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'FSC' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) FSC_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'Insp' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) INSP_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'AddBL' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) ADDBL_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'Clearance' AND NNO = F1.NNO  AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) CLEARANCE_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'Quarantine' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) QUARANTINE_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'ExportDecl' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) EXPORT_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'PaP' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) PAP_CHG,
+			       ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'SURCHR' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) SUR_CHG,
+			       ISNULL((SELECT SUM(CONVERT(DECIMAL(38,2),INV_AMT)) FROM TB_INVOICE WHERE INV_TYPE IN ( 'ETC','ETC_FEE') AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) ETC_CHG
+
+			  FROM (
+			SELECT ORG_STATION ,
+			       USER_ID  ,
+			       INVOICE_NO,
+			       NNO 
+			  FROM TB_INVOICE
+			 WHERE INVOICE_NO =  #{invoiceNo}
+			   AND USER_ID = #{userId}
+			   AND ORG_STATION = #{orgStation}
+			GROUP BY ORG_STATION ,
+			         USER_ID  ,
+			         INVOICE_NO ,
+			         NNO ) F1, 
+			         TB_HAWB F2 ,
+			         TB_ORDER_LIST F3
+			 WHERE F1.NNO  = F2.NNO
+			   AND F1.USER_ID = F2.USER_ID
+			   AND F1.ORG_STATION = F2.ORG_STATION
+			   AND F1.NNO = F3.NNO
+			   AND F1.USER_ID = F3.USER_ID
+			   AND F1.ORG_STATION = F3.ORG_STATION
+			 ORDER BY DEP_DATE ASC
+	</select>
+	
+	<select id="selectDstnNationByInvNo" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*)
+		FROM (
+			SELECT NNO, USER_ID, ORG_STATION
+			FROM TB_INVOICE
+			WHERE INVOICE_NO = #{invoiceNo} AND USER_ID = #{userId} AND ORG_STATION = #{orgStation}
+			) M1, TB_HAWB F2
+		WHERE
+			M1.NNO = F2.NNO AND M1.USER_ID = F2.USER_ID AND M1.ORG_STATION = F2.ORG_STATION AND F2.DSTN_NATION IN ('KR')
+	</select> 
+	
+	<select id="selecInvoiceListHm" parameterType="hashMap" resultType="hashMap">
+			SELECT 
+				F2.DSTN_NATION,
+				F3.ORDER_DATE,
+				ISNULL(F3.SHIPPER_REFERENCE,'') AS SHIPPER_REFERENCE,
+				ISNULL(F3.CNEE_REFERENCE1,'') AS CNEE_REFERENCE1,
+				F2.HAWB_NO,
+				F4.WIDTH,
+				F4.LENGTH,
+				F4.HEIGHT,
+				F2.WTC,
+				F2.WTA,
+				(SELECT APPLY_WT FROM VI_APPLY_WT_INFO WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) APPLY_WT,
+				ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'Dlv' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) DLV_CHG,
+				ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'FSC' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) FSC_CHG,
+				ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'Insp' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) INSP_CHG,
+				ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'AddBL' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) ADDBL_CHG,
+				ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'Clearance' AND NNO = F1.NNO  AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) CLEARANCE_CHG,
+				ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'Quarantine' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) QUARANTINE_CHG,
+				ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'ExportDecl' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) EXPORT_CHG,
+				ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'PaP' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) PAP_CHG,
+				ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE = 'SURCHR' AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) SUR_CHG,
+				ISNULL((SELECT CONVERT(DECIMAL(38,2),INV_AMT) FROM TB_INVOICE WHERE INV_TYPE IN ('ETC','ETC_FEE') AND NNO = F1.NNO AND INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) ETC_CHG
+			  FROM (
+			SELECT ORG_STATION ,
+			       USER_ID  ,
+			       INVOICE_NO,
+			       NNO 
+			  FROM TB_INVOICE
+			 WHERE INVOICE_NO =  #{invoiceNo}
+			   AND USER_ID = #{userId}
+			   AND ORG_STATION = #{orgStation}
+			GROUP BY ORG_STATION ,
+			         USER_ID  ,
+			         INVOICE_NO ,
+			         NNO ) F1 LEFT OUTER JOIN TB_HAWB F2 ON F1.NNO = F2.NNO LEFT OUTER JOIN TB_ORDER_LIST F3 ON F1.NNO = F3.NNO LEFT OUTER JOIN TB_VOLUME F4 ON F1.NNO = F4.NNO
+			 WHERE F1.USER_ID = F2.USER_ID
+			   AND F1.ORG_STATION = F2.ORG_STATION
+			   AND F1.USER_ID = F3.USER_ID
+			   AND F1.ORG_STATION = F3.ORG_STATION
+	</select>
+	
+	<select id="selecInvoiceEtcList" parameterType="hashMap" resultType="hashMap">
+		SELECT ETC_DATE AS INV_DATE,
+			   ISNULL((SELECT ORDER_NO FROM TB_ORDER_LIST K1 WHERE K1.NNO = F2.NNO),F2.NNO) AS ORDER_NO,
+		       ISNULL(ISNULL(F2.HAWB_NO,(SELECT TRK_NO FROM TB_TAKEIN_ETC_ORDER WHERE NNO = F2.NNO AND USER_ID = F2.USER_ID AND ORG_STATION = F2.ORG_STATION)),'') AS HAWB_NO ,
+		       F2.ETC_TYPE,
+		       (SELECT NAME FROM TB_CODE WHERE CODE_DIV = 'ETC_TYPE' AND CODE = F2.ETC_TYPE) AS ETC_TYPE_NAME,
+		       F2.REMARK ,
+		       F2.ETC_VALUE AS INV_AMT
+		  FROM 
+		       TB_ETC F2
+		 WHERE NNO IN (SELECT NNO 
+		                 FROM TB_INVOICE F1 
+		                 WHERE F1.USER_ID = F2.USER_ID
+		                   AND F1.ORG_STATION = F2.ORG_STATION
+		                    AND F1.INV_TYPE IN ('ETC','ETC_FEE')
+		                    AND F1.INVOICE_NO =  #{invoiceNo}
+		                    AND F1.USER_ID = #{userId}
+		                    AND F1.ORG_STATION = #{orgStation})
+		   AND ISNULL(HAWB_NO,'') = '' 
+		   AND F2.USER_ID = #{userId} 
+		   AND F2.ORG_STATION = #{orgStation}
+	</select>
+	
+		<select id="selectReceivedCodeList" parameterType="hashMap" resultType="hashMap">
+		SELECT RECEIVED_CODE as code,
+			   RECEIVED_NAME as name
+          FROM TB_RECEIVED_CODE 
+         WHERE ORG_STATION = #{orgStation}
+         ORDER BY RECEIVED_NAME
+	</select>
+	
+	<select id="insertReceivedCode" parameterType="hashMap" resultType="hashMap">
+	     DECLARE 
+		     @ORG_STATION NVARCHAR(3),
+			 @RECEIVED_NAME NVARCHAR(50),
+			 @W_USER_ID  NVARCHAR(50),
+			 @W_USER_IP  NVARCHAR(50),
+			 @RST_STATUS NVARCHAR(10),
+			 @RST_CODE NVARCHAR(10),
+			 @RST_MSG NVARCHAR(100) 
+	
+		     SET @ORG_STATION = #{orgStation}
+		     SET @RECEIVED_NAME = #{receivedName}
+		     SET @W_USER_ID = #{wUserId}
+		     SET @W_USER_IP = #{wUserIp}
+	      
+	      EXEC SP_RECEIVED_CODE_IN
+		     @ORG_STATION,
+			 @RECEIVED_NAME,
+			 @W_USER_ID,
+			 @W_USER_IP,
+			 @RST_STATUS OUTPUT,
+			 @RST_CODE OUTPUT,
+			 @RST_MSG OUTPUT
+	      
+	      SELECT 
+	      @RST_STATUS  AS rstStatus,
+	      @RST_CODE AS rstCode,
+	      @RST_MSG as rstMsg
+   </select>
+
+
+	<select id="deleteReceivedCode" parameterType="hashMap" resultType="hashMap">
+	     DECLARE 
+		     @ORG_STATION NVARCHAR(3),
+			 @RECEIVED_CODE NVARCHAR(50),
+			 @RST_STATUS NVARCHAR(10),
+			 @RST_CODE NVARCHAR(10),
+			 @RST_MSG NVARCHAR(100) 
+	
+		     SET @ORG_STATION = #{orgStation}
+		     SET @RECEIVED_CODE = #{receivedCode}
+	      
+	      EXEC SP_RECEIVED_CODE_DEL
+		       @ORG_STATION,
+			   @RECEIVED_CODE,
+			   @RST_STATUS OUTPUT,
+			   @RST_CODE OUTPUT,
+			   @RST_MSG OUTPUT
+	      
+	    SELECT ISNULL(@RST_STATUS,'') AS rstStatus,
+	           ISNULL(@RST_CODE,'') AS rstCode,
+	           ISNULL(@RST_MSG,'') AS rstMsg
+   </select>
+   
+   <select id="selectInvoiceDetailList" parameterType="hashMap" resultType="hashMap">
+    SELECT INV_TYPE as invType,
+           ISNULL((SELECT NAME FROM TB_CODE WHERE CODE_DIV = 'INV_TYPE' AND CODE =  F1.INV_TYPE),F1.INV_TYPE) AS  invTypeName,
+           CONVERT(DECIMAL(38,2),SUM(INV_AMT)) AS invAmt 
+      FROM TB_INVOICE F1
+     WHERE INVOICE_NO = #{invoiceNo} 
+       AND USER_ID = #{userId} 
+       AND ORG_STATION = #{orgStation} 
+     GROUP BY INV_TYPE
+   </select>
+   
+   <select id="selectReceivedDetailList" parameterType="hashMap" resultType="hashMap">
+     SELECT IDX as idx ,
+            (SELECT RECEIVED_NAME FROM TB_RECEIVED_CODE WHERE RECEIVED_CODE = F1.RECEIVED_CODE AND ORG_STATION = F1.ORG_STATION) AS receivedName ,
+	        RECEIVED_AMT as receivedAmt ,
+	        RECEIVED_CURRENCY as receivedCurrency,
+	        RECEIVED_AMT AS receivedAmt,
+	        EXCHANGE_RATE AS exchangeRate,
+	        INV_AMT as invAmt,
+	        INV_CURRENCY as invCurrency
+	   FROM TB_INVOICE_RECEIVED F1
+	 WHERE INVOICE_NO = #{invoiceNo} 
+          AND USER_ID = #{userId} 
+          AND ORG_STATION = #{orgStation} 
+   </select>
+
+   <select id="deleteInvoiceReceived" parameterType="hashMap" resultType="hashMap">
+   		DECLARE @ORG_STATION NVARCHAR(3),
+		        @USER_ID NVARCHAR(50),
+		        @INVOICE_NO NVARCHAR(50),
+		        @IDX INT,
+		        @W_USER_ID NVARCHAR(50),
+		        @W_USER_IP NVARCHAR(50)
+		        
+		SET @ORG_STATION = #{orgStation}
+		SET @USER_ID = #{userId}
+		SET @INVOICE_NO = #{invoiceNo}
+		SET @IDX = #{idx}
+		SET @W_USER_ID = #{wUserId}
+		SET @W_USER_IP = #{wUserIp}
+		
+		DELETE FROM TB_INVOICE_RECEIVED 
+		WHERE IDX = @IDX 
+		  AND INVOICE_NO = @INVOICE_NO
+		  AND USER_ID = @USER_ID 
+		  AND ORG_STATION = @ORG_STATION
+   </select>
+   
+   	<select id="insertInvoiceComfirm" parameterType="hashMap" resultType="hashMap">
+   	
+   		DECLARE @ORG_STATION NVARCHAR(3),
+		        @USER_ID NVARCHAR(50),
+		        @INVOICE_NO NVARCHAR(50),
+		        @W_USER_ID NVARCHAR(50),
+		        @W_USER_IP NVARCHAR(50)
+		
+		SET @ORG_STATION = #{orgStation}
+		SET @USER_ID = #{userId}
+		SET @INVOICE_NO = #{invoiceNo}
+		SET @W_USER_ID = #{wUserId}
+		SET @W_USER_IP = #{wUserIp}
+
+   		INSERT INTO TB_INVOICE_COMFIRM (ORG_STATION , USER_ID , INVOICE_NO , W_USER_ID, W_USER_IP)
+		VALUES (@ORG_STATION , @USER_ID , @INVOICE_NO , @W_USER_ID, @W_USER_IP )
+
+   	</select>
+
+   
+   	<select id="insertInvoiceReceived" parameterType="hashMap" resultType="hashMap">
+
+	  		DECLARE @ORG_STATION NVARCHAR(3),
+			        @USER_ID NVARCHAR(50),
+			        @INVOICE_NO NVARCHAR(50),
+			        @RECEIVED_DATE NVARCHAR(10),
+			        @RECEIVED_CODE NVARCHAR(20),
+			        @RECEIVED_AMT DECIMAL(38,2),
+			        @RECEIVED_CURRENCY NVARCHAR(10),
+			        @EXCHANGE_RATE float,
+			        @INV_AMT DECIMAL(38,2),
+			        @W_USER_ID NVARCHAR(50),
+			        @W_USER_IP NVARCHAR(50)
+
+			
+					SET @ORG_STATION = #{orgStation}
+					SET @USER_ID = #{userId}
+					SET @RECEIVED_DATE = #{receivedDate}
+					SET @INVOICE_NO = #{invoiceNo}
+					SET @RECEIVED_CODE  = #{receivedCode}
+					SET @RECEIVED_AMT = #{receivedAmt}
+					SET @RECEIVED_CURRENCY = #{receivedCurrency}
+					SET @EXCHANGE_RATE = #{exchangeRate}
+					
+					SET @EXCHANGE_RATE =  ISNULL(@EXCHANGE_RATE,1)
+					SET @EXCHANGE_RATE = CASE WHEN  @EXCHANGE_RATE = '' THEN 1 ELSE @EXCHANGE_RATE END
+					
+					SET @INV_AMT = @RECEIVED_AMT * @EXCHANGE_RATE
+
+			        INSERT INTO TB_INVOICE_RECEIVED (ORG_STATION,USER_ID,INVOICE_NO,RECEIVED_DATE,RECEIVED_CODE,RECEIVED_AMT,RECEIVED_CURRENCY,EXCHANGE_RATE,INV_AMT,INV_CURRENCY,W_USER_ID,W_USER_IP)
+					SELECT @ORG_STATION,
+					       @USER_ID,
+					       @INVOICE_NO,
+					       @RECEIVED_DATE,
+					       @RECEIVED_CODE,
+					       @RECEIVED_AMT,
+					       @RECEIVED_CURRENCY,
+					       @EXCHANGE_RATE,
+					       @INV_AMT,
+					       (SELECT CURRENCY FROM TB_STATION WHERE STATION_CODE = @ORG_STATION),
+					       @W_USER_ID,
+					       @W_USER_IP
+
+	</select>
+	
+	<select id="spInvoiceDecision" parameterType="hashMap" resultType="hashMap">
+			DECLARE
+					@ORG_STATION NVARCHAR(3),
+					@USER_ID NVARCHAR(50),
+					@INVOICE_NO NVARCHAR(50),
+					@DECISION_YN NVARCHAR(1),
+					@W_USER_ID NVARCHAR(50),
+					@W_USER_IP NVARCHAR(50),
+					@RST_STATUS NVARCHAR(10) ,
+					@RST_CODE NVARCHAR(10) ,
+					@RST_MSG  NVARCHAR(100)
+					
+					SET @ORG_STATION = #{orgStation}
+					SET @USER_ID = #{userId}
+					SET @INVOICE_NO = #{invoiceNo}
+					SET @DECISION_YN = #{decisionYn}
+					SET @W_USER_ID = #{wUserIp}
+					SET @W_USER_IP = #{wUserId}
+					
+					EXEC SP_INVOICE_DECISION
+					@ORG_STATION,
+					@USER_ID,
+					@INVOICE_NO ,
+					@DECISION_YN ,
+					@W_USER_IP ,
+					@W_USER_ID ,
+					@RST_STATUS OUTPUT,
+					@RST_CODE OUTPUT,
+					@RST_MSG  OUTPUT
+					
+					SELECT @RST_STATUS as rstStatus, @RST_CODE as rstCode , @RST_MSG as rstMsg;
+	</select>
+	
+	<delete id= "deleteInvoiceComfirm" parameterType="hashMap">
+		DELETE FROM TB_INVOICE_COMFIRM 
+		 WHERE INVOICE_NO = #{invoiceNo} 
+		   AND USER_ID = #{userId} 
+		   AND  ORG_STATION = #{orgStation};
+	</delete>
+	
+	<select id= "spInvoiceUnposting" parameterType="hashMap"  resultType="hashMap">
+	
+			DECLARE @ORG_STATION NVARCHAR(50),
+			        @USER_ID NVARCHAR(50),
+			        @INVOICE_NO NVARCHAR(50),
+			        @W_USER_ID NVARCHAR(50),
+			        @W_USER_IP NVARCHAR(50),
+			        @RST_STATUS NVARCHAR(50),
+			        @RST_CODE NVARCHAR(50),
+			        @RST_MSG NVARCHAR(50)
+			
+			SET @ORG_STATION = #{orgStation}
+			SET @USER_ID = #{userId}
+			SET @INVOICE_NO = #{invoiceNo}
+			SET @W_USER_ID = #{wUserId}
+			SET @W_USER_IP = #{wUserIp}
+			     
+			EXEC SP_INVOICE_UNPOSTING
+			     @ORG_STATION ,
+			     @USER_ID ,
+			     @INVOICE_NO,
+			     @W_USER_ID,
+			     @W_USER_IP,
+			     @RST_STATUS OUTPUT,
+			     @RST_CODE OUTPUT,
+			     @RST_MSG OUTPUT
+				
+		  SELECT ISNULL(@RST_STATUS,'') as rstStatus,
+		         ISNULL(@RST_CODE,'') as rstCode,
+		         ISNULL(@RST_MSG,'') as rstMsg
+		
+	</select>
+	
+	<select id="selectWeightListCnt" parameterType="hashMap" resultType="Integer">
+		select
+			COUNT(*)
+		from
+		    VI_APPLY_WT_INFO F1
+		    left outer join TB_HAWB F2 on F1.NNO = F2.NNO
+		where
+			F2.ORG_STATION = #{orgStation} and isnull(F2.NNO, '') != ''
+			<if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+				AND CONVERT(CHAR(8), F2.W_DATE, 112) BETWEEN #{startDate} AND #{endDate} 
+			</if>
+			<if test="userId != null and userId != ''">
+				AND F1.USER_ID LIKE CONCAT ('%', #{userId}, '%')
+			</if>
+			<if test="transCode != null and transCode != ''">
+				AND F1.TRANS_CODE  = #{transCode}
+			</if>
+			<if test="hawbNo != null and hawbNo != ''">
+				AND F1.HAWB_NO = #{hawbNo}
+			</if>
+			<if test="matchHawbNo != null and matchHawbNo != ''">
+				AND F1.AGENCY_BL = #{matchHawbNo}
+			</if>
+	</select>
+	
+	<select id="selectWeightList" parameterType="hashMap" resultType="hashMap">
+		select *
+		from (
+			select
+				ROW_NUMBER() OVER(ORDER BY W_DATE DESC) as ROWNUM,
+			    ISNULL(F1.DSTN_NATION,'') as dstnNation,
+				ISNULL(F1.USER_ID,'') as userId,
+				ISNULL(F1.TRANS_CODE,'') as transCode,
+				ISNULL(F1.HAWB_NO,'') as hawbNo,
+				ISNULL(F1.AGENCY_BL,'') as agencyBl,
+				ISNULL(F1.WTA,'') as userWta,
+				ISNULL(F1.WTC,'') as userWtc,
+				ISNULL(F1.AGENCY_WTA,'') as agencyWta,
+				ISNULL(F1.AGENCY_WTC,'') as agencyWtc,
+				ISNULL(F1.APPLY_WT_TYPE,'') as applyType,
+				ISNULL(F1.APPLY_WT,'') as applyWt,
+				ISNULL(F2.W_DATE,'') as wDate
+			from
+			    VI_APPLY_WT_INFO F1
+			    left outer join TB_HAWB F2 on F1.NNO = F2.NNO
+			where
+				F2.ORG_STATION = #{orgStation} and isnull(F2.NNO, '') != '' 
+				<if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+					AND CONVERT(CHAR(8), F2.W_DATE, 112) BETWEEN #{startDate} AND #{endDate} 
+				</if>
+				<if test="userId != null and userId != ''">
+					AND F1.USER_ID LIKE CONCAT ('%', #{userId}, '%')
+				</if>
+				<if test="transCode != null and transCode != ''">
+					AND F1.TRANS_CODE  = #{transCode}
+				</if>
+				<if test="hawbNo != null and hawbNo != ''">
+					AND F1.HAWB_NO = #{hawbNo}
+				</if>
+				<if test="matchHawbNo != null and matchHawbNo != ''">
+					AND F1.AGENCY_BL = #{matchHawbNo}
+				</if>
+			) M1
+			WHERE M1.ROWNUM BETWEEN #{paging.boardStart} AND #{paging.boardEnd}
+	</select>
+	
+	<select id="selectTransCodeList" resultType="hashMap" parameterType="String">
+		SELECT TRANS_CODE as transCode, ISNULL((SELECT TRANS_NAME FROM TB_TRANS_COM WHERE TRANS_CODE = F1.TRANS_CODE),'') as transName
+		FROM TB_TRANS_ZONE F1
+		WHERE ORG_NATION IN (SELECT NATION_CODE FROM TB_STATION WHERE STATION_CODE = #{orgStation})
+		GROUP BY TRANS_CODE
+	</select> 
+	
+	<select id="selectWeightListExcel" parameterType="hashMap" resultType="hashMap">
+		select
+		    ISNULL(F1.DSTN_NATION,'') as dstnNation,
+			ISNULL(F1.USER_ID,'') as userId,
+			ISNULL(F1.TRANS_CODE,'') as transCode,
+			ISNULL(F1.HAWB_NO,'') as hawbNo,
+			ISNULL(F1.AGENCY_BL,'') as agencyBl,
+			ISNULL(F1.WTA,'') as userWta,
+			ISNULL(F1.WTC,'') as userWtc,
+			ISNULL(F3.WIDTH,'') as width,
+			ISNULL(F3.HEIGHT,'') as height,
+			ISNULL(F3.LENGTH,'') as length,
+			ISNULL(F3.PER,'') as per,
+			ISNULL(F3.DIM_UNIT,'') as dimUnit,
+			ISNULL(F3.WT_UNIT,'') as wtUnit,
+			ISNULL(F1.AGENCY_WTA,'') as agencyWta,
+			ISNULL(F1.AGENCY_WTC,'') as agencyWtc,
+			ISNULL(F1.APPLY_WT_TYPE,'') as applyType,
+			ISNULL(F1.APPLY_WT,'') as applyWt,
+			ISNULL(F2.W_DATE,'') as wDate
+		from
+		    VI_APPLY_WT_INFO F1
+		    LEFT OUTER JOIN TB_HAWB F2 ON F1.NNO = F2.NNO
+		    LEFT OUTER JOIN TB_VOLUME F3 ON F1.NNO = F3.NNO
+		where
+			F2.ORG_STATION = #{orgStation} and
+			F2.TRANS_CODE = #{transCode}
+			and isnull(F2.NNO, '') != '' AND CONVERT(CHAR(8), F2.W_DATE, 112) BETWEEN 
+		    <choose>
+		    	<when test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+		    		#{startDate} and #{endDate}
+		    	</when>
+		    	<otherwise>
+		    		<!-- (select convert(char(7),getdate(),121)+'-01') AND (select convert(char(7),DATEADD(mm,+1,getdate()),121)+'-01') -->
+		    		(CONVERT(varchar(8), DATEADD(month, DATEDIFF(month, 0, GETDATE()), 0), 112)) and (CONVERT(varchar(8), DATEADD(month, DATEDIFF(month, 0, GETDATE()) + 1, 0), 112))
+		    	</otherwise>
+		    </choose>
+		ORDER BY F2.W_DATE ASC;
+	</select>
+	
+	<select id="selectARControlListCnt" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*)
+		FROM (
+			SELECT
+				RANK() OVER(ORDER BY F1.USER_ID) ROWNUM,
+				F1.USER_ID as userId,
+				F2.COM_NAME as company,
+				CONVERT(DECIMAL(38,2), SUM(INV_AMT)) invAmt,
+				CONVERT(DECIMAL(38,2), (SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION)) receivedAmt,
+				CONVERT(DECIMAL(38,2), SUM(INV_AMT)) - CONVERT(DECIMAL(38,2), ISNULL((SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0)) balanceAmt
+			FROM TB_INVOICE F1, TB_CUSTOMER F2
+			WHERE F1.ORG_STATION = ${orgStation}
+				AND F1.USER_ID = F2.USER_ID
+				<if test='searchType == "0"'>
+					AND F1.USER_ID LIKE CONCAT('%',#{userId},'%')
+				</if>
+				<if test='searchType == "1"'>
+					AND F2.COM_NAME LIKE CONCAT('%',#{company},'%')
+				</if>
+			GROUP BY
+				F1.USER_ID,
+				F1.ORG_STATION,
+				F2.COM_NAME
+		) M1
+	</select>
+	
+	<select id="selectARControlList" parameterType="hashMap" resultType="hashMap">
+		SELECT *
+		FROM (
+			SELECT
+				RANK() OVER(ORDER BY F1.USER_ID) ROWNUM,
+				F1.USER_ID as userId,
+				F2.COM_NAME as company,
+				CONVERT(DECIMAL(38,2), SUM(INV_AMT)) invAmt,
+				CONVERT(DECIMAL(38,2), (SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION)) receivedAmt,
+				CONVERT(DECIMAL(38,2), SUM(INV_AMT)) - CONVERT(DECIMAL(38,2), ISNULL((SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0)) balanceAmt
+			FROM TB_INVOICE F1, TB_CUSTOMER F2
+			WHERE F1.ORG_STATION = ${orgStation}
+				AND F1.USER_ID = F2.USER_ID
+				<if test='searchType == "0"'>
+					AND F1.USER_ID LIKE CONCAT('%',#{userId},'%')
+				</if>
+				<if test='searchType == "1"'>
+					AND F2.COM_NAME LIKE CONCAT('%',#{company},'%')
+				</if>
+			GROUP BY
+				F1.USER_ID,
+				F1.ORG_STATION,
+				F2.COM_NAME
+		) M1 WHERE M1.ROWNUM BETWEEN #{paging.boardStart} AND #{paging.boardEnd}
+	</select>
+	
+	<select id="selectInvoiceNo" parameterType="hashMap" resultType="hashMap">
+		SELECT INVOICE_NO
+		FROM TB_INVOICE
+		WHERE USER_ID = #{userId}
+		GROUP BY INVOICE_NO
+		ORDER BY INVOICE_NO
+	</select>
+	
+	<select id="selectUserInfo2" parameterType="hashMap" resultType="hashMap">
+			SELECT USER_ID , 
+			       COM_NAME , 
+			       USER_TEL , 
+			       USER_ADDR , 
+			       USER_ADDR_DETAIL
+			  FROM TB_CUSTOMER
+			 WHERE USER_ID = #{userId}
+	</select>
+	
+	<select id="selectInvoiceDetail" parameterType="hashMap" resultType="hashMap">
+		SELECT 
+			INV_TYPE AS invType,
+			ISNULL((SELECT NAME FROM TB_CODE WHERE CODE_DIV = 'INV_TYPE' AND CODE = F1.INV_TYPE), F1.INV_TYPE) AS invTypeName,
+			CONVERT(DECIMAL(38,2), SUM(INV_AMT)) AS invAmt,
+			 SUBSTRING(MAX(INV_TO_DATE),1,6) AS invMonth
+		FROM TB_INVOICE F1
+		WHERE INVOICE_NO = #{invoiceNo}
+			AND USER_ID = #{userId}
+			AND ORG_STATION = #{orgStation}
+		GROUP BY INV_TYPE
+			
+	</select>
+	
+	<select id="insertInvoiceReceived2" parameterType="hashMap">
+
+	  		DECLARE @ORG_STATION NVARCHAR(3),
+			        @USER_ID NVARCHAR(50),
+			        @INVOICE_NO NVARCHAR(50),
+			        @RECEIVED_DATE NVARCHAR(10),
+			        @RECEIVED_CODE NVARCHAR(20),
+			        @RECEIVED_AMT DECIMAL(38,2),
+			        @RECEIVED_CURRENCY NVARCHAR(10),
+			        @EXCHANGE_RATE float,
+			        @INV_AMT DECIMAL(38,2),
+			        @W_USER_ID NVARCHAR(50),
+			        @W_USER_IP NVARCHAR(50)
+
+			
+					SET @ORG_STATION = #{orgStation}
+					SET @USER_ID = #{userId}
+					SET @RECEIVED_DATE = #{receivedDate}
+					SET @INVOICE_NO = #{invoiceNo}
+					SET @RECEIVED_CODE  = #{receivedCode}
+					SET @RECEIVED_AMT = #{receivedAmt}
+					SET @RECEIVED_CURRENCY = #{receivedCurrency}
+					SET @EXCHANGE_RATE = #{exchangeRate}
+					
+					SET @EXCHANGE_RATE =  ISNULL(@EXCHANGE_RATE,1)
+					SET @EXCHANGE_RATE = CASE WHEN  @EXCHANGE_RATE = '' THEN 1 ELSE @EXCHANGE_RATE END
+					
+					SET @INV_AMT = @RECEIVED_AMT * @EXCHANGE_RATE
+
+					SET @W_USER_ID = #{wUserId}
+					SET @W_USER_IP = #{wUserIp}
+
+			        INSERT INTO TB_INVOICE_RECEIVED (ORG_STATION,USER_ID,INVOICE_NO,RECEIVED_DATE,RECEIVED_CODE,RECEIVED_AMT,RECEIVED_CURRENCY,EXCHANGE_RATE,INV_AMT,INV_CURRENCY,W_USER_ID,W_USER_IP)
+					SELECT @ORG_STATION,
+					       @USER_ID,
+					       @INVOICE_NO,
+					       @RECEIVED_DATE,
+					       @RECEIVED_CODE,
+					       @RECEIVED_AMT,
+					       @RECEIVED_CURRENCY,
+					       @EXCHANGE_RATE,
+					       @INV_AMT,
+					       (SELECT CURRENCY FROM TB_STATION WHERE STATION_CODE = @ORG_STATION),
+					       @W_USER_ID,
+					       @W_USER_IP
+
+	</select>
+	
+	<select id="deleteInvoiceReceived2" parameterType="hashMap">
+   		DECLARE @ORG_STATION NVARCHAR(3),
+		        @USER_ID NVARCHAR(50),
+		        @INVOICE_NO NVARCHAR(50),
+		        @IDX INT,
+		        @W_USER_ID NVARCHAR(50),
+		        @W_USER_IP NVARCHAR(50)
+		        
+		SET @ORG_STATION = #{orgStation}
+		SET @USER_ID = #{userId}
+		SET @INVOICE_NO = #{invoiceNo}
+		SET @IDX = #{idx}
+		SET @W_USER_ID = #{wUserId}
+		SET @W_USER_IP = #{wUserIp}
+		
+		DELETE FROM TB_INVOICE_RECEIVED 
+		WHERE IDX = @IDX 
+		  AND INVOICE_NO = @INVOICE_NO
+		  AND USER_ID = @USER_ID 
+		  AND ORG_STATION = @ORG_STATION
+   </select>
+   
+   <select id="insertInvoiceComfirm2" parameterType="hashMap">
+   	
+   		DECLARE @ORG_STATION NVARCHAR(3),
+		        @USER_ID NVARCHAR(50),
+		        @INVOICE_NO NVARCHAR(50),
+		        @W_USER_ID NVARCHAR(50),
+		        @W_USER_IP NVARCHAR(50)
+		
+		SET @ORG_STATION = #{orgStation}
+		SET @USER_ID = #{userId}
+		SET @INVOICE_NO = #{invoiceNo}
+		SET @W_USER_ID = #{wUserId}
+		SET @W_USER_IP = #{wUserIp}
+
+   		INSERT INTO TB_INVOICE_COMFIRM (ORG_STATION , USER_ID , INVOICE_NO , W_USER_ID, W_USER_IP)
+		VALUES (@ORG_STATION , @USER_ID , @INVOICE_NO , @W_USER_ID, @W_USER_IP )
+
+   	</select>
+   	
+   	<select id="selectInvoiceDetailByCom" parameterType="hashMap" resultType="hashMap">
+   		SELECT 
+   			USER_ID AS userId,
+   			INVOICE_NO AS invoiceNo,
+   			SUBSTRING(INV_TO_DATE,1,6) AS invMonth,
+   			CONVERT(DECIMAL(38,2), SUM(INV_AMT)) AS invAmt,
+   			CONVERT(DECIMAL(38,2), ISNULL((SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION), 0)) AS receivedAmt,
+   			CONVERT(DECIMAL(38,2), SUM(INV_AMT)) - CONVERT(DECIMAL(38,2), ISNULL((SELECT SUM(INV_AMT) FROM TB_INVOICE_RECEIVED WHERE INVOICE_NO = F1.INVOICE_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION), 0)) AS balanceAmt
+   		FROM TB_INVOICE F1
+   		WHERE ORG_STATION = #{orgStation} AND USER_ID = #{userId}
+   		GROUP BY ORG_STATION, USER_ID, INVOICE_NO, INV_TO_DATE
+   	</select>
+   
+   <select id="selectPriceApplyDataList" parameterType="hashMap" resultType="hashMap">
+	   	select
+			inv_month, 
+			UPPER(user_id) as user_id, 
+			(select com_name from tb_customer where user_id = m1.user_id) company_name,
+			org_station, 
+			sum(price_bl_cnt) price_bl_cnt, 
+			sum(unprice_bl_cnt) unprice_bl_cnt,
+			sum(price_etc_cnt) price_etc_cnt,
+			sum(unprice_etc_cnt) unprice_etc_cnt,
+			sum(unprice_bl_cnt) + sum(unprice_etc_cnt) as unprice_cnt,
+			sum(price_bl_cnt) + sum(price_etc_cnt) as price_cnt
+		from 
+		(
+		select
+			substring(dep_date,1,6) INV_MONTH,
+			user_id,
+			f1.org_station,
+			(select count(*) from tb_invoice where inv_type = 'Dlv' and inv_date between #{fromDate} and #{toDate} and user_id = f1.user_id and org_station = f1.org_station) price_bl_cnt,
+			count(*) - (select count(*) from tb_invoice where inv_type = 'Dlv' and inv_date between #{fromDate} and #{toDate} and user_id = f1.user_id and org_station = f1.org_station) unprice_bl_cnt,
+			0 price_etc_cnt,
+			0 unprice_etc_cnt
+		from tb_hawb f1, tb_mawb f2
+		where f1.mawb_no = f2.mawb_no
+			and f1.org_station = f2.org_station
+			and dep_date between #{fromDate} and #{toDate}
+			and f1.org_station = #{orgStation}
+			and f1.user_id like concat('%',#{userId},'%')
+			and isnull(dep_date,'') != ''
+			<!-- and f1.nno not in (select nno from tb_invoice where nno = f1.nno and user_id = f1.user_id and org_Station = f1.org_station) -->
+		group by substring(dep_date,1,6), user_id, f1.org_station
+		union
+		select
+			substring(convert(nvarchar(10),etc_date,112),1,6) INV_MONTH,
+			user_id,
+			org_station,
+			0 price_bl_cnt,
+			0 unprice_bl_cnt,
+			(select count(*) from tb_invoice where inv_type in ('Etc', 'ETC_FEE') and inv_date between #{fromDate} and #{toDate} and user_id = f1.user_id and org_station = f1.org_station) price_etc_cnt,
+			count(*) - (select count(*) from tb_invoice where inv_type in ('Etc', 'ETC_FEE') and inv_date between #{fromDate} and #{toDate} and user_id = f1.user_id and org_station = f1.org_station) unprice_etc_cnt
+		from tb_etc f1
+		where etc_type in ('ETC_FEE', 'Etc')
+			and org_station = #{orgStation}
+			and convert(nvarchar(10),ETC_DATE,112) between #{fromDate} and #{toDate}
+			and f1.user_id like concat('%',#{userId},'%')
+			<!-- and nno not in (select nno from tb_invoice where nno = f1.nno and user_id = f1.user_id and org_station = f1.org_station) -->
+		group by substring(convert(nvarchar(10),etc_date,112),1,6), user_id, org_station
+		) m1
+		group by inv_month, user_id, org_Station
+		order by user_id
+   </select>
+   
+</mapper>

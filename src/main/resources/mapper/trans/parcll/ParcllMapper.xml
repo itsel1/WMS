@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.trans.parcll.ParcllMapper">
+
+	<select id="selectCreateOrderInfo" parameterType="hashMap" resultType="com.example.temp.member.vo.UserOrderListVO">
+		SELECT
+			F1.NNO,
+			ISNULL(F1.ORDER_NO,'') AS ORDER_NO,
+			ISNULL(F1.DSTN_NATION,'') AS DSTN_NATION,
+			ISNULL(F1.BOX_CNT, '1') AS BOX_CNT,
+			CASE
+				WHEN WTA - FLOOR(WTA) >= 0.0001 THEN CAST(ROUND(WTA, 3) AS DECIMAL(18, 3))
+				ELSE WTA
+			END WTA,
+			ISNULL(CNEE_NAME,'') AS CNEE_NAME,
+			ISNULL(CNEE_ADDR,'') AS CNEE_ADDR,
+			ISNULL(CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL,
+			ISNULL(CNEE_CITY,'') AS CNEE_CITY,
+			ISNULL(CNEE_STATE,'') AS CNEE_STATE,
+			ISNULL(CNEE_ZIP,'') AS CNEE_ZIP,
+			ISNULL(CNEE_TEL,'') AS CNEE_TEL,
+			ISNULL(SHIPPER_NAME,'') AS SHIPPER_NAME
+		FROM TB_ORDER_LIST F1, TB_HAWB F2
+		WHERE F1.NNO = #{nno} AND F1.NNO = F2.NNO AND F1.HAWB_NO = F2.HAWB_NO
+	</select>
+	
+	<select id="selectCreateOrderItem" parameterType="hashMap" resultType="com.example.temp.member.vo.UserOrderItemVO">
+		SELECT
+			NNO,
+			ISNULL(ITEM_DETAIL,'') AS ITEM_DETAIL,
+			ISNULL(HS_CODE,'') AS HS_CODE,
+			ISNULL(ITEM_CNT, '1') AS ITEM_CNT,
+			ISNULL(UNIT_VALUE,'0') AS UNIT_VALUE,
+			ISNULL(USER_WTA,'0') AS UESR_WTA,
+			ISNULL(ITEM_URL,'') AS ITEM_URL,
+			CASE
+				WHEN ISNULL(UNIT_CURRENCY,'') != '' THEN UNIT_CURRENCY
+				WHEN ISNULL(CHG_CURRENCY,'') != '' THEN CHG_CURRENCY
+				ELSE 'USD'
+			END UNIT_CURRENCY
+		FROM TB_ORDER_ITEM
+		WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectHawbNoByNNO" parameterType="hashMap" resultType="String">
+		SELECT HAWB_NO FROM TB_ORDER_LIST WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectUserIdByNno" parameterType="hashMap" resultType="String">
+		SELECT USER_ID FROM TB_ORDER_LIST WHERE NNO = #{nno}
+	</select>
+	
+	<insert id="insertApiConn" parameterType="hashMap">
+		INSERT INTO TB_APICONN (NNO, CONN_URL, HEADER_CONTENTS, BODY_CONTENTS, RST_CONTENTS, W_USER_ID, W_USER_IP, W_DATE) 
+		VALUES (#{nno}, #{connUrl}, #{headContents}, #{jsonObject}, #{errorMsg}, #{wUserId}, #{wUserIp}, GETDATE())
+	</insert>
+	
+	<select id="selectMatchInfo" parameterType="hashMap" resultType="hashMap">
+		SELECT NNO AS nno, MATCH_NO AS matchNo, TRK_NO AS trkNo
+		FROM TB_DELIVERY_INFO WHERE HAWB_NO = #{hawbNo}
+	</select>
+	
+	<update id="updateDelveryInfo" parameterType="hashMap">
+		UPDATE TB_DELIVERY_INFO
+		SET TRANS_CODE = #{carrier}
+		WHERE NNO = #{nno}
+	</update>
+</mapper>

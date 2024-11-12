@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.trans.yongsung.YongSungMapper">
+ 
+	<select id="selectKeyHawbByMatchNo" parameterType="String" resultType="String">
+		SELECT KEY_HAWB_NO FROM TB_MATCHING_INFO WHERE VALUE_MATCH_NO= #{matchNo};
+	</select>
+	
+	<select id ="selectItemInfoForYS" parameterType="String" resultType="com.example.temp.trans.yongsung.ApiOrderItemYSVO">
+		SELECT 
+			ISNULL(ITEM_DETAIL,'') AS ITEM_DETAIL,
+			ISNULL(ITEM_CNT,'') AS ITEM_CNT,
+			ISNULL(UNIT_VALUE,'') AS UNIT_VALUE,
+			ISNULL(BRAND,'') AS BRAND,
+			'' AS SKU,
+			ISNULL(HS_CODE,'') AS HS_CODE,
+			ISNULL(ITEM_URL,'') AS ITEM_URL,
+			ISNULL(USER_ID,'') AS USER_ID,
+			ISNULL(CUS_ITEM_CODE, '') AS CUS_ITEM_CODE
+		FROM TB_ORDER_ITEM WHERE NNO = #{nno}
+	</select>
+	
+	<select id ="selectListInfoForYS" parameterType="String" resultType="com.example.temp.trans.yongsung.ApiOrderYSVO">
+		SELECT 	
+			ISNULL(NNO,'') AS NNO,
+			ISNULL(DSTN_NATION,'') AS DSTN_NATION,
+			'A' AS shippingType,
+			ISNULL(ORDER_NO,'') AS ORDER_NO,
+			'' AS orderNo2,
+			ISNULL(SHIPPER_NAME,'') AS SHIPPER_NAME,
+			ISNULL(SHIPPER_TEL,'') AS SHIPPER_TEL,
+			ISNULL(SHIPPER_ADDR,'') AS SHIPPER_ADDR,
+			ISNULL(SHIPPER_ADDR_DETAIL,'') AS SHIPPER_ADDR_DETAIL,
+			ISNULL(CNEE_NAME,'') AS CNEE_NAME,
+			CASE WHEN NATIVE_CNEE_NAME = '' THEN CNEE_NAME ELSE NATIVE_CNEE_NAME END AS NATIVE_CNEE_NAME,
+			ISNULL(CNEE_TEL,'') AS CNEE_TEL,
+			ISNULL(CNEE_HP,'') AS CNEE_HP,
+			ISNULL(CNEE_ZIP,'') AS CNEE_ZIP,
+			ISNULL(CNEE_STATE,'') AS CNEE_STATE,
+			ISNULL(CNEE_CITY,'') AS CNEE_CITY,
+			ISNULL(CNEE_DISTRICT,'') AS CNEE_DISTRICT,
+			'' AS receiverDistrict,
+			CASE WHEN NATIVE_CNEE_ADDR = '00NECwQh10Wxb0w0BjtJlw==' THEN CNEE_ADDR ELSE NATIVE_CNEE_ADDR END AS CNEE_ADDR,
+			CASE WHEN NATIVE_CNEE_ADDR_DETAIL = '00NECwQh10Wxb0w0BjtJlw==' THEN CNEE_ADDR_DETAIL ELSE NATIVE_CNEE_ADDR_DETAIL END AS CNEE_ADDR_DETAIL,
+			ISNULL(CNEE_EMAIL,'') AS CNEE_EMAIL,
+			ISNULL(CUSTOMS_NO,'') AS CUSTOMS_NO,
+			ISNULL(USER_WTA,'') AS USER_WTA,
+			ISNULL(WT_UNIT,'') AS WT_UNIT,
+			ISNULL(BOX_CNT,'') AS BOX_CNT,
+			ISNULL((SELECT CHG_CURRENCY FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO ='1'),'') AS CHG_CURRENCY,
+			ISNULL((SELECT UNIT_CURRENCY FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO ='1'),'') AS UNIT_CURRENCY,
+			ISNULL(DLV_REQ_MSG,'') AS DLV_REQ_MSG,
+			'' AS userData1,
+			'' AS userData2,
+			'' AS userData3,	
+			ISNULL(USER_WIDTH,'0.0') AS USER_WIDTH,
+			ISNULL(USER_LENGTH,'0.0') AS USER_LENGTH,
+			ISNULL(USER_HEIGHT,'0.0') AS USER_HEIGHT,
+			ISNULL(DIM_UNIT,'') AS DIM_UNIT,
+			'' AS delvNo,
+			ISNULL(GET_BUY,'') AS GET_BUY,
+			ISNULL(PAYMENT,'') AS PAYMENT,
+			'' AS delvCom
+		FROM TB_ORDER_LIST F1 WHERE NNO = #{nno}
+	</select>
+	
+	<select id ="selectHawbNoByNNO" parameterType="String" resultType="String">
+		SELECT HAWB_NO FROM TB_ORDER_LIST WHERE nno = #{nno}
+	</select>
+	
+	<select id="selectNNOByHawbNo" parameterType="String" resultType="String">
+		SELECT NNO FROM TB_MATCHING_INFO WHERE VALUE_MATCH_NO = #{hawbNo}
+	</select>
+	
+	<insert id="insertErrorMatch" parameterType="HashMap">
+		INSERT INTO TB_ERROR_MATCH (
+			[NNO],
+			[ERROR_MSG],
+			[USE_YN],
+			[W_USER_ID],
+			[W_USER_IP],
+			[W_DATE]
+		) VALUES (
+			#{nno},
+			#{errorMsg},
+			#{useYn},
+			#{wUserId},
+			#{wUserIp},
+			(SELECT LEFT((Select Convert(varchar(10),Getdate(),112) + Replace(Convert(varchar(8),Getdate(),108),':','')),12))
+		);
+		
+	</insert>
+	
+	<select id="selectTakeInCode" parameterType="String" resultType="String">
+		SELECT TAKE_IN_CODE FROM TB_TAKEIN_CODE WHERE CUS_ITEM_CODE = #{cusItemCode} AND USER_ID = #{userId}
+	</select>
+	
+	<select id="selectNomalCode" parameterType="String" resultType="String">
+		SELECT TOP 1 TAKE_IN_CODE FROM TB_YSL_ITEM_CODE WHERE CUS_ITEM_CODE = #{cusItemCode} AND USER_ID = #{userId}
+	</select>
+	
+	<select id="selectPodBlInfo" parameterType="hashMap" resultType="hashMap" statementType="CALLABLE">
+		SELECT ISNULL(F1.HAWB_NO,'') AS  Bl ,
+               ISNULL(F1.ORDER_NO,'') AS  OrderNo ,
+               ISNULL((SELECT TRANS_NAME FROM TB_TRANS_COM WHERE TRANS_CODE = F1.TRANS_CODE),'') AS DeliveryCompany ,
+               ISNULL(CONCAT(substring(F1.CNEE_NAME,1,1),'*',substring(F1.CNEE_NAME,3,5)),'')  Consignee ,
+               ISNULL(CASE WHEN ISNULL((SELECT CONVERT(NVARCHAR(8),MIN(W_DATE),112) FROM TB_STOCK WHERE OUT_NNO = F1.NNO AND ORG_STATION = F1.ORG_STATION AND USER_ID = F1.USER_ID),'') = '' 
+                    THEN  (SELECT CONVERT(NVARCHAR(8), W_DATE,112) FROM TB_HAWB WHERE HAWB_NO = F1.HAWB_NO) 
+                    ELSE (SELECT CONVERT(NVARCHAR(8),MIN(W_DATE),112) FROM TB_STOCK WHERE OUT_NNO = F1.NNO AND ORG_STATION = F1.ORG_STATION AND USER_ID = F1.USER_ID)
+               END,'') AS   WarehousingDate,
+               ISNULL((SELECT DEP_DATE FROM TB_MAWB WHERE MAWB_NO = (SELECT MAWB_NO FROM TB_HAWB WHERE HAWB_NO = F1.HAWB_NO AND ORG_STATION = F1.ORG_STATION)),'') ShippingDate
+         FROM TB_ORDER_LIST F1 
+        WHERE F1.HAWB_NO = #{bl}
+	</select>
+	
+	<select id ="selectStateNameByCode" parameterType="String" resultType="String">
+		SELECT STATE_NAME_ORG FROM TB_STATE_CODE WHERE STATE_CODE = #{cneeState}
+	</select>
+	
+	<select id ="selectStateNameByName" parameterType="String" resultType="String">
+		SELECT STATE_NAME_ORG FROM TB_STATE_CODE WHERE STATE_NAME_EN like #{cneeState}
+	</select>
+	<select id ="selectMatchNumAll" resultType="String">
+		select VALUE_MATCH_NO FROM TB_MATCHING_INFO 
+			WHERE KEY_HAWB_NO IN (SELECT HAWB_NO FROM TB_ORDER_LIST WHERE SUBSTRING(W_DATE,0,9) >= '20230301') 
+				AND KEY_HAWB_NO NOT IN (SELECT HAWB_NO FROM TB_AGENCY_WT WHERE TRANS_CODE = 'YSL') 
+				AND MATCH_TRANS_CODE = 'YSL'
+	</select>
+	<insert id="insertYslWeight" parameterType="HashMap">
+		INSERT INTO TB_AGENCY_WT (ORG_STATION, USER_ID, TRANS_CODE, HAWB_NO, AGENCY_BL, WTA, WTC)
+		VALUES ('082', 'yslWeightThread', 'YSL', (SELECT KEY_HAWB_NO FROM TB_MATCHING_INFO WHERE VALUE_MATCH_NO = #{agencyBl}), #{agencyBl}, #{wta}, #{wtc});
+	</insert>
+	
+	<select id ="selectHawbInfoForYS" parameterType="String" resultType="com.example.temp.trans.yongsung.YsApiHawbVO">
+		SELECT 
+			F1.NNO, 
+			F1.TRANS_CODE, 
+			F1.HAWB_NO, 
+			F1.BOX_CNT AS EXP_LICENCE_PCS, 
+			F1.WTA AS EXP_LICENCE_WEIGHT, 
+			F2.EXP_REG_NO,
+			F2.EXP_NO,  
+			F1.ORDER_NO  
+			FROM TB_HAWB F1 
+			LEFT OUTER JOIN TB_EXPLICENCE F2 ON F1.NNO = F2.NNO WHERE F1.NNO = #{nno} AND F2.SEND_YN != 'Y'
+	</select>
+	
+	<select id="selectExpLicenceChk" parameterType="String" resultType="Integer">
+		SELECT COUNT(*) FROM TB_EXPLICENCE WHERE NNO = #{nno} AND EXP_VALUE = 'registExplicence2';
+	</select>
+	
+	<select id="selectYslOrderExpInfo" parameterType="String" resultType="com.example.temp.trans.yongsung.YsApiHawbVO">
+		SELECT
+			F1.NNO,
+			F1.TRANS_CODE,
+			ISNULL((SELECT VALUE_MATCH_NO FROM TB_MATCHING_INFO WHERE NNO = F1.NNO AND KEY_HAWB_NO = F1.HAWB_NO),'') AS HAWB_NO,
+			F1.BOX_CNT AS EXP_LICENCE_PCS,
+			F1.USER_WTA AS EXP_LICENCE_WEIGHT,
+			F2.EXP_REG_NO,
+			F2.EXP_NO,
+			F1.ORDER_NO
+		FROM TB_ORDER_LIST F1, TB_EXPLICENCE F2
+		WHERE F1.NNO = F2.NNO
+			AND F1.NNO = #{nno}
+			AND F1.TRANS_CODE = 'YSL'
+			AND F2.EXP_VALUE = 'registExplicence2'
+	</select>
+	
+	<update id="updateExpLicence" parameterType="String">
+		UPDATE TB_EXPLICENCE SET SEND_YN = 'Y', API_STATUS = #{rtnMsg}, W_DATE = GETDATE() WHERE NNO = #{nno}
+	</update>
+	
+	<update id="updateExpLicenceN" parameterType="String">
+		UPDATE TB_EXPLICENCE SET SEND_YN = 'N', API_STATUS = #{rtnMsg}, W_DATE = GETDATE() WHERE NNO = #{nno}
+	</update>
+	
+	<insert id="insertCusItemCode" parameterType="hashMap">
+		INSERT INTO TB_SOLUGATE_ITEM_CODE 
+			(CUS_ITEM_CODE, ITEM_DETAIL, NATIVE_ITEM_DETAIL, MAKE_CNTRY, ITEM_IMG_URL, USER_ID) 
+		VALUES 
+			(#{cusItemCode}, #{itemDetail}, #{nativeItemDetail}, #{makeCntry}, #{itemImgUrl}, #{userId})
+	</insert>
+	
+	<select id="selectYslOrderInfo" parameterType="String" resultType="HashMap">
+		SELECT
+			USER_ID AS userId,
+			ORDER_TYPE AS orderType,
+			W_USER_IP AS userIp
+		FROM TMP_ORDER_LIST
+		WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectSagawaInfoCnt" parameterType="String" resultType="Integer">
+		SELECT COUNT(*) FROM TB_SAGAWA_INFO WHERE NNO = #{nno}
+	</select>
+	
+	<insert id="insertSagawaInfo" parameterType="hashMap">
+		INSERT INTO TB_SAGAWA_INFO (NNO, HAWB_NO, YSL_NO, SAGAWA_NO) VALUES
+		(
+			#{nno},
+			(SELECT KEY_HAWB_NO FROM TB_MATCHING_INFO WHERE VALUE_MATCH_NO = #{agencyBl}), 
+			#{agencyBl}, 
+			#{sagawaNo}
+		)
+	</insert>
+	
+	<select id="selectMatchNum" resultType="String" parameterType="String">
+		SELECT VALUE_MATCH_NO FROM TB_MATCHING_INFO WHERE KEY_HAWB_NO = #{hawbNo}
+	</select>
+	
+</mapper>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.trans.fedex.FedexMapper">
+	<select id="selectFedexInfo" parameterType = "hashMap" resultType="com.example.temp.api.aci.vo.ApiOrderListVO">
+		 select * FROM TB_ORDER_LIST WHERE NNO =#{nno};
+	</select>
+	
+	<select id="selectFedexItemInfo" parameterType = "hashMap" resultType="com.example.temp.api.aci.vo.ApiOrderItemListVO">
+		 select * FROM TB_ORDER_ITEM WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectFedexInfoTmp" parameterType = "hashMap" resultType="com.example.temp.api.aci.vo.ApiOrderListVO">
+		 select * FROM TMP_ORDER_LIST WHERE NNO =#{nno};
+	</select>
+	
+	<select id="selectFedexItemInfoTmp" parameterType = "hashMap" resultType="com.example.temp.api.aci.vo.ApiOrderItemListVO">
+		 select * FROM TMP_ORDER_ITEM WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectApiAdminInfo" parameterType="String" resultType="com.example.temp.api.aci.vo.ApiAdminVO">
+		SELECT * FROM TB_ADMIN_API WHERE ORG_STATION = (SELECT STATION_NAME FROM TB_STATION WHERE STATION_CODE = #{orgStation});
+	</select>
+	
+	<insert id="insertZoneInfo" parameterType="com.example.temp.api.aci.vo.ApiOrderListVO">
+		INSERT INTO TB_ORDER_LIST_SUB (NNO, ORG_STATION, DSTN_NATION, [USER_ID], ORDER_NO, [ZONE], W_USER_ID, W_USER_IP, W_DATE)
+		VALUES ( #{nno}, #{orgStation}, #{dstnNation}, #{userId}, #{orderNo}, #{rateZone}, #{userId}, #{wUserIp}, CONVERT(NVARCHAR(19),getDate(),120));
+	</insert>
+	
+	<select id="selectFedexSmartHawbNo" resultType="com.example.temp.trans.fedex.ApiOrderFedexVO">
+		SELECT NNO, ORDER_NO, TRANS_CODE, HAWB_NO, CNEE_NAME, CNEE_ADDR, CNEE_ADDR_DETAIL, USER_WTA FROM TB_ORDER_LIST WHERE TRANS_CODE IN ('FED','FES','FEG') AND NNO NOT IN (SELECT NNO FROM TB_TRACKING_RESULT) AND HAWB_NO IS NOT NULL AND HAWB_NO != ''
+	</select>
+	
+	<insert id="insertDlvResult" parameterType="hashMap">
+		INSERT INTO TB_TRACKING_RESULT 
+			(NNO, ORDER_NO, HAWB_NO, TRANS_CODE, DLV_STATUS, DLV_TIME, CNEE_NAME, CNEE_ADDRESS1, CNEE_ADDRESS2, CITY, STATE, COUNTRY_NAME, WT_VALUE, WT_UNIT)
+		VALUES 
+			( #{nno}, #{orderNo}, #{hawbNo}, #{transCode}, #{dlvStatus}, #{dlvTime}, #{cneeName}, #{cneeAddress1}, #{cneeAddress2}, #{city}, #{state}, #{countryName}, #{wtValue}, #{wtUnit});
+			
+		INSERT INTO TB_AGENCY_WT (ORG_STATION, USER_ID, TRANS_CODE, HAWB_NO, AGENCY_BL, WTA, WTC)
+		VALUES ('213', 'fedWeightThread', #{transCode}, #{hawbNo}, #{hawbNo}, #{wtValue}, 0);
+	</insert>
+	
+	<select id="selectTmpOrderInfo" resultType="com.example.temp.api.aci.vo.ApiOrderListVO">
+		SELECT
+			*
+		FROM TB_ORDER_LIST
+		WHERE
+			NNO IN
+			<foreach collection="nno" item="value" open="(" close=")" separator=",">
+				#{value}
+			</foreach>
+	</select>
+</mapper>

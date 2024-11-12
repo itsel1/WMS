@@ -1,0 +1,706 @@
+﻿province_code,province_description,province_eng_name,district_code,district_description,district_eng_name
+10,TP. Hà Nội,Ha Noi,1180,Q. Ba Đình,Ba Dinh
+10,TP. Hà Nội,Ha Noi,1580,H. Phú Xuyên,Phu Xuyen
+10,TP. Hà Nội,Ha Noi,1200,Q. Thanh Xuân,Thanh Xuan
+10,TP. Hà Nội,Ha Noi,1120,Q. Hai Bà Trưng,Hai Ba Trung
+10,TP. Hà Nội,Ha Noi,1250,Q. Long Biên,Long Bien
+10,TP. Hà Nội,Ha Noi,1290,Q. Nam Từ Liêm,Nam Tu Liem
+10,TP. Hà Nội,Ha Noi,1510,Q. Hà Đông,Ha Dong
+10,TP. Hà Nội,Ha Noi,1360,H. Đông Anh,Dong Anh
+10,TP. Hà Nội,Ha Noi,1340,H. Thanh Trì,Thanh Tri
+10,TP. Hà Nội,Ha Noi,1547,H. Ba Vì,Ba Vi
+10,TP. Hà Nội,Ha Noi,1536,H. Phúc Thọ,Phuc Tho
+10,TP. Hà Nội,Ha Noi,1424,H. Đan Phượng,Dan Phuong
+10,TP. Hà Nội,Ha Noi,1529,H. Hoài Đức,Hoai Duc
+10,TP. Hà Nội,Ha Noi,1557,H. Quốc Oai,Quoc Oai
+10,TP. Hà Nội,Ha Noi,1567,H. Thanh Oai,Thanh Oai
+10,TP. Hà Nội,Ha Noi,1576,H. Mỹ Đức,My Duc
+10,TP. Hà Nội,Ha Noi,1571,H. Ứng Hòa,Ung Hoa
+10,TP. Hà Nội,Ha Noi,1100,Q. Hoàn Kiếm,Hoan Kiem
+10,TP. Hà Nội,Ha Noi,1220,Q. Cầu Giấy,Cau Giay
+10,TP. Hà Nội,Ha Noi,1150,Q. Đống Đa,Dong Da
+10,TP. Hà Nội,Ha Noi,1270,Q. Hoàng Mai,Hoang Mai
+10,TP. Hà Nội,Ha Noi,1430,Q. Bắc Từ Liêm,Bac Tu Liem
+10,TP. Hà Nội,Ha Noi,1390,H. Sóc Sơn,Soc Son
+10,TP. Hà Nội,Ha Noi,1310,H. Gia Lâm,Gia Lam
+10,TP. Hà Nội,Ha Noi,1540,TX. Sơn Tây,Son Tay
+10,TP. Hà Nội,Ha Noi,1420,H. Mê Linh,Me Linh
+10,TP. Hà Nội,Ha Noi,1553,H. Thạch Thất,Thach That
+10,TP. Hà Nội,Ha Noi,1561,H. Chương Mỹ,Chuong My
+10,TP. Hà Nội,Ha Noi,1585,H. Thường Tín,Thuong Tin
+10,TP. Hà Nội,Ha Noi,1240,Q. Tây Hồ,Tay Ho
+16,Tỉnh Hưng Yên,Hung Yen,1632,TX. Mỹ Hào,My Hao
+16,Tỉnh Hưng Yên,Hung Yen,1638,H. Văn Giang,Van Giang
+16,Tỉnh Hưng Yên,Hung Yen,1622,H. Kim Động,Kim Dong
+16,Tỉnh Hưng Yên,Hung Yen,1610,TP. Hưng Yên,Hung Yen
+16,Tỉnh Hưng Yên,Hung Yen,1616,H. Phù Cừ,Phu Cu
+16,Tỉnh Hưng Yên,Hung Yen,1618,H. Ân Thi,An Thi
+16,Tỉnh Hưng Yên,Hung Yen,1635,H. Văn Lâm,Van Lam
+16,Tỉnh Hưng Yên,Hung Yen,1629,H. Yên Mỹ,Yen My
+16,Tỉnh Hưng Yên,Hung Yen,1625,H. Khoái Châu,Khoai Chau
+16,Tỉnh Hưng Yên,Hung Yen,1613,H. Tiên Lữ,Tien Lu
+17,Tỉnh Hải Dương,Hai Duong,1727,H. Thanh Hà,Thanh Ha
+17,Tỉnh Hải Dương,Hai Duong,1710,TP. Hải Dương,Hai Duong
+17,Tỉnh Hải Dương,Hai Duong,1765,H. Tứ Kỳ,Tu Ky
+17,Tỉnh Hải Dương,Hai Duong,1761,H. Ninh Giang,Ninh Giang
+17,Tỉnh Hải Dương,Hai Duong,1758,H. Thanh Miện,Thanh Mien
+17,Tỉnh Hải Dương,Hai Duong,1731,H. Kim Thành,Kim Thanh
+17,Tỉnh Hải Dương,Hai Duong,1754,H. Gia Lộc,Gia Loc
+17,Tỉnh Hải Dương,Hai Duong,1747,H. Cẩm Giàng,Cam Giang
+17,Tỉnh Hải Dương,Hai Duong,1734,H. Nam Sách,Nam Sach
+17,Tỉnh Hải Dương,Hai Duong,1742,TP. Chí Linh,Chi Linh
+17,Tỉnh Hải Dương,Hai Duong,1738,TX. Kinh Môn,Kinh Mon
+17,Tỉnh Hải Dương,Hai Duong,1751,H. Bình Giang,Binh Giang
+18,TP. Hải Phòng,Hai Phong,1872,H. Bạch Long Vỹ,Bach Long Vy
+18,TP. Hải Phòng,Hai Phong,1867,H. Kiến Thụy,Kien Thuy
+18,TP. Hải Phòng,Hai Phong,1862,H. Vĩnh Bảo,Vinh Bao
+18,TP. Hải Phòng,Hai Phong,1856,H. Tiên Lãng,Tien Lang
+18,TP. Hải Phòng,Hai Phong,1871,Q. Đồ Sơn,Do Son
+18,TP. Hải Phòng,Hai Phong,1883,Q. Dương Kinh,Duong Kinh
+18,TP. Hải Phòng,Hai Phong,1875,Q. Hải An,Hai An
+18,TP. Hải Phòng,Hai Phong,1836,Q. Lê Chân,Le Chan
+18,TP. Hải Phòng,Hai Phong,1851,Q. Kiến An,Kien An
+18,TP. Hải Phòng,Hai Phong,1853,H. An Lão,An Lao
+18,TP. Hải Phòng,Hai Phong,1848,H. An Dương,An Duong
+18,TP. Hải Phòng,Hai Phong,1830,H. Thủy Nguyên,Thuy Nguyen
+18,TP. Hải Phòng,Hai Phong,1873,H. Cát Hải,Cat Hai
+18,TP. Hải Phòng,Hai Phong,1810,Q. Hồng Bàng,Hong Bang
+18,TP. Hải Phòng,Hai Phong,1818,Q. Ngô Quyền,Ngo Quyen
+20,Tỉnh Quảng Ninh,Quang Ninh,2086,TX. Đông Triều,Dong Trieu
+20,Tỉnh Quảng Ninh,Quang Ninh,2079,TP. Uông Bí,Uong Bi
+20,Tỉnh Quảng Ninh,Quang Ninh,2075,TX. Quảng Yên,Quang Yen
+20,Tỉnh Quảng Ninh,Quang Ninh,2059,H. Ba Chẽ,Ba Che
+20,Tỉnh Quảng Ninh,Quang Ninh,2056,H. Tiên Yên,Tien Yen
+20,Tỉnh Quảng Ninh,Quang Ninh,2063,H. Đầm Hà,Dam Ha
+20,Tỉnh Quảng Ninh,Quang Ninh,2053,H. Vân Đồn,Van Don
+20,Tỉnh Quảng Ninh,Quang Ninh,2065,H. Hải Hà,Hai Ha
+20,Tỉnh Quảng Ninh,Quang Ninh,2068,TP. Móng Cái,Mong Cai
+20,Tỉnh Quảng Ninh,Quang Ninh,2055,H. Cô Tô,Co To
+20,Tỉnh Quảng Ninh,Quang Ninh,2010,TP. Hạ Long,Ha Long
+20,Tỉnh Quảng Ninh,Quang Ninh,2032,TP. Cẩm Phả,Cam Pha
+20,Tỉnh Quảng Ninh,Quang Ninh,2061,H. Bình Liêu,Binh Lieu
+22,Tỉnh Bắc Ninh,Bac Ninh,2224,H. Thuận Thành,Thuan Thanh
+22,Tỉnh Bắc Ninh,Bac Ninh,2228,H. Quế Võ,Que Vo
+22,Tỉnh Bắc Ninh,Bac Ninh,2221,TP. Từ Sơn,Tu Son
+22,Tỉnh Bắc Ninh,Bac Ninh,2232,H. Gia Bình,Gia Binh
+22,Tỉnh Bắc Ninh,Bac Ninh,2235,H. Lương Tài,Luong Tai
+22,Tỉnh Bắc Ninh,Bac Ninh,2218,H. Tiên Du,Tien Du
+22,Tỉnh Bắc Ninh,Bac Ninh,2214,H. Yên Phong,Yen Phong
+22,Tỉnh Bắc Ninh,Bac Ninh,2210,TP. Bắc Ninh,Bac Ninh
+23,Tỉnh Bắc Giang,Bac Giang,2361,H. Việt Yên,Viet Yen
+23,Tỉnh Bắc Giang,Bac Giang,2310,TP. Bắc Giang,Bac Giang
+23,Tỉnh Bắc Giang,Bac Giang,2372,H. Yên Dũng,Yen Dung
+23,Tỉnh Bắc Giang,Bac Giang,2318,H. Lục Nam,Luc Nam
+23,Tỉnh Bắc Giang,Bac Giang,2366,H. Hiệp Hòa,Hiep Hoa
+23,Tỉnh Bắc Giang,Bac Giang,2330,H. Lục Ngạn,Luc Ngan
+23,Tỉnh Bắc Giang,Bac Giang,2340,H. Lạng Giang,Lang Giang
+23,Tỉnh Bắc Giang,Bac Giang,2347,H. Yên Thế,Yen The
+23,Tỉnh Bắc Giang,Bac Giang,2353,H. Tân Yên,Tan Yen
+23,Tỉnh Bắc Giang,Bac Giang,2325,H. Sơn Động,Son Dong
+24,Tỉnh Lạng Sơn,Lang Son,2468,H. Lộc Bình,Loc Binh
+24,Tỉnh Lạng Sơn,Lang Son,2475,H. Đình Lập,Dinh Lap
+24,Tỉnh Lạng Sơn,Lang Son,2410,TP. Lạng Sơn,Lang Son
+24,Tỉnh Lạng Sơn,Lang Son,2418,H. Cao Lộc,Cao Loc
+24,Tỉnh Lạng Sơn,Lang Son,2425,H. Văn Lãng ,Van Lang
+24,Tỉnh Lạng Sơn,Lang Son,2431,H. Tràng Định ,Trang Dinh
+24,Tỉnh Lạng Sơn,Lang Son,2445,H. Bình Gia,Binh Gia
+24,Tỉnh Lạng Sơn,Lang Son,2450,H. Bắc Sơn,Bac Son
+24,Tỉnh Lạng Sơn,Lang Son,2439,H. Văn Quan,Van Quan
+24,Tỉnh Lạng Sơn,Lang Son,2461,H. Hữu Lũng,Huu Lung
+24,Tỉnh Lạng Sơn,Lang Son,2456,H. Chi Lăng,Chi Lang
+25,Tỉnh Thái Nguyên,Thai Nguyen,2525,H. Đồng Hỷ ,Dong Hy
+25,Tỉnh Thái Nguyên,Thai Nguyen,2532,H. Võ Nhai,Vo Nhai
+25,Tỉnh Thái Nguyên,Thai Nguyen,2538,H. Phú Lương,Phu Luong
+25,Tỉnh Thái Nguyên,Thai Nguyen,2544,H. Định Hóa,Dinh Hoa
+25,Tỉnh Thái Nguyên,Thai Nguyen,2575,H. Phú Bình,Phu Binh
+25,Tỉnh Thái Nguyên,Thai Nguyen,2568,TP. Phổ Yên,Pho Yen
+25,Tỉnh Thái Nguyên,Thai Nguyen,2564,TP. Sông Công,Song Cong
+25,Tỉnh Thái Nguyên,Thai Nguyen,2510,TP. Thái Nguyên,Thai Nguyen
+25,Tỉnh Thái Nguyên,Thai Nguyen,2553,H. Đại Từ,Dai Tu
+26,Tỉnh Bắc Kạn,Bac Kan,2610,TP. Bắc Kạn,Bac Kan
+26,Tỉnh Bắc Kạn,Bac Kan,2623,H. Ngân Sơn,Ngan Son
+26,Tỉnh Bắc Kạn,Bac Kan,2643,H. Pác Năm,Pac Nam
+26,Tỉnh Bắc Kạn,Bac Kan,2627,H. Ba Bể,Ba Be
+26,Tỉnh Bắc Kạn,Bac Kan,2638,H. Chợ Mới,Cho Moi
+26,Tỉnh Bắc Kạn,Bac Kan,2613,H. Na Rì,Na Ri
+26,Tỉnh Bắc Kạn,Bac Kan,2632,H. Chợ Đồn,Cho Don
+26,Tỉnh Bắc Kạn,Bac Kan,2619,H. Bạch Thông,Bach Thong
+27,Tỉnh Cao Bằng,Cao Bang,2722,H. Hạ Lang,Ha Lang
+27,Tỉnh Cao Bằng,Cao Bang,2727,H. Trùng Khánh,Trung Khanh
+27,Tỉnh Cao Bằng,Cao Bang,2771,H. Thạch An,Thach An
+27,Tỉnh Cao Bằng,Cao Bang,2767,H. Bảo Lâm,Bao Lam
+27,Tỉnh Cao Bằng,Cao Bang,2738,H. Hòa An,Hoa An
+27,Tỉnh Cao Bằng,Cao Bang,2715,H. Quảng Hòa,Quang Hoa
+27,Tỉnh Cao Bằng,Cao Bang,2756,H. Nguyên Bình,Nguyen Binh
+27,Tỉnh Cao Bằng,Cao Bang,2762,H. Bảo Lạc,Bao Lac
+27,Tỉnh Cao Bằng,Cao Bang,2746,H. Hà Quảng,Ha Quang
+27,Tỉnh Cao Bằng,Cao Bang,2710,TP. Cao Bằng,Cao Bang
+28,Tỉnh Vĩnh Phúc,Vinh Phuc,2823,H. Vĩnh Tường,Vinh Tuong
+28,Tỉnh Vĩnh Phúc,Vinh Phuc,2812,H. Bình Xuyên,Binh Xuyen
+28,Tỉnh Vĩnh Phúc,Vinh Phuc,2828,H. Yên Lạc,Yen Lac
+28,Tỉnh Vĩnh Phúc,Vinh Phuc,2831,H. Sông Lô,Song Lo
+28,Tỉnh Vĩnh Phúc,Vinh Phuc,2810,TP. Vĩnh Yên,Vinh Yen
+28,Tỉnh Vĩnh Phúc,Vinh Phuc,2818,H. Lập Thạch,Lap Thach
+28,Tỉnh Vĩnh Phúc,Vinh Phuc,2815,H. Tam Dương,Tam Duong
+28,Tỉnh Vĩnh Phúc,Vinh Phuc,2834,TP. Phúc Yên,Phuc Yen
+28,Tỉnh Vĩnh Phúc,Vinh Phuc,2836,H. Tam Đảo,Tam Dao
+29,Tỉnh Phú Thọ,Phu Tho,2935,TX. Phú Thọ,Phu Tho
+29,Tỉnh Phú Thọ,Phu Tho,2940,H. Tam Nông,Tam Nong
+29,Tỉnh Phú Thọ,Phu Tho,2910,TP. Việt Trì,Viet Tri
+29,Tỉnh Phú Thọ,Phu Tho,2982,H. Thanh Sơn,Thanh Son
+29,Tỉnh Phú Thọ,Phu Tho,2970,H. Cẩm Khê,Cam Khe
+29,Tỉnh Phú Thọ,Phu Tho,2923,H. Phù Ninh,Phu Ninh
+29,Tỉnh Phú Thọ,Phu Tho,2929,H. Lâm Thao,Lam Thao
+29,Tỉnh Phú Thọ,Phu Tho,2962,H. Hạ Hòa,Ha Hoa
+29,Tỉnh Phú Thọ,Phu Tho,2976,H. Yên Lập,Yen Lap
+29,Tỉnh Phú Thọ,Phu Tho,2949,H. Đoan Hùng,Doan Hung
+29,Tỉnh Phú Thọ,Phu Tho,2994,H. Tân Sơn,Tan Son
+29,Tỉnh Phú Thọ,Phu Tho,2945,H. Thanh Thủy,Thanh Thuy
+29,Tỉnh Phú Thọ,Phu Tho,2956,H. Thanh Ba,Thanh Ba
+30,Tỉnh Tuyên Quang,Tuyen Quang,3048,H. Na Hang,Na Hang
+30,Tỉnh Tuyên Quang,Tuyen Quang,3063,H. Lâm Bình,Lam Binh
+30,Tỉnh Tuyên Quang,Tuyen Quang,3010,TP. Tuyên Quang,Tuyen Quang
+30,Tỉnh Tuyên Quang,Tuyen Quang,3055,H. Hàm Yên,Ham Yen
+30,Tỉnh Tuyên Quang,Tuyen Quang,3028,H. Sơn Dương,Son Duong
+30,Tỉnh Tuyên Quang,Tuyen Quang,3038,H. Chiêm Hóa,Chiem Hoa
+30,Tỉnh Tuyên Quang,Tuyen Quang,3015,H. Yên Sơn,Yen Son
+31,Tỉnh Hà Giang,Ha Giang,3126,H. Đồng Văn,Dong Van
+31,Tỉnh Hà Giang,Ha Giang,3144,H. Xín Mần,Xin Man
+31,Tỉnh Hà Giang,Ha Giang,3148,H. Bắc Quang,Bac Quang
+31,Tỉnh Hà Giang,Ha Giang,3110,TP. Hà Giang,Ha Giang
+31,Tỉnh Hà Giang,Ha Giang,3131,H. Quản Bạ,Quan Ba
+31,Tỉnh Hà Giang,Ha Giang,3134,H. Vị Xuyên,Vi Xuyen
+31,Tỉnh Hà Giang,Ha Giang,3152,H. Quang Bình,Quang Binh
+31,Tỉnh Hà Giang,Ha Giang,3139,H. Hoàng Su Phì,Hoang Su Phi
+31,Tỉnh Hà Giang,Ha Giang,3121,H. Mèo Vạc,Meo Vac
+31,Tỉnh Hà Giang,Ha Giang,3115,H. Yên Minh,Yen Minh
+31,Tỉnh Hà Giang,Ha Giang,3112,H. Bắc Mê,Bac Me
+32,Tỉnh Yên Bái,Yen Bai,3240,H. Văn Yên,Van Yen
+32,Tỉnh Yên Bái,Yen Bai,3259,H. Trạm Tấu,Tram Tau
+32,Tỉnh Yên Bái,Yen Bai,3247,H. Văn Chấn,Van Chan
+32,Tỉnh Yên Bái,Yen Bai,3219,H. Yên Bình,Yen Binh
+32,Tỉnh Yên Bái,Yen Bai,3226,H. Lục Yên,Luc Yen
+32,Tỉnh Yên Bái,Yen Bai,3261,H. Mù Căng Chải,Mu Cang Chai
+32,Tỉnh Yên Bái,Yen Bai,3256,TX. Nghĩa Lộ,Nghia Lo
+32,Tỉnh Yên Bái,Yen Bai,3233,H. Trấn Yên,Tran Yen
+32,Tỉnh Yên Bái,Yen Bai,3210,TP. Yên Bái,Yen Bai
+33,Tỉnh Lào Cai,Lao Cai,3310,H. Bắc Hà,Bac Ha
+33,Tỉnh Lào Cai,Lao Cai,3334,TP. Lào Cai,Lao Cai
+33,Tỉnh Lào Cai,Lao Cai,3331,TX. Sa Pa,Sa Pa
+33,Tỉnh Lào Cai,Lao Cai,3353,H. Bảo Yên,Bao Yen
+33,Tỉnh Lào Cai,Lao Cai,3325,TP. Lào Cai,Lao Cai
+33,Tỉnh Lào Cai,Lao Cai,3341,H. Bảo Thắng,Bao Thang
+33,Tỉnh Lào Cai,Lao Cai,3319,H. Mường Khương,Muong Khuong
+33,Tỉnh Lào Cai,Lao Cai,3347,H. Văn Bàn,Van Ban
+33,Tỉnh Lào Cai,Lao Cai,3316,H. Si Ma Cai,Si Ma Cai
+35,Tỉnh Hòa Bình,Hoa Binh,3539,H. Lạc Sơn,Lac Son
+35,Tỉnh Hòa Bình,Hoa Binh,3548,H. Yên Thủy,Yen Thuy
+35,Tỉnh Hòa Bình,Hoa Binh,3551,H. Kim Bôi,Kim Boi
+35,Tỉnh Hòa Bình,Hoa Binh,3558,H. Lạc Thủy,Lac Thuy
+35,Tỉnh Hòa Bình,Hoa Binh,3527,H. Tân Lạc,Tan Lac
+35,Tỉnh Hòa Bình,Hoa Binh,3533,H. Mai Châu,Mai Chau
+35,Tỉnh Hòa Bình,Hoa Binh,3517,H. Lương Sơn,Luong Son
+35,Tỉnh Hòa Bình,Hoa Binh,3537,H. Cao Phong,Cao Phong
+35,Tỉnh Hòa Bình,Hoa Binh,3522,H. Đà Bắc,Da Bac
+35,Tỉnh Hòa Bình,Hoa Binh,3510,TP. Hòa Bình,Hoa Binh
+36,Tỉnh Sơn La,Son La,3636,H. Phù Yên,Phu Yen
+36,Tỉnh Sơn La,Son La,3615,H. Mai Sơn,Mai Son
+36,Tỉnh Sơn La,Son La,3610,TP. Sơn La,Son La
+36,Tỉnh Sơn La,Son La,3657,H. Thuận Châu,Thuan Chau
+36,Tỉnh Sơn La,Son La,3677,H. Sốp Cộp,Sop Cop
+36,Tỉnh Sơn La,Son La,3643,H. Bắc Yên,Bac Yen
+36,Tỉnh Sơn La,Son La,3684,H. Vân Hồ,Van Ho
+36,Tỉnh Sơn La,Son La,3668,H. Sông Mã,Song Ma
+36,Tỉnh Sơn La,Son La,3647,H. Mường La,Muong La
+36,Tỉnh Sơn La,Son La,3653,H. Quỳnh Nhai,Quynh Nhai
+36,Tỉnh Sơn La,Son La,3628,H. Mộc Châu,Moc Chau
+36,Tỉnh Sơn La,Son La,3624,H. Yên Châu,Yen Chau
+38,Tỉnh Điện Biên,Dien Bien,3840,H. Mường Nhé,Muong Nhe
+38,Tỉnh Điện Biên,Dien Bien,3853,H. Nậm Pồ,Nam Po
+38,Tỉnh Điện Biên,Dien Bien,3833,H. Mường Chà,Muong Cha
+38,Tỉnh Điện Biên,Dien Bien,3825,H. Tuần Giáo,Tuan Giao
+38,Tỉnh Điện Biên,Dien Bien,3820,H. Điện Biên Đông,Dien Bien Dong
+38,Tỉnh Điện Biên,Dien Bien,3814,H. Điện Biên,Dien Bien
+38,Tỉnh Điện Biên,Dien Bien,3839,TX. Mường Lay,Muong Lay
+38,Tỉnh Điện Biên,Dien Bien,3836,H. Tủa Chùa,Tua Chua
+38,Tỉnh Điện Biên,Dien Bien,3848,H. Mường Ảng,Muong Ang
+38,Tỉnh Điện Biên,Dien Bien,3810,TP. Điện Biên Phủ,Dien Bien Phu
+39,Tỉnh Lai Châu,Lai Chau,3929,H. Than Uyên,Than Uyen
+39,Tỉnh Lai Châu,Lai Chau,3915,H. Phong Thổ,Phong Tho
+39,Tỉnh Lai Châu,Lai Chau,3911,Huyện Tam Đường,Tam Duong
+39,Tỉnh Lai Châu,Lai Chau,3910,TP. Lai Châu,Lai Chau
+39,Tỉnh Lai Châu,Lai Chau,3923,H. Sìn Hồ,Sin Ho
+39,Tỉnh Lai Châu,Lai Chau,3919,H. Mường Tè,Muong Te
+39,Tỉnh Lai Châu,Lai Chau,3940,H. Nậm Nhùn,Nam Nhun
+39,Tỉnh Lai Châu,Lai Chau,3936,H. Tân Uyên,Tan Uyen
+40,Tỉnh Hà Nam,Ha Nam,4010,TP. Phủ Lý,Phu Ly
+40,Tỉnh Hà Nam,Ha Nam,4027,H. Kim Bảng,Kim Bang
+40,Tỉnh Hà Nam,Ha Nam,4033,H. Thanh Liêm,Thanh Liem
+40,Tỉnh Hà Nam,Ha Nam,4015,H. Lý Nhân,Ly Nhan
+40,Tỉnh Hà Nam,Ha Nam,4023,TX. Duy Tiên,Duy Tien
+40,Tỉnh Hà Nam,Ha Nam,4038,H. Bình Lục,Binh Luc
+41,Tỉnh Thái Bình,Thai Binh,4155,H. Kiến Xương,Kien Xuong
+41,Tỉnh Thái Bình,Thai Binh,4128,H. Thái Thụy,Thai Thuy
+41,Tỉnh Thái Bình,Thai Binh,4136,H. Quỳnh Phụ,Quynh Phu
+41,Tỉnh Thái Bình,Thai Binh,4149,H. Vũ Thư,Vu Thu
+41,Tỉnh Thái Bình,Thai Binh,4110,TP. Thái Binh,Thai Binh
+41,Tỉnh Thái Bình,Thai Binh,4162,H. Tiền Hải,Tien Hai
+41,Tỉnh Thái Bình,Thai Binh,4142,H. Hưng Hà,Hung Ha
+41,Tỉnh Thái Bình,Thai Binh,4121,H. Đông Hưng,Dong Hung
+42,Tỉnh Nam Định,Nam Dinh,4210,TP. Nam Định,Nam Dinh
+42,Tỉnh Nam Định,Nam Dinh,4242,H. Vụ Bản,Vu Ban
+42,Tỉnh Nam Định,Nam Dinh,4257,H. Ý Yên,Y Yen
+42,Tỉnh Nam Định,Nam Dinh,4246,H. Nam Trực,Nam Truc
+42,Tỉnh Nam Định,Nam Dinh,4278,H. Giao Thủy,Giao Thuy
+42,Tỉnh Nam Định,Nam Dinh,4282,H. Hải Hậu,Hai Hau
+42,Tỉnh Nam Định,Nam Dinh,4239,H. Mỹ Lộc,My Loc
+42,Tỉnh Nam Định,Nam Dinh,4265,H. Nghĩa Hưng,Nghia Hung
+42,Tỉnh Nam Định,Nam Dinh,4251,H. Trực Ninh,Truc Ninh
+42,Tỉnh Nam Định,Nam Dinh,4271,H. Xuân Trường,Xuan Truong
+43,Tỉnh Nam Định,Ninh Binh,4310,TP. Ninh Bình,Ninh Binh
+43,Tỉnh Nam Định,Ninh Binh,4322,H. Gia Viễn,Gia Vien
+43,Tỉnh Nam Định,Ninh Binh,4333,TP. Tam Điệp,Tam Diep
+43,Tỉnh Nam Định,Ninh Binh,4339,H. Kim Sơn,Kim Son
+43,Tỉnh Nam Định,Ninh Binh,4345,H. Yên Khánh,Yen Khanh
+43,Tỉnh Nam Định,Ninh Binh,4319,H. Hoa Lư,Hoa Lu
+43,Tỉnh Nam Định,Ninh Binh,4326,H. Nho Quan,Nho Quan
+43,Tỉnh Nam Định,Ninh Binh,4336,H. Yên Mô,Yen Mo
+44,Tỉnh Thanh Hóa,Thanh Hoa,4410,TP. Thanh Hóa,Thanh Hoa
+44,Tỉnh Thanh Hóa,Thanh Hoa,4555,H. Quảng Xương,Quang Xuong
+44,Tỉnh Thanh Hóa,Thanh Hoa,4444,H. Hà Trung,Ha Trung
+44,Tỉnh Thanh Hóa,Thanh Hoa,4456,H. Thiệu Hóa,Thieu Hoa
+44,Tỉnh Thanh Hóa,Thanh Hoa,4467,H. Vĩnh Lộc,Vinh Loc
+44,Tỉnh Thanh Hóa,Thanh Hoa,4476,H. Cẩm Thủy,Cam Thuy
+44,Tỉnh Thanh Hóa,Thanh Hoa,4497,H. Thọ Xuân,Tho Xuan
+44,Tỉnh Thanh Hóa,Thanh Hoa,4523,H. Lang Chánh,Lang Chanh
+44,Tỉnh Thanh Hóa,Thanh Hoa,4532,H. Mường Lát,Muong Lat
+44,Tỉnh Thanh Hóa,Thanh Hoa,4538,H. Nông Cống,Nong Cong
+44,Tỉnh Thanh Hóa,Thanh Hoa,4551,H. Như Xuân,Nhu Xuan
+44,Tỉnh Thanh Hóa,Thanh Hoa,4564,TX. Nghi Sơn,Nghi Son
+44,Tỉnh Thanh Hóa,Thanh Hoa,4420,TP. Sầm Sơn,Sam Son
+44,Tỉnh Thanh Hóa,Thanh Hoa,4422,H. Hoằng Hóa,Hoang Hoa
+44,Tỉnh Thanh Hóa,Thanh Hoa,4437,H. Nga Sơn,Nga Son
+44,Tỉnh Thanh Hóa,Thanh Hoa,4449,TX. Bỉm Sơn,Bim Son
+44,Tỉnh Thanh Hóa,Thanh Hoa,4452,H. Đông Sơn,Dong Son
+44,Tỉnh Thanh Hóa,Thanh Hoa,4462,H. Yên Định,Yen Dinh
+44,Tỉnh Thanh Hóa,Thanh Hoa,4470,H. Thạch Thành,Thach Thanh
+44,Tỉnh Thanh Hóa,Thanh Hoa,4481,H. Bá Thước,Ba Thuoc
+44,Tỉnh Thanh Hóa,Thanh Hoa,4487,H. Triệu Sơn,Trieu Son
+44,Tỉnh Thanh Hóa,Thanh Hoa,4516,H. Ngọc Lặc,Ngoc Lac
+44,Tỉnh Thanh Hóa,Thanh Hoa,4526,H. Quan Hóa,Quan Hoa
+44,Tỉnh Thanh Hóa,Thanh Hoa,4529,H. Quan Sơn,Quan Son
+44,Tỉnh Thanh Hóa,Thanh Hoa,4534,H. Thường Xuân,Thuong Xuan
+44,Tỉnh Thanh Hóa,Thanh Hoa,4546,H. Như Thanh,Nhu Thanh
+44,Tỉnh Thanh Hóa,Thanh Hoa,4431,H. Hậu Lộc,Hau Loc
+46,Tỉnh Nghệ An,Nghe An,4626,H. Nghi Lộc,Nghi Loc
+46,Tỉnh Nghệ An,Nghe An,4792,TX. Hoàng Mai,Hoang Mai
+46,Tỉnh Nghệ An,Nghe An,4684,H. Tân Kỳ,Tan Ky
+46,Tỉnh Nghệ An,Nghe An,4697,H. Quỳ Châu,Quy Chau
+46,Tỉnh Nghệ An,Nghe An,4724,H. Anh Sơn,Anh Son
+46,Tỉnh Nghệ An,Nghe An,4733,H. Tương Dương,Tuong Duong
+46,Tỉnh Nghệ An,Nghe An,4749,H. Nam Đàn,Nam Dan
+46,Tỉnh Nghệ An,Nghe An,4772,TX. Thái Hòa,Thai Hoa
+46,Tỉnh Nghệ An,Nghe An,4610,TP. Vinh,Vinh
+46,Tỉnh Nghệ An,Nghe An,4624,TX. Cửa Lò,Cua Lo
+46,Tỉnh Nghệ An,Nghe An,4638,H. Diễn Châu,Dien Chau
+46,Tỉnh Nghệ An,Nghe An,4649,H. Quỳnh Lưu,Quynh Luu
+46,Tỉnh Nghệ An,Nghe An,4674,H. Nghĩa Đàn,Nghia Dan
+46,Tỉnh Nghệ An,Nghe An,4690,H. Quỳ Hợp,Quy Hop
+46,Tỉnh Nghệ An,Nghe An,4711,H. Quế Phong,Que Phong
+46,Tỉnh Nghệ An,Nghe An,4714,H. Đô Lương,Do Luong
+46,Tỉnh Nghệ An,Nghe An,4730,H. Con Cuông,Con Cuong
+46,Tỉnh Nghệ An,Nghe An,4738,H. Kỳ Sơn,Ky Son
+46,Tỉnh Nghệ An,Nghe An,4743,H. Hưng Nguyên,Hung Nguyen
+46,Tỉnh Nghệ An,Nghe An,4757,H. Thanh Chương,Thanh Chuong
+46,Tỉnh Nghệ An,Nghe An,4662,H. Yên Thành,Yen Thanh
+48,Tỉnh Hà Tĩnh,Ha Tinh,4866,H. Vũ Quang,Vu Quang
+48,Tỉnh Hà Tĩnh,Ha Tinh,4869,H. Hương Khê,Huong Khe
+48,Tỉnh Hà Tĩnh,Ha Tinh,4894,TX. Kỳ Anh,Ky Anh
+48,Tỉnh Hà Tĩnh,Ha Tinh,4884,H. Kỳ Anh,Ky Anh
+48,Tỉnh Hà Tĩnh,Ha Tinh,4810,TP. Hà Tĩnh,Ha Tinh
+48,Tỉnh Hà Tĩnh,Ha Tinh,4829,H. Can Lộc,Can Loc
+48,Tỉnh Hà Tĩnh,Ha Tinh,4837,TX. Hồng Lĩnh,Hong Linh
+48,Tỉnh Hà Tĩnh,Ha Tinh,4856,H. Hương Sơn,Huong Son
+48,Tỉnh Hà Tĩnh,Ha Tinh,4876,H. Cẩm Xuyên,Cam Xuyen
+48,Tỉnh Hà Tĩnh,Ha Tinh,4819,H. Thạch Hà,Thach Ha
+48,Tỉnh Hà Tĩnh,Ha Tinh,4891,H. Lộc Hà,Loc Ha
+48,Tỉnh Hà Tĩnh,Ha Tinh,4844,H. Nghi Xuân,Nghi Xuan
+48,Tỉnh Hà Tĩnh,Ha Tinh,4849,H. Đức Thọ,Duc Tho
+51,Tỉnh Quảng Bình,Quang Binh,5146,H. Quảng Trạch,Quang Trach
+51,Tỉnh Quảng Bình,Quang Binh,5122,TX. Ba Đồn,Ba Don
+51,Tỉnh Quảng Bình,Quang Binh,5115,H. Bố Trạch,Bo Trach
+51,Tỉnh Quảng Bình,Quang Binh,5110,TP. Đồng Hới,Dong Hoi
+51,Tỉnh Quảng Bình,Quang Binh,5139,H. Lệ Thủy,Le Thuy
+51,Tỉnh Quảng Bình,Quang Binh,5128,H. Tuyên Hóa,Tuyen Hoa
+51,Tỉnh Quảng Bình,Quang Binh,5132,H. Minh Hóa,Minh Hoa
+51,Tỉnh Quảng Bình,Quang Binh,5136,H. Quảng Ninh,Quang Ninh
+52,Tỉnh Quảng Trị,Quang Tri,5218,H. Vĩnh Linh,Vinh Linh
+52,Tỉnh Quảng Trị,Quang Tri,5214,H. Gio Linh,Gio Linh
+52,Tỉnh Quảng Trị,Quang Tri,5223,H. Cam Lộ,Cam Lo
+52,Tỉnh Quảng Trị,Quang Tri,5210,TP. Đông Hà,Dong Ha
+52,Tỉnh Quảng Trị,Quang Tri,5244,Huyện Cồn Cỏ,Huyen Con Co
+52,Tỉnh Quảng Trị,Quang Tri,5226,H. Hướng Hóa,Huong Hoa
+52,Tỉnh Quảng Trị,Quang Tri,5238,H. Hải Lăng,Hai Lang
+52,Tỉnh Quảng Trị,Quang Tri,5237,TX. Quảng Trị,Quang Tri
+52,Tỉnh Quảng Trị,Quang Tri,5233,H. Triệu Phong,Trieu Phong
+52,Tỉnh Quảng Trị,Quang Tri,5230,H. Đa Krông,Da Krong
+53,Tỉnh Thừa Thiên Huế,Thua Thien Hue,5310,TP. Huế,Hue
+53,Tỉnh Thừa Thiên Huế,Thua Thien Hue,5346,H. Quảng Điền,Quang Dien
+53,Tỉnh Thừa Thiên Huế,Thua Thien Hue,5349,H. Phong Điền,Phong Dien
+53,Tỉnh Thừa Thiên Huế,Thua Thien Hue,5353,TX. Hương Trà,Huong Tra
+53,Tỉnh Thừa Thiên Huế,Thua Thien Hue,5367,H. Phú Vang,Phu Vang
+53,Tỉnh Thừa Thiên Huế,Thua Thien Hue,5364,H. Nam Đông,Nam Dong
+53,Tỉnh Thừa Thiên Huế,Thua Thien Hue,5361,TX. Hương Thủy,Huong Thuy
+53,Tỉnh Thừa Thiên Huế,Thua Thien Hue,5357,H. A Lưới,A Luoi
+53,Tỉnh Thừa Thiên Huế,Thua Thien Hue,5371,H. Phú Lộc,Phu Loc
+55,TP. Đà Nẵng,Da Nang,5573,Huyện Hoàng Sa,Huyen Hoang Sa
+55,TP. Đà Nẵng,Da Nang,5510,Q. Hải Châu,Hai Chau
+55,TP. Đà Nẵng,Da Nang,5542,Q. Thanh Khê,Thanh Khe
+55,TP. Đà Nẵng,Da Nang,5533,Q. Sơn Trà,Son Tra
+55,TP. Đà Nẵng,Da Nang,5568,Q. Ngũ Hành Sơn,Ngu Hanh Son
+55,TP. Đà Nẵng,Da Nang,5557,Q. Liên Chiểu,Lien Chieu
+55,TP. Đà Nẵng,Da Nang,5574,Q. Cẩm Lệ,Cam Le
+55,TP. Đà Nẵng,Da Nang,5564,H. Hòa Vang,Hoa Vang
+56,Tỉnh Quảng Nam,Quang Nam,5651,H. Phước Sơn,Phuoc Son
+56,Tỉnh Quảng Nam,Quang Nam,5658,H. Tây Giang,Tay Giang
+56,Tỉnh Quảng Nam,Quang Nam,5655,H. Đông Giang,Dong Giang
+56,Tỉnh Quảng Nam,Quang Nam,5627,H. Duy Xuyên,Duy Xuyen
+56,Tỉnh Quảng Nam,Quang Nam,5616,H. Thăng Bình,Thang Binh
+56,Tỉnh Quảng Nam,Quang Nam,5660,H. Nam Giang,Nam Giang
+56,Tỉnh Quảng Nam,Quang Nam,5630,H. Quế Sơn,Que Son
+56,Tỉnh Quảng Nam,Quang Nam,5634,H. Hiệp Đức,Hiep Duc
+56,Tỉnh Quảng Nam,Quang Nam,5653,H. Nam Trà My,Nam Tra My
+56,Tỉnh Quảng Nam,Quang Nam,5620,H. Tiên Phước,Tien Phuoc
+56,Tỉnh Quảng Nam,Quang Nam,5623,H. Núi Thành,Nui Thanh
+56,Tỉnh Quảng Nam,Quang Nam,5667,H. Nông Sơn,Nong Son
+56,Tỉnh Quảng Nam,Quang Nam,5647,H. Đại Lộc,Dai Loc
+56,Tỉnh Quảng Nam,Quang Nam,5642,TX. Điện Bàn,Dien Ban
+56,Tỉnh Quảng Nam,Quang Nam,5638,TP. Hội An,Hoi An
+56,Tỉnh Quảng Nam,Quang Nam,5610,TP. Tam Kỳ,Tam Ky
+56,Tỉnh Quảng Nam,Quang Nam,5636,H. Bắc Trà My,Bac Tra My
+56,Tỉnh Quảng Nam,Quang Nam,5662,H. Phú Ninh,Phu Ninh
+57,Tỉnh Quảng Ngãi,Quang Ngai,5714,H. Lý Sơn,Ly Son
+57,Tỉnh Quảng Ngãi,Quang Ngai,5735,TX. Đức Phổ,Duc Pho
+57,Tỉnh Quảng Ngãi,Quang Ngai,5729,H. Nghĩa Hành,Nghia Hanh
+57,Tỉnh Quảng Ngãi,Quang Ngai,5726,H. Sơn Hà,Son Ha
+57,Tỉnh Quảng Ngãi,Quang Ngai,5722,H. Trà Bồng,Tra Bong
+57,Tỉnh Quảng Ngãi,Quang Ngai,5710,TP. Quảng Ngãi,Quang Ngai
+57,Tỉnh Quảng Ngãi,Quang Ngai,5715,H. Sơn Tịnh,Son Tinh
+57,Tỉnh Quảng Ngãi,Quang Ngai,5738,H. Mộ Đức,Mo Duc
+57,Tỉnh Quảng Ngãi,Quang Ngai,5740,H. Tư Nghĩa,Tu Nghia
+57,Tỉnh Quảng Ngãi,Quang Ngai,5731,H. Minh Long,Minh Long
+57,Tỉnh Quảng Ngãi,Quang Ngai,5728,H. Sơn Tây ,Son Tay
+57,Tỉnh Quảng Ngãi,Quang Ngai,5718,H. Bình Sơn ,Binh Son
+57,Tỉnh Quảng Ngãi,Quang Ngai,5732,H. Ba Tơ,Ba To
+58,Tỉnh Kon Tum,Kon Tum,5843,H. Ia H'Drai,Ia H'drai
+58,Tỉnh Kon Tum,Kon Tum,5825,H. Đắk Tô,Dak To
+58,Tỉnh Kon Tum,Kon Tum,5822,H. Đắk Hà,Dak Ha
+58,Tỉnh Kon Tum,Kon Tum,5832,H. Đắk Glei,Dak Glei
+58,Tỉnh Kon Tum,Kon Tum,5820,H. Kon PLông,Kon Plong
+58,Tỉnh Kon Tum,Kon Tum,5810,TP. Kon Tum,Kon Tum
+58,Tỉnh Kon Tum,Kon Tum,5830,H. Ngọc Hồi,Ngoc Hoi
+58,Tỉnh Kon Tum,Kon Tum,5835,H. Sa Thầy,Sa Thay
+58,Tỉnh Kon Tum,Kon Tum,5837,H. Tu Mơ Rông,Tu Mo Rong
+58,Tỉnh Kon Tum,Kon Tum,5818,H. Kon Rẫy,Kon Ray
+59,Tỉnh Bình Định,Binh Dinh,5928,H. Phù Mỹ,Phu My
+59,Tỉnh Bình Định,Binh Dinh,5920,TX. An Nhơn,An Nhon
+59,Tỉnh Bình Định,Binh Dinh,5910,TP.Quy Nhơn,Tp.quy Nhon
+59,Tỉnh Bình Định,Binh Dinh,5917,H. Tuy Phước,Tuy Phuoc
+59,Tỉnh Bình Định,Binh Dinh,5924,H. Phù Cát,Phu Cat
+59,Tỉnh Bình Định,Binh Dinh,5945,H. Vân Canh,Van Canh
+59,Tỉnh Bình Định,Binh Dinh,5940,H. Vĩnh Thạnh,Vinh Thanh
+59,Tỉnh Bình Định,Binh Dinh,5938,H. An Lão,An Lao
+59,Tỉnh Bình Định,Binh Dinh,5936,H. Hoài Ân,Hoai An
+59,Tỉnh Bình Định,Binh Dinh,5942,H. Tây Sơn,Tay Son
+59,Tỉnh Bình Định,Binh Dinh,5932,TX. Hoài Nhơn,Hoai Nhon
+60,Tỉnh Gia Lai,Gia Lai,6057,H. Kông Chro,Kong Chro
+60,Tỉnh Gia Lai,Gia Lai,6064,H. Đắk Pơ,Dak Po
+60,Tỉnh Gia Lai,Gia Lai,6060,H. Krông Pa,Krong Pa
+60,Tỉnh Gia Lai,Gia Lai,6047,H. Chư Sê,Chu Se
+60,Tỉnh Gia Lai,Gia Lai,6042,H. Chư Prông,Chu Prong
+60,Tỉnh Gia Lai,Gia Lai,6034,H. Ia Grai,Ia Grai
+60,Tỉnh Gia Lai,Gia Lai,6017,H. Đak Đoa,Dak Doa
+60,Tỉnh Gia Lai,Gia Lai,6026,H. Kbang,Kbang
+60,Tỉnh Gia Lai,Gia Lai,6024,H. An Khê,An Khe
+60,Tỉnh Gia Lai,Gia Lai,6010,TP. Pleiku,Pleiku
+60,Tỉnh Gia Lai,Gia Lai,6030,H. Chư Păh,Chu Pah
+60,Tỉnh Gia Lai,Gia Lai,6038,H. Đức Cơ,Duc Co
+60,Tỉnh Gia Lai,Gia Lai,6069,H. Phú Thiện,Phu Thien
+60,Tỉnh Gia Lai,Gia Lai,6072,H. Chư Pưh,Chu Puh
+60,Tỉnh Gia Lai,Gia Lai,6053,TX. Ayun Pa,Ayun Pa
+60,Tỉnh Gia Lai,Gia Lai,6066,H. Ia Pa,Ia Pa
+60,Tỉnh Gia Lai,Gia Lai,6021,H. Mang Yang,Mang Yang
+62,Tỉnh Phú Yên,Phu Yen,6222,H. Đồng Xuân,Dong Xuan
+62,Tỉnh Phú Yên,Phu Yen,6210,TP. Tuy Hòa,Tuy Hoa
+62,Tỉnh Phú Yên,Phu Yen,6234,H. Phú Hòa,Phu Hoa
+62,Tỉnh Phú Yên,Phu Yen,6227,H. Sông Hinh,Song Hinh
+62,Tỉnh Phú Yên,Phu Yen,6216,H. Tuy An,Tuy An
+62,Tỉnh Phú Yên,Phu Yen,6232,H. Tây Hòa,Tay Hoa
+62,Tỉnh Phú Yên,Phu Yen,6224,H. Sơn Hòa,Son Hoa
+62,Tỉnh Phú Yên,Phu Yen,6219,TX. Sông Cầu,Song Cau
+62,Tỉnh Phú Yên,Phu Yen,6230,TX. Đông Hòa,Dong Hoa
+63,Tỉnh Đắk Lắk,Dak Lak,6352,H. Krông Năng,Krong Nang
+63,Tỉnh Đắk Lắk,Dak Lak,6363,H. Ea Súp,Ea Sup
+63,Tỉnh Đắk Lắk,Dak Lak,6343,H. Cư M'gar,Cu M'gar
+63,Tỉnh Đắk Lắk,Dak Lak,6366,H. Krông Ana,Krong Ana
+63,Tỉnh Đắk Lắk,Dak Lak,6370,H. Krông Bông,Krong Bong
+63,Tỉnh Đắk Lắk,Dak Lak,6310,TP. Buôn Ma Thuột,Buon Ma Thuot
+63,Tỉnh Đắk Lắk,Dak Lak,6334,H. Ea Kar,Ea Kar
+63,Tỉnh Đắk Lắk,Dak Lak,6347,H. Krông Búk,Krong Buk
+63,Tỉnh Đắk Lắk,Dak Lak,6356,H. Ea H'leo,Ea H'leo
+63,Tỉnh Đắk Lắk,Dak Lak,6360,H. Buôn Đôn,Buon Don
+63,Tỉnh Đắk Lắk,Dak Lak,6384,TX. Buôn Hồ,Buon Ho
+63,Tỉnh Đắk Lắk,Dak Lak,6380,H. Cư Kuin,Cu Kuin
+63,Tỉnh Đắk Lắk,Dak Lak,6374,H. Lắk,Lak
+63,Tỉnh Đắk Lắk,Dak Lak,6339,H. M'Đrắk,M'drak
+63,Tỉnh Đắk Lắk,Dak Lak,6327,H. Krông Pắk,Krong Pak
+64,Tỉnh Đắk Nông,Dak Nong,6416,H. Đắk Song,Dak Song
+64,Tỉnh Đắk Nông,Dak Nong,6424,H. Cư Jút,Cu Jut
+64,Tỉnh Đắk Nông,Dak Nong,6430,H. Tuy Đức,Tuy Duc
+64,Tỉnh Đắk Nông,Dak Nong,6418,H. Đắk Mil,Dak Mil
+64,Tỉnh Đắk Nông,Dak Nong,6427,H. Đắk Glong,Dak Glong
+64,Tỉnh Đắk Nông,Dak Nong,6413,H. Đắk Rlấp,Dak Rlap
+64,Tỉnh Đắk Nông,Dak Nong,6410,TP. Gia Nghĩa,Gia Nghia
+64,Tỉnh Đắk Nông,Dak Nong,6421,H. Krông Nô,Krong No
+65,Tỉnh Khánh Hòa,Khanh Hoa,6510,TP. Nha Trang,Nha Trang
+65,Tỉnh Khánh Hòa,Khanh Hoa,6529,TX. Ninh Hòa,Ninh Hoa
+65,Tỉnh Khánh Hòa,Khanh Hoa,6544,TP. Cam Ranh,Cam Ranh
+65,Tỉnh Khánh Hòa,Khanh Hoa,6535,H. Vạn Ninh,Van Ninh
+65,Tỉnh Khánh Hòa,Khanh Hoa,6548,H. Trường Sa,Truong Sa
+65,Tỉnh Khánh Hòa,Khanh Hoa,6552,H. Cam Lâm,Cam Lam
+65,Tỉnh Khánh Hòa,Khanh Hoa,6542,H. Khánh Sơn,Khanh Son
+65,Tỉnh Khánh Hòa,Khanh Hoa,6537,H. Diên Khánh,Dien Khanh
+65,Tỉnh Khánh Hòa,Khanh Hoa,6540,H. Khánh Vĩnh,Khanh Vinh
+66,Tỉnh Ninh Thuận,Ninh Thuan,6633,H. Ninh Phước,Ninh Phuoc
+66,Tỉnh Ninh Thuận,Ninh Thuan,6631,H. Ninh Sơn,Ninh Son
+66,Tỉnh Ninh Thuận,Ninh Thuan,6629,H. Bác Ái,Bac Ai
+66,Tỉnh Ninh Thuận,Ninh Thuan,6636,H. Thuận Bắc,Thuan Bac
+66,Tỉnh Ninh Thuận,Ninh Thuan,6626,H. Ninh Hải,Ninh Hai
+66,Tỉnh Ninh Thuận,Ninh Thuan,6638,H. Thuận Nam,Thuan Nam
+66,Tỉnh Ninh Thuận,Ninh Thuan,6610,TP. Phan Rang Tháp Chàm,Phan Rang Thap Cham
+67,Tỉnh Lâm Đồng,Lam Dong,6760,H. Đam Rông,Dam Rong
+67,Tỉnh Lâm Đồng,Lam Dong,6743,H. Bảo Lâm,Bao Lam
+67,Tỉnh Lâm Đồng,Lam Dong,6747,TP. Bảo Lộc,Bao Loc
+67,Tỉnh Lâm Đồng,Lam Dong,6752,H. Đạ Tẻh,Da Teh
+67,Tỉnh Lâm Đồng,Lam Dong,6737,H. Di Linh,Di Linh
+67,Tỉnh Lâm Đồng,Lam Dong,6725,H. Đơn Dương,Don Duong
+67,Tỉnh Lâm Đồng,Lam Dong,6758,H. Đạ Huoai,Da Huoai
+67,Tỉnh Lâm Đồng,Lam Dong,6755,H. Cát Tiên,Cat Tien
+67,Tỉnh Lâm Đồng,Lam Dong,6728,H. Lâm Hà,Lam Ha
+67,Tỉnh Lâm Đồng,Lam Dong,6727,H. Lạc Dương,Lac Duong
+67,Tỉnh Lâm Đồng,Lam Dong,6710,TP. Đà Lạt,Da Lat
+67,Tỉnh Lâm Đồng,Lam Dong,6733,H. Đức Trọng,Duc Trong
+70,TP. Hồ Chí Minh,Ho Chi Minh,7100,Quận 1,Quan 1
+70,TP. Hồ Chí Minh,Ho Chi Minh,7200,TP. Thủ Đức,Thu Duc
+70,TP. Hồ Chí Minh,Ho Chi Minh,7590,H. Cần Giờ,Can Gio
+70,TP. Hồ Chí Minh,Ho Chi Minh,7580,H. Nhà Bè,Nha Be
+70,TP. Hồ Chí Minh,Ho Chi Minh,7460,Quận 6,Quan 6
+70,TP. Hồ Chí Minh,Ho Chi Minh,7510,Quận 8,Quan 8
+70,TP. Hồ Chí Minh,Ho Chi Minh,7560,Quận 7,Quan 7
+70,TP. Hồ Chí Minh,Ho Chi Minh,7540,Quận 4,Quan 4
+70,TP. Hồ Chí Minh,Ho Chi Minh,7480,Quận 5,Quan 5
+70,TP. Hồ Chí Minh,Ho Chi Minh,7270,Q. Gò Vấp,Go Vap
+70,TP. Hồ Chí Minh,Ho Chi Minh,7290,Quận 12,Quan 12
+70,TP. Hồ Chí Minh,Ho Chi Minh,7330,H. Củ Chi,Cu Chi
+70,TP. Hồ Chí Minh,Ho Chi Minh,7310,H. Hóc Môn,Hoc Mon
+70,TP. Hồ Chí Minh,Ho Chi Minh,7380,H. Bình Chánh,Binh Chanh
+70,TP. Hồ Chí Minh,Ho Chi Minh,7620,Q. Bình Tân,Binh Tan
+70,TP. Hồ Chí Minh,Ho Chi Minh,7600,Q. Tân Phú,Tan Phu
+70,TP. Hồ Chí Minh,Ho Chi Minh,7360,Q. Tân Bình,Tan Binh
+70,TP. Hồ Chí Minh,Ho Chi Minh,7250,Q. Phú Nhuận,Phu Nhuan
+70,TP. Hồ Chí Minh,Ho Chi Minh,7170,Q. Bình Thạnh,Binh Thanh
+70,TP. Hồ Chí Minh,Ho Chi Minh,7220,Quận 3,Quan 3
+70,TP. Hồ Chí Minh,Ho Chi Minh,7400,Quận 10,Quan 10
+70,TP. Hồ Chí Minh,Ho Chi Minh,7430,Quận 11,Quan 11
+79,Tỉnh Bà Rịa Vũng Tàu,Ba Ria Vung Tau,7951,TP. Bà Rịa,Ba Ria
+79,Tỉnh Bà Rịa Vũng Tàu,Ba Ria Vung Tau,7948,H. Xuyên Mộc,Xuyen Moc
+79,Tỉnh Bà Rịa Vũng Tàu,Ba Ria Vung Tau,7910,TP. Vũng Tàu,Vung Tau
+79,Tỉnh Bà Rịa Vũng Tàu,Ba Ria Vung Tau,7943,H. Côn Đảo,Con Dao
+79,Tỉnh Bà Rịa Vũng Tàu,Ba Ria Vung Tau,7953,H. Châu Đức,Chau Duc
+79,Tỉnh Bà Rịa Vũng Tàu,Ba Ria Vung Tau,7944,H. Long Điền,Long Dien
+79,Tỉnh Bà Rịa Vũng Tàu,Ba Ria Vung Tau,7946,H. Đất Đỏ,Dat Do
+79,Tỉnh Bà Rịa Vũng Tàu,Ba Ria Vung Tau,7956,TX. Phú Mỹ,Phu My
+80,Tỉnh Bình Thuận,Binh Thuan,8010,TP. Phan Thiết,Phan Thiet
+80,Tỉnh Bình Thuận,Binh Thuan,8019,H. Bắc Bình,Bac Binh
+80,Tỉnh Bình Thuận,Binh Thuan,8034,H. Tánh Linh,Tanh Linh
+80,Tỉnh Bình Thuận,Binh Thuan,8046,TX. La Gi,La Gi
+80,Tỉnh Bình Thuận,Binh Thuan,8031,H. Hàm Thuận Nam,Ham Thuan Nam
+80,Tỉnh Bình Thuận,Binh Thuan,8023,H. Tuy Phong,Tuy Phong
+80,Tỉnh Bình Thuận,Binh Thuan,8028,H. Hàm Thuận Bắc,Ham Thuan Bac
+80,Tỉnh Bình Thuận,Binh Thuan,8037,H. Đức Linh,Duc Linh
+80,Tỉnh Bình Thuận,Binh Thuan,8040,H. Hàm Tân,Ham Tan
+80,Tỉnh Bình Thuận,Binh Thuan,8044,H. Phú Quý,Phu Quy
+81,Tỉnh Đồng Nai,Dong Nai,8110,TP. Biên Hòa,Bien Hoa
+81,Tỉnh Đồng Nai,Dong Nai,8164,H. Trảng Bom,Trang Bom
+81,Tỉnh Đồng Nai,Dong Nai,8132,TP. Long Khánh,Long Khanh
+81,Tỉnh Đồng Nai,Dong Nai,8142,H. Định Quán,Dinh Quan
+81,Tỉnh Đồng Nai,Dong Nai,8153,H. Long Thành,Long Thanh
+81,Tỉnh Đồng Nai,Dong Nai,8150,H. Vĩnh Cửu,Vinh Cuu
+81,Tỉnh Đồng Nai,Dong Nai,8137,H. Thống Nhất,Thong Nhat
+81,Tỉnh Đồng Nai,Dong Nai,8161,H. Cẩm Mỹ,Cam My
+81,Tỉnh Đồng Nai,Dong Nai,8139,H. Xuân Lộc,Xuan Loc
+81,Tỉnh Đồng Nai,Dong Nai,8146,H. Tân Phú,Tan Phu
+81,Tỉnh Đồng Nai,Dong Nai,8158,H. Nhơn Trạch,Nhon Trach
+82,Tỉnh Bình Dương,Binh Duong,8236,H. Dầu Tiếng,Dau Tieng
+82,Tỉnh Bình Dương,Binh Duong,8210,TP. Thủ Dầu Một,Thu Dau Mot
+82,Tỉnh Bình Dương,Binh Duong,8239,TP. Thuận An,Thuan An
+82,Tỉnh Bình Dương,Binh Duong,8246,TP. Dĩ An,Di An
+82,Tỉnh Bình Dương,Binh Duong,8255,TX. Bến Cát,Ben Cat
+82,Tỉnh Bình Dương,Binh Duong,8260,H. Bắc Tân Uyên,Bac Tan Uyen
+82,Tỉnh Bình Dương,Binh Duong,8228,H. Phú Giáo,Phu Giao
+82,Tỉnh Bình Dương,Binh Duong,8231,H. Bàu Bàng,Bau Bang
+82,Tỉnh Bình Dương,Binh Duong,8223,TX. Tân Uyên,Tan Uyen
+83,Tỉnh Bình Phước,Binh Phuoc,8310,TP. Đồng Xoài,Dong Xoai
+83,Tỉnh Bình Phước,Binh Phuoc,8315,H. Đồng Phú,Dong Phu
+83,Tỉnh Bình Phước,Binh Phuoc,8317,H. Bù Đăng,Bu Dang
+83,Tỉnh Bình Phước,Binh Phuoc,8342,TX. Phước Long,Phuoc Long
+83,Tỉnh Bình Phước,Binh Phuoc,8320,H. Bù Gia Mập,Bu Gia Map
+83,Tỉnh Bình Phước,Binh Phuoc,8333,TX. Chơn Thành,Chon Thanh
+83,Tỉnh Bình Phước,Binh Phuoc,8336,H. Bù Đốp,Bu Dop
+83,Tỉnh Bình Phước,Binh Phuoc,8345,H. Phú Riềng,Phu Rieng
+83,Tỉnh Bình Phước,Binh Phuoc,8329,H. Hớn Quản,Hon Quan
+83,Tỉnh Bình Phước,Binh Phuoc,8339,TX. Bình Long,Binh Long
+83,Tỉnh Bình Phước,Binh Phuoc,8325,H. Lộc Ninh,Loc Ninh
+84,Tỉnh Tây Ninh,Tay Ninh,8417,H. Dương Minh Châu,Duong Minh Chau
+84,Tỉnh Tây Ninh,Tay Ninh,8424,H. Châu Thành,Chau Thanh
+84,Tỉnh Tây Ninh,Tay Ninh,8431,H. Gò Dầu,Go Dau
+84,Tỉnh Tây Ninh,Tay Ninh,8433,TX. Tràng Bảng,Trang Bang
+84,Tỉnh Tây Ninh,Tay Ninh,8429,H. Bến Cầu,Ben Cau
+84,Tỉnh Tây Ninh,Tay Ninh,8419,H. Tân Châu,Tan Chau
+84,Tỉnh Tây Ninh,Tay Ninh,8422,H. Tân Biên,Tan Bien
+84,Tỉnh Tây Ninh,Tay Ninh,8427,TX. Hòa Thành,Hoa Thanh
+84,Tỉnh Tây Ninh,Tay Ninh,8410,TP. Tây Ninh,Tay Ninh
+85,Tỉnh Long An,Long An,8510,TP. Tân An,Tan An
+85,Tỉnh Long An,Long An,8546,H. Tân Thạnh,Tan Thanh
+85,Tỉnh Long An,Long An,8531,H. Cần Giuộc,Can Giuoc
+85,Tỉnh Long An,Long An,8542,H. Đức Huệ,Duc Hue
+85,Tỉnh Long An,Long An,8556,TX. Kiến Tường,Kien Tuong
+85,Tỉnh Long An,Long An,8553,H. Tân Hưng,Tan Hung
+85,Tỉnh Long An,Long An,8534,H. Thủ Thừa,Thu Thua
+85,Tỉnh Long An,Long An,8518,H. Châu Thành,Chau Thanh
+85,Tỉnh Long An,Long An,8527,H. Cần Đước,Can Duoc
+85,Tỉnh Long An,Long An,8523,H. Bến Lức,Ben Luc
+85,Tỉnh Long An,Long An,8537,H. Đức Hòa,Duc Hoa
+85,Tỉnh Long An,Long An,8544,H. Thạnh Hóa,Thanh Hoa
+85,Tỉnh Long An,Long An,8548,H. Mộc Hóa,Moc Hoa
+85,Tỉnh Long An,Long An,8551,H. Vĩnh Hưng,Vinh Hung
+85,Tỉnh Long An,Long An,8521,H. Tân Trụ,Tan Tru
+86,Tỉnh Tiền Giang,Tien Giang,8651,H. Tân Phú Đông,Tan Phu Dong
+86,Tỉnh Tiền Giang,Tien Giang,8624,H. Gò Công Tây,Go Cong Tay
+86,Tỉnh Tiền Giang,Tien Giang,8639,H. Tân Phước,Tan Phuoc
+86,Tỉnh Tiền Giang,Tien Giang,8653,TX. Cai Lậy,Cai Lay
+86,Tỉnh Tiền Giang,Tien Giang,8610,TP. Mỹ Tho,My Tho
+86,Tỉnh Tiền Giang,Tien Giang,8647,H. Cái Bè,Cai Be
+86,Tỉnh Tiền Giang,Tien Giang,8630,H. Gò Công Đông,Go Cong Dong
+86,Tỉnh Tiền Giang,Tien Giang,8620,H. Chợ Gạo,Cho Gao
+86,Tỉnh Tiền Giang,Tien Giang,8634,H. Châu Thành,Chau Thanh
+86,Tỉnh Tiền Giang,Tien Giang,8641,H. Cai Lậy,Cai Lay
+86,Tỉnh Tiền Giang,Tien Giang,8627,TX. Gò Công,Go Cong
+87,Tỉnh Đồng Tháp,Dong Thap,8714,H. Tháp Mười,Thap Muoi
+87,Tỉnh Đồng Tháp,Dong Thap,8719,H. Tân Hồng,Tan Hong
+87,Tỉnh Đồng Tháp,Dong Thap,8724,H. Thanh Bình,Thanh Binh
+87,Tỉnh Đồng Tháp,Dong Thap,8731,TP. Sa Đéc,Sa Dec
+87,Tỉnh Đồng Tháp,Dong Thap,8710,TP. Cao Lãnh,Cao Lanh
+87,Tỉnh Đồng Tháp,Dong Thap,8738,H. Châu Thành,Chau Thanh
+87,Tỉnh Đồng Tháp,Dong Thap,8717,H. Tam Nông,Tam Nong
+87,Tỉnh Đồng Tháp,Dong Thap,8721,TX. Hồng Ngự,Hong Ngu
+87,Tỉnh Đồng Tháp,Dong Thap,8744,H. Hồng Ngự,Hong Ngu
+87,Tỉnh Đồng Tháp,Dong Thap,8726,H. Lấp Vò,Lap Vo
+87,Tỉnh Đồng Tháp,Dong Thap,8728,H. Lai Vung,Lai Vung
+87,Tỉnh Đồng Tháp,Dong Thap,8740,H. Cao Lãnh,Cao Lanh
+88,Tỉnh An Giang,An Giang,8810,TP.Long Xuyên,Tp.long Xuyen
+88,Tỉnh An Giang,An Giang,8825,H. Phú Tân,Phu Tan
+88,Tỉnh An Giang,An Giang,8834,TX. Tân Châu,Tan Chau
+88,Tỉnh An Giang,An Giang,8830,TP. Châu Đốc,Chau Doc
+88,Tỉnh An Giang,An Giang,8840,H. Tịnh Biên,Tinh Bien
+88,Tỉnh An Giang,An Giang,8822,H. Châu Thành,Chau Thanh
+88,Tỉnh An Giang,An Giang,8816,H. Chợ Mới,Cho Moi
+88,Tỉnh An Giang,An Giang,8837,H. An Phú,An Phu
+88,Tỉnh An Giang,An Giang,8828,H. Châu Phú,Chau Phu
+88,Tỉnh An Giang,An Giang,8843,H. Tri Tôn,Tri Ton
+88,Tỉnh An Giang,An Giang,8846,H. Thoại Sơn,Thoai Son
+89,Tỉnh Vĩnh Long,Vinh Long,8913,H. Long Hồ,Long Ho
+89,Tỉnh Vĩnh Long,Vinh Long,8938,H. Bình Tân,Binh Tan
+89,Tỉnh Vĩnh Long,Vinh Long,8929,H. Vũng Liêm,Vung Liem
+89,Tỉnh Vĩnh Long,Vinh Long,8934,H. Mang Thít,Mang Thit
+89,Tỉnh Vĩnh Long,Vinh Long,8917,H. Tam Bình,Tam Binh
+89,Tỉnh Vĩnh Long,Vinh Long,8921,TX. Bình Minh,Binh Minh
+89,Tỉnh Vĩnh Long,Vinh Long,8925,H. Trà Ôn,Tra On
+89,Tỉnh Vĩnh Long,Vinh Long,8910,TP. Vĩnh Long,Vinh Long
+90,TP. Cần Thơ,Can Tho,9010,Q. Ninh Kiều,Ninh Kieu
+90,TP. Cần Thơ,Can Tho,9028,Q. Bình Thủy,Binh Thuy
+90,TP. Cần Thơ,Can Tho,9040,Q. Ô Môn,O Mon
+90,TP. Cần Thơ,Can Tho,9042,Q. Thốt Nốt,Thot Not
+90,TP. Cần Thơ,Can Tho,9036,Q. Cái Răng,Cai Rang
+90,TP. Cần Thơ,Can Tho,9046,H. Cờ Đỏ,Co Do
+90,TP. Cần Thơ,Can Tho,9056,H. Thới Lai,Thoi Lai
+90,TP. Cần Thơ,Can Tho,9044,H. Phong Điền,Phong Dien
+90,TP. Cần Thơ,Can Tho,9050,H. Vĩnh Thạnh,Vinh Thanh
+91,Tỉnh Hậu Giang,Hau Giang,9110,TP. Vị Thanh,Vi Thanh
+91,Tỉnh Hậu Giang,Hau Giang,9122,H. Vị Thủy,Vi Thuy
+91,Tỉnh Hậu Giang,Hau Giang,9133,H. Long Mỹ,Long My
+91,Tỉnh Hậu Giang,Hau Giang,9125,H. Châu Thành A,Chau Thanh A
+91,Tỉnh Hậu Giang,Hau Giang,9118,H. Phụng Hiệp,Phung Hiep
+91,Tỉnh Hậu Giang,Hau Giang,9129,TP. Ngã Bảy,Nga Bay
+91,Tỉnh Hậu Giang,Hau Giang,9127,H. Châu Thành,Chau Thanh
+91,Tỉnh Hậu Giang,Hau Giang,9115,TX. Long Mỹ,Long My
+92,Tỉnh Kiên Giang,Kien Giang,9216,H. Hòn Đất,Hon Dat
+92,Tỉnh Kiên Giang,Kien Giang,9218,H. Kiên Lương,Kien Luong
+92,Tỉnh Kiên Giang,Kien Giang,9230,H. Châu Thành,Chau Thanh
+92,Tỉnh Kiên Giang,Kien Giang,9224,H. An Biên,An Bien
+92,Tỉnh Kiên Giang,Kien Giang,9227,H. An Minh,An Minh
+92,Tỉnh Kiên Giang,Kien Giang,9246,H. U Minh Thượng,U Minh Thuong
+92,Tỉnh Kiên Giang,Kien Giang,9232,H. Vĩnh Thuận,Vinh Thuan
+92,Tỉnh Kiên Giang,Kien Giang,9235,H. Gò Quao,Go Quao
+92,Tỉnh Kiên Giang,Kien Giang,9238,H. Giồng Riêng,Giong Rieng
+92,Tỉnh Kiên Giang,Kien Giang,9241,H. Kiên Hải,Kien Hai
+92,Tỉnh Kiên Giang,Kien Giang,9222,TP. Phú Quốc,Phu Quoc
+92,Tỉnh Kiên Giang,Kien Giang,9210,TP. Rạch Giá,Rach Gia
+92,Tỉnh Kiên Giang,Kien Giang,9214,H. Tân Hiệp,Tan Hiep
+92,Tỉnh Kiên Giang,Kien Giang,9248,H. Giang Thành,Giang Thanh
+92,Tỉnh Kiên Giang,Kien Giang,9220,TX. Hà Tiên,Ha Tien
+93,Tỉnh Bến Tre,Ben Tre,9310,TP. Bến Tre,Ben Tre
+93,Tỉnh Bến Tre,Ben Tre,9317,H. Chợ Lách,Cho Lach
+93,Tỉnh Bến Tre,Ben Tre,9320,H. Mỏ Cày Nam,Mo Cay Nam
+93,Tỉnh Bến Tre,Ben Tre,9333,H. Ba Tri,Ba Tri
+93,Tỉnh Bến Tre,Ben Tre,9330,H. Thạnh Phú,Thanh Phu
+93,Tỉnh Bến Tre,Ben Tre,9340,H. Mỏ Cày Bắc,Mo Cay Bac
+93,Tỉnh Bến Tre,Ben Tre,9326,H. Giồng Trôm,Giong Trom
+93,Tỉnh Bến Tre,Ben Tre,9337,H. Bình Đại,Binh Dai
+93,Tỉnh Bến Tre,Ben Tre,9313,H. Châu Thành,Chau Thanh
+94,Tỉnh Trà Vinh,Tra Vinh,9410,TP. Trà Vinh,Tra Vinh
+94,Tỉnh Trà Vinh,Tra Vinh,9423,H. Tiểu Cần,Tieu Can
+94,Tỉnh Trà Vinh,Tra Vinh,9441,TX Duyên Hải,Tx Duyen Hai
+94,Tỉnh Trà Vinh,Tra Vinh,9426,H. Châu Thành,Chau Thanh
+94,Tỉnh Trà Vinh,Tra Vinh,9435,H. Cầu Ngang,Cau Ngang
+94,Tỉnh Trà Vinh,Tra Vinh,9421,H. Cầu Kè,Cau Ke
+94,Tỉnh Trà Vinh,Tra Vinh,9430,H. Trà Cú,Tra Cu
+94,Tỉnh Trà Vinh,Tra Vinh,9439,H. Duyên Hải,Duyen Hai
+94,Tỉnh Trà Vinh,Tra Vinh,9417,H. Càng Long,Cang Long
+95,Tỉnh Sóc Trăng,Soc Trang,9510,TP. Sóc Trăng,Soc Trang
+95,Tỉnh Sóc Trăng,Soc Trang,9517,H. Long Phú,Long Phu
+95,Tỉnh Sóc Trăng,Soc Trang,9520,H. Kế Sách,Ke Sach
+95,Tỉnh Sóc Trăng,Soc Trang,9543,H. Châu Thành,Chau Thanh
+95,Tỉnh Sóc Trăng,Soc Trang,9523,H. Mỹ Tú,My Tu
+95,Tỉnh Sóc Trăng,Soc Trang,9538,H. Cù Lao Dung,Cu Lao Dung
+95,Tỉnh Sóc Trăng,Soc Trang,9527,H. Thạnh Trị,Thanh Tri
+95,Tỉnh Sóc Trăng,Soc Trang,9545,H. Trần Đề,Tran De
+95,Tỉnh Sóc Trăng,Soc Trang,9535,TX. Vĩnh Châu,Vinh Chau
+95,Tỉnh Sóc Trăng,Soc Trang,9530,H. Mỹ Xuyên,My Xuyen
+95,Tỉnh Sóc Trăng,Soc Trang,9540,TX. Ngã Năm,Nga Nam
+96,Tỉnh Bạc Liêu,Bac Lieu,9610,TP. Bạc Liêu,Bac Lieu
+96,Tỉnh Bạc Liêu,Bac Lieu,9624,H. Hồng Dân,Hong Dan
+96,Tỉnh Bạc Liêu,Bac Lieu,9621,H. Phước Long,Phuoc Long
+96,Tỉnh Bạc Liêu,Bac Lieu,9632,H. Hòa Bình,Hoa Binh
+96,Tỉnh Bạc Liêu,Bac Lieu,9615,H. Vĩnh Lợi,Vinh Loi
+96,Tỉnh Bạc Liêu,Bac Lieu,9626,TX. Giá Rai,Gia Rai
+96,Tỉnh Bạc Liêu,Bac Lieu,9629,H. Đông Hải,Dong Hai
+97,Tỉnh Cà Mau,Ca Mau,9730,H. Đầm Dơi,Dam Doi
+97,Tỉnh Cà Mau,Ca Mau,9734,H. Ngọc Hiển,Ngoc Hien
+97,Tỉnh Cà Mau,Ca Mau,9710,TP. Cà Mau,Ca Mau
+97,Tỉnh Cà Mau,Ca Mau,9721,H. U Minh,U Minh
+97,Tỉnh Cà Mau,Ca Mau,9723,H. Trần Văn Thời,Tran Van Thoi
+97,Tỉnh Cà Mau,Ca Mau,9727,H. Cái Nước,Cai Nuoc
+97,Tỉnh Cà Mau,Ca Mau,9739,H. Năm Căn,Nam Can
+97,Tỉnh Cà Mau,Ca Mau,9718,H. Thới Bình,Thoi Binh
+97,Tỉnh Cà Mau,Ca Mau,9736,H. Phú Tân,Phu Tan

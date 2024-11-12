@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.trans.cj.CJMapper">
+	<select id="selectCjHawbNo" parameterType="com.example.temp.trans.cj.CJParameterVo" resultType="com.example.temp.trans.cj.CJOrderVo">
+		<![CDATA[
+		
+		  SELECT ISNULL((SELECT TOP 1 ITEM_DETAIL FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID ORDER BY UNIT_VALUE*ITEM_CNT DESC),'') ITEM_DETAIL ,
+		         F1.ORG_STATION,
+		         F1.USER_ID,
+		         F1.NNO ,
+		         F1.ORDER_NO,
+		         ISNULL(F2.HAWB_NO,'') AS HAWB_NO ,
+		         CASE WHEN ISNULL(F2.SHIPPER_NAME,'') = '' THEN  (SELECT CASE WHEN ISNULL(COM_NAME,'') = '' THEN USER_NAME ELSE COM_NAME END  FROM TB_CUSTOMER WHERE USER_ID = F2.USER_ID) ELSE F2.SHIPPER_NAME END SHIPPER_NAME,
+		         ISNULL(F2.CNEE_NAME,'') AS CNEE_NAME,
+		         ISNULL(F2.CNEE_ZIP,'') AS CNEE_ZIP,
+		         ISNULL(F2.CNEE_TEL,'') AS CNEE_TEL,
+		         ISNULL(F2.CNEE_HP,'') AS CNEE_HP,
+		         ISNULL(F2.CNEE_ADDR,'') AS CNEE_ADDR,
+		         ISNULL(F2.CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL
+			FROM TB_HAWB F1 ,
+			     TB_ORDER_LIST F2
+			 WHERE F1.NNO = F2.NNO 
+			   AND F1.USER_ID = F2.USER_ID 
+			   AND F1.ORG_STATION = F2.ORG_STATION
+			   AND F2.TRANS_CODE = 'CJ'
+			   AND (SELECT DEP_DATE FROM TB_MAWB WHERE MAWB_NO = F1.MAWB_NO AND ORG_STATION = F1.ORG_STATION) >= #{depDate}
+			   AND ISNULL(F1.MAWB_NO,'') != ''
+			   AND ISNULL(F2.HAWB_NO,'') != ''
+			   AND ISNULL((SELECT NNO FROM TB_CJ_SUCCESS WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),'') = '';
+		]]>
+	</select>
+	
+	<insert id="insertCJError" parameterType="com.example.temp.trans.cj.CJStatusVo">
+	
+		DELETE FROM TB_CJ_ERROR WHERE NNO = #{nno};
+		
+		INSERT INTO TB_CJ_ERROR (
+		                         ORG_STATION,
+		                         USER_ID,
+		                         NNO,
+		                         HAWB_NO,
+		                         ERROR_YN,
+		                         ERROR_MSG,
+		                         W_USER_ID,
+		                         W_USER_IP
+						 )VALUES(
+						 		#{orgStation} , 
+						 		#{userId} ,
+						 		#{nno} ,
+						 		#{hawbNo},
+						 		#{errorYn},
+						 		#{errorMsg},
+						 		#{wUserId},
+						 		#{wUserIp}
+						 		);
+			
+	</insert>
+	
+	<insert id="insertCJSuccess" parameterType="com.example.temp.trans.cj.CJStatusVo">
+	
+		DELETE FROM TB_CJ_ERROR WHERE NNO = #{nno};
+	
+		DELETE FROM TB_CJ_SUCCESS WHERE NNO = #{nno};
+		
+		INSERT INTO TB_CJ_SUCCESS (
+		                         ORG_STATION,
+		                         USER_ID,
+		                         NNO,
+		                         HAWB_NO,
+		                         W_USER_ID,
+		                         W_USER_IP
+						 )VALUES(
+						 		#{orgStation} , 
+						 		#{userId} ,
+						 		#{nno} ,
+						 		#{hawbNo},
+						 		#{wUserId},
+						 		#{wUserIp}
+						 		);
+			
+	</insert>
+	
+	
+	<select id="selectCjHawbNoOne" parameterType="com.example.temp.trans.cj.CJParameterVo" resultType="com.example.temp.trans.cj.CJOrderVo">
+	
+		<![CDATA[		  
+		SELECT   ISNULL((SELECT TOP 1 ITEM_DETAIL FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION ORDER BY UNIT_VALUE*ITEM_CNT DESC),'') ITEM_DETAIL ,
+		         F1.ORG_STATION,
+		         F1.USER_ID,
+		         F1.NNO ,
+		         F1.ORDER_NO,
+		         ISNULL(F1.HAWB_NO,'') AS HAWB_NO ,
+		         CASE WHEN ISNULL(F1.SHIPPER_NAME,'') = '' THEN  (SELECT CASE WHEN ISNULL(COM_NAME,'') = '' THEN USER_NAME ELSE COM_NAME END  FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) ELSE F1.SHIPPER_NAME END SHIPPER_NAME,
+		         F1.SHIPPER_ADDR,
+		         F1.SHIPPER_ADDR_DETAIL,
+		         F1.SHIPPER_TEL,
+		         CASE WHEN ISNULL(BUY_SITE,'') = '' THEN (SELECT STORE_URL FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) ELSE BUY_SITE END BUY_SITE,
+		         ISNULL(F1.CNEE_NAME,'') AS CNEE_NAME,
+		         ISNULL(F1.CNEE_ZIP,'') AS CNEE_ZIP,
+		         ISNULL(F1.CNEE_TEL,'') AS CNEE_TEL,
+		         ISNULL(F1.CNEE_HP,'') AS CNEE_HP,
+		         ISNULL(F1.CNEE_ADDR,'') AS CNEE_ADDR,
+		         ISNULL(F1.CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL ,
+		         DLV_REQ_MSG
+			FROM  TB_ORDER_LIST F1
+			 WHERE F1.TRANS_CODE = 'CJ'
+			   AND F1.HAWB_NO = #{hawbNo}
+		]]>
+	</select>
+	
+		<select id="selectCjNnoOne" parameterType="com.example.temp.trans.cj.CJParameterVo" resultType="com.example.temp.trans.cj.CJOrderVo">
+	
+		<![CDATA[		  
+		SELECT   ISNULL((SELECT TOP 1 ITEM_DETAIL FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION ORDER BY UNIT_VALUE*ITEM_CNT DESC),'') ITEM_DETAIL ,
+		         ISNULL((SELECT TOP 1 CUS_ITEM_CODE FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION ORDER BY UNIT_VALUE*ITEM_CNT DESC),'') CUS_ITEM_CODE ,
+		         F1.ORG_STATION,
+		         F1.DSTN_NATION,
+		         F1.USER_ID,
+		         F1.NNO ,
+		         F1.ORDER_NO,
+		         ISNULL(F1.HAWB_NO,'') AS HAWB_NO ,
+		         CASE WHEN ISNULL(F1.SHIPPER_NAME,'') = '' THEN  (SELECT CASE WHEN ISNULL(COM_NAME,'') = '' THEN USER_NAME ELSE COM_NAME END  FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) ELSE F1.SHIPPER_NAME END SHIPPER_NAME,
+		         F1.SHIPPER_ADDR,
+		         F1.SHIPPER_ADDR_DETAIL,
+		         F1.SHIPPER_TEL,
+		         ISNULL(CASE WHEN ISNULL(BUY_SITE,'') = '' THEN (SELECT STORE_URL FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) ELSE BUY_SITE END,'') BUY_SITE,
+		         ISNULL(F1.CNEE_NAME,'') AS CNEE_NAME,
+		         ISNULL(F1.CNEE_ZIP,'') AS CNEE_ZIP,
+		         ISNULL(F1.CNEE_TEL,'') AS CNEE_TEL,
+		         ISNULL(F1.CNEE_HP,'') AS CNEE_HP,
+		         ISNULL(F1.CNEE_ADDR,'') AS CNEE_ADDR,
+		         ISNULL(F1.CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL ,
+		         ISNULL(DLV_REQ_MSG,'') AS DLV_REQ_MSG,
+		         (SELECT SUM(ITEM_CNT) FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID) AS TOTAL_ITEM_CNT
+			FROM  TB_ORDER_LIST F1
+			 WHERE F1.TRANS_CODE = 'CJ'
+			   AND F1.NNO = #{nno}
+		]]>
+	</select>
+	
+	<select id="selectCusItemCode" parameterType="String" resultType="com.example.temp.trans.cj.CJOrderVo">
+		SELECT CUS_ITEM_CODE
+		FROM TB_ORDER_ITEM
+		WHERE NNO = #{nno}
+	</select>
+</mapper>

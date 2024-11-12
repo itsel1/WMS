@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.manager.mapper.ManagerAdminMapper">
+
+	<select id="getTotalUserCnt" resultType="Integer" parameterType="hashMap">
+		SELECT COUNT(*) FROM TB_ADMIN_TEST
+		WHERE 1=1
+		<if test='orgStation != null and orgStation != ""'>
+			AND ORG_STATION = #{orgStation}
+		</if>
+		<if test='searchType=="0"'>
+			AND ADMIN_ID like '%'+#{adminId}+'%' OR
+			ADMIN_NAME like '%'+#{adminName}+'%' OR
+			ADMIN_TEL like '%'+#{adminTel}+'%' OR
+			ADMIN_HP like '%'+#{adminHp}+'%' OR
+			ADMIN_EMAIL like '%'+#{adminEmail}+'%' 
+			
+		</if>
+		<if test='searchType=="1"'>
+			AND ADMIN_ID like '%'+#{adminId}+'%'
+		</if>
+	</select>
+
+	<select id="getUserData" resultType="com.example.temp.manager.vo.AdminVO" parameterType="hashMap">
+		SELECT * FROM
+		(SELECT ROW_NUMBER() OVER(ORDER BY W_DATE ASC) ROWNUM,
+		ISNULL(ADMIN_ID,'') AS ADMIN_ID,
+		ISNULL(ADMIN_NAME,'') AS ADMIN_NAME,
+		ISNULL(ADMIN_TEL,'') AS ADMIN_TEL,
+		ISNULL(ADMIN_HP,'') AS ADMIN_HP,
+		ISNULL(ADMIN_EMAIL,'') AS ADMIN_EMAIL,
+		ISNULL(ROLE,'') AS ROLE,
+		ISNULL(UseYN,'') AS UseYN
+
+		FROM
+		TB_ADMIN_TEST
+
+		WHERE 1 = 1
+		<if test='orgStation != null and orgStation != ""'>
+			AND ORG_STATION = #{orgStation}
+		</if>
+		<if test='searchType=="0"'>
+			AND ADMIN_ID like '%'+#{adminId}+'%' OR
+			ADMIN_NAME like '%'+#{adminName}+'%' OR
+			ADMIN_TEL like '%'+#{adminTel}+'%' OR
+			ADMIN_HP like '%'+#{adminHp}+'%' OR
+			ADMIN_EMAIL like '%'+#{adminEmail}+'%'
+		</if>
+		<if test='searchType=="1"'>
+			AND ADMIN_ID like '%'+#{adminId}+'%'
+		</if>
+		
+		) M1 WHERE M1.ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd}
+	</select>
+	
+	
+	
+	
+	<select id="selectUserCnt" parameterType="String" resultType="Integer">
+		SELECT COUNT(*) FROM TB_ADMIN WHERE ADMIN_ID = LOWER(#{adminId}) 
+	</select>
+
+	<insert id="insertAdminInfos" parameterType="com.example.temp.manager.vo.AdminVO">
+		INSERT INTO TB_ADMIN (
+			ADMIN_ID, ADMIN_NAME, ORG_STATION, ADMIN_PW, ADMIN_TEL, W_USER_ID, W_USER_IP, W_DATE, ROLE, ADMIN_EMAIL, ADMIN_HP, UseYN
+		) VALUES (
+			#{adminId}, #{adminName}, #{orgStation}, #{adminPw}, #{adminTel}, #{wUserId}, #{wUserIp}, #{wDate}, #{role}, #{adminEmail}, #{adminHp}, #{useYn}
+		);
+	</insert>
+
+
+
+
+	<delete id="deleteUserInfo" parameterType="String">
+		DELETE FROM TB_ADMIN WHERE ADMIN_ID = #{value}
+	</delete>
+
+
+
+
+<!-- update -->
+	<select id="getSelectAdminInfo" resultType="com.example.temp.manager.vo.AdminVO" parameterType="String">
+		SELECT ISNULL(ADMIN_ID,'') AS ADMIN_ID ,
+               ISNULL(ADMIN_NAME,'') AS ADMIN_NAME , 
+               ISNULL(ORG_STATION,'') AS ORG_STATION ,
+               ISNULL(ADMIN_PW,'') AS ADMIN_PW ,
+				ISNULL(ADMIN_TEL,'') AS ADMIN_TEL ,
+				ISNULL(W_USER_ID,'') AS W_USER_ID ,
+				ISNULL(W_USER_IP,'') AS W_USER_IP ,
+				ISNULL(W_DATE,'') AS W_DATE ,
+				ISNULL(ROLE,'') AS ROLE ,
+				ISNULL(ADMIN_HP,'') AS ADMIN_HP ,
+				ISNULL(ADMIN_EMAIL,'') AS ADMIN_EMAIL ,
+				ISNULL(UseYN,'') AS UseYN  
+		 FROM TB_ADMIN
+		<where>
+			<if test="_parameter != null and _parameter != ''">
+				ADMIN_ID = #{value}
+			</if>
+		</where>
+	</select>
+	
+	<update id="updateAdminInfo" parameterType="com.example.temp.manager.vo.AdminVO">
+		UPDATE 
+			TB_ADMIN
+		SET
+			W_USER_ID = #{wUserId},
+			W_USER_IP = #{wUserIp}, 
+			W_DATE = #{wDate},
+			ADMIN_TEL = #{adminTel},
+			ADMIN_HP = #{adminHp},
+			ADMIN_NAME = #{adminName},
+			ADMIN_EMAIL = #{adminEmail},
+			ADMIN_PW = #{adminPw},
+			UseYN = #{useYn}
+		WHERE
+			ADMIN_ID = #{adminId}
+	
+	</update>
+
+
+	<update id="resetAdminPw" parameterType="com.example.temp.manager.vo.AdminVO">
+		UPDATE TB_ADMIN SET ADMIN_PW = #{adminPw} WHERE ADMIN_ID = #{adminId}
+	</update>
+	
+	<select id="selectAdminListCnt" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*) FROM TB_ADMIN
+		WHERE 1=1
+		<if test="orgStation != null and orgStation != ''">
+			AND ORG_STATION = #{orgStation}
+		</if>
+		<if test="userId != null and userId != ''">
+			AND ADMIN_ID LIKE '%' + #{userId} + '%'
+		</if>
+	</select>
+	
+	<select id="selectAdminList" parameterType="hashMap" resultType="com.example.temp.manager.vo.AdminVO">
+		SELECT *
+		FROM (
+			SELECT ROW_NUMBER() OVER(ORDER BY W_DATE ASC) ROWNUM,
+				ISNULL(ADMIN_ID,'') AS ADMIN_ID,
+				ISNULL(ADMIN_NAME,'') AS ADMIN_NAME,
+				ISNULL(ADMIN_TEL,'') AS ADMIN_TEL,
+				ISNULL(ADMIN_HP,'') AS ADMIN_HP,
+				ISNULL(ADMIN_EMAIL,'') AS ADMIN_EMAIL,
+				ISNULL(ROLE,'') AS ROLE,
+				ISNULL(UseYN,'') AS UseYN
+			FROM TB_ADMIN
+			WHERE 1=1
+			<if test="orgStation != null and orgStation != ''">
+				AND ORG_STATION = #{orgStation}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND ADMIN_ID LIKE '%' + #{userId} + '%'
+			</if>
+		) M1 WHERE M1.ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd}
+	</select>
+
+	<select id="selectYslExcelList" resultType="com.example.temp.manager.vo.YslExcelVO" parameterType="String">
+		SELECT *
+		FROM (
+			SELECT
+				F2.VALUE_MATCH_NO as valueMatchNo,
+				F1.ORDER_DATE as orderDate,
+				F1.ORDER_NO as orderNo,
+				(SELECT TOP 1 ITEM_DETAIL FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) AS itemDetail,
+				F1.BOX_CNT as boxCnt,
+				F1.USER_WTA as userWta,
+				F1.WT_UNIT as wtUnit,
+				F1.CNEE_NAME as cneeName,
+				F1.CNEE_ADDR as cneeAddr,
+				F1.CNEE_ADDR_DETAIL as cneeAddrDetail,
+				F1.CNEE_TEL as cneeTel,
+				F1.CNEE_CNTRY as cneeCntry,
+				F1.CNEE_CITY as cneeCity,
+				F1.CNEE_STATE as cneeState,
+				F1.NATIVE_CNEE_ADDR as nativeCneeAddr,
+				F1.NATIVE_CNEE_ADDR_DETAIL as nativeCneeAddrDetail,
+				F1.CNEE_ZIP as cneeZip, 
+				F1.DSTN_NATION as dstnNation
+			FROM TB_ORDER_LIST F1, TB_MATCHING_INFO F2
+			WHERE F1.HAWB_NO = F2.KEY_HAWB_NO
+				AND F2.KEY_HAWB_NO IN (
+					'150000004096'
+				)
+			) M1
+			ORDER BY M1.orderDate
+			
+	</select>
+	
+	<select id="selectFastboxUserListCnt" parameterType="hashMap" resultType="Integer">
+		SELECT
+			COUNT(*)
+		FROM TB_CUSTOMER_FB_INFO
+		WHERE
+			1=1
+			<if test='userId != null and userId != ""'>
+				AND USER_ID LIKE '%'+#{userId}+'%'
+			</if>
+	</select>
+	
+	
+	<select id="selectFastboxUserList" parameterType="hashMap" resultType="com.example.temp.manager.vo.FastboxUserInfoVO">
+		SELECT *
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER(ORDER BY IDX DESC) AS ROWNUM,
+				IDX,
+				USER_ID,
+				SELLER_NAME,
+				ISNULL(SHIPPER_NAME,'') AS SHIPPER_NAME,
+				ISNULL(COM_REG_NO,'') AS COM_REG_NO,
+				ISNULL(EXP_USE_YN,'') AS EXP_USE_YN,
+				ISNULL(FB_USE_YN,'') AS FB_USE_YN,
+				ISNULL(FB_SEND_YN,'') AS FB_SEND_YN  
+			FROM TB_CUSTOMER_FB_INFO
+			WHERE 1=1
+			<if test='userId != null and userId != ""'>
+				AND USER_ID LIKE '%'+#{userId}+'%'
+			</if>
+		) M1
+		WHERE M1.ROWNUM BETWEEN #{paging.boardStart} AND #{paging.boardEnd}
+	</select>
+	
+	<select id="selectUserList" resultType="hashMap">
+		SELECT
+			USER_ID as userId,
+			ISNULL(COM_NAME,'') as comName
+		FROM TB_CUSTOMER
+		WHERE USER_ID NOT IN (SELECT USER_ID FROM TB_CUSTOMER_FB_INFO)
+	</select>
+
+	<select id="selectUserInfo" parameterType="String" resultType="com.example.temp.manager.vo.FastboxUserInfoVO">
+		SELECT
+			USER_ID,
+			ISNULL(COM_E_NAME,'') AS SELLER_NAME,
+			ISNULL(USER_NAME,'') AS ATTN_NAME,
+			ISNULL(COM_NAME,'') AS COM_NAME,
+			ISNULL(USER_E_ADDR,'') AS SELLER_ADDR,
+			ISNULL(USER_E_ADDR_DETAIL,'') AS SELLER_ADDR_DETAIL,
+			ISNULL(USER_ZIP,'') AS SHIPPER_ZIP,
+			ISNULL(USER_ADDR,'') AS SHIPPER_ADDR,
+			ISNULL(USER_ADDR_DETAIL,'') AS SHIPPER_ADDR_DETAIL
+		FROM TB_CUSTOMER
+		WHERE USER_ID = #{userId}
+	</select>
+	
+	<insert id="insertFastboxUserInfo" parameterType="com.example.temp.manager.vo.FastboxUserInfoVO">
+		INSERT INTO TB_CUSTOMER_FB_INFO (
+			USER_ID,
+			SELLER_NAME,
+			BRAND_NAME,
+			ATTN_NAME,
+			COM_NAME,
+			COM_REG_NO,
+			SELLER_ADDR,
+			SELLER_ADDR_DETAIL,
+			EXP_USE_YN,
+			EXP_UNIT_VALUE,
+			CUSTOMS_NO,
+			SHIPPER_ZIP,
+			SHIPPER_ADDR,
+			SHIPPER_ADDR_DETAIL,
+			SHIPPER_NAME,
+			FB_USE_YN,
+			W_USER_ID,
+			W_USER_IP
+		) VALUES (
+			#{userId},
+			#{sellerName},
+			#{brandName},
+			#{attnName},
+			#{comName},
+			#{comRegNo},
+			#{sellerAddr},
+			#{sellerAddrDetail},
+			#{expUseYn},
+			#{expUnitValue},
+			#{customsNo},
+			#{shipperZip},
+			#{shipperAddr},
+			#{shipperAddrDetail},
+			#{shipperName},
+			#{fbUseYn},
+			#{wUserId},
+			#{wUserIp}
+		)
+	</insert>
+	
+	<select id="selectFastboxUserInfo" parameterType="hashMap" resultType="com.example.temp.manager.vo.FastboxUserInfoVO">
+		SELECT
+			USER_ID,
+			SELLER_NAME,
+			ISNULL(ATTN_NAME,'') AS ATTN_NAME,
+			ISNULL(BRAND_NAME,'') AS BRAND_NAME,
+			ISNULL(COM_NAME,'') AS COM_NAME,
+			ISNULL(COM_REG_NO,'') AS COM_REG_NO,
+			ISNULL(SELLER_ADDR,'') AS SELLER_ADDR,
+			ISNULL(SELLER_ADDR_DETAIL,'') AS SELLER_ADDR_DETAIL,
+			ISNULL(EXP_USE_YN,'') AS EXP_USE_YN,
+			ISNULL(EXP_UNIT_VALUE,'') AS EXP_UNIT_VALUE,
+			ISNULL(CUSTOMS_NO,'') AS CUSTOMS_NO,
+			ISNULL(SHIPPER_ZIP,'') AS SHIPPER_ZIP,
+			ISNULL(SHIPPER_ADDR,'') AS SHIPPER_ADDR,
+			ISNULL(SHIPPER_ADDR_DETAIL,'') AS SHIPPER_ADDR_DETAIL,
+			ISNULL(SHIPPER_NAME,'') AS SHIPPER_NAME,
+			ISNULL(FB_USE_YN,'') AS FB_USE_YN,
+			ISNULL(FB_SEND_YN,'') AS FB_SEND_YN
+		FROM TB_CUSTOMER_FB_INFO
+		WHERE IDX = #{idx} AND USER_ID = #{userId}
+	</select>
+	
+	<update id="updateFastboxUserInfo" parameterType="com.example.temp.manager.vo.FastboxUserInfoVO">
+		UPDATE TB_CUSTOMER_FB_INFO
+		SET
+			ATTN_NAME = #{attnName}, BRAND_NAME = #{brandName}, COM_NAME = #{comName}, COM_REG_NO = #{comRegNo},
+			SELLER_ADDR = #{sellerAddr}, SELLER_ADDR_DETAIL = #{sellerAddrDetail}, EXP_USE_YN = #{expUseYn},
+			EXP_UNIT_VALUE = #{expUnitValue}, CUSTOMS_NO = #{customsNo}, SHIPPER_ZIP = #{shipperZip},
+			SHIPPER_ADDR = #{shipperAddr}, SHIPPER_ADDR_DETAIL = #{shipperAddrDetail}, SHIPPER_NAME = #{shipperName},
+			FB_USE_YN = #{fbUseYn}
+		WHERE IDX = #{idx} AND USER_ID = #{userId}
+	</update>
+	
+</mapper>

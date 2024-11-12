@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.trans.aci.AciMapper">
+	<select id="selectOrderDate" parameterType="String" resultType="hashMap">
+		select
+			concat(substring(orderDate,1,4),'-',substring(orderDate,5,2),'-',substring(orderDate,7,2)) orderDate,
+			concat(substring(orderTime,1,2),':',substring(orderTime,3,2),':',substring(orderTime,5,2)) orderTime
+		from (
+		select 
+			ISNULL(SUBSTRING(NNO,1,8),'') AS orderDate,
+			ISNULL(SUBSTRING(NNO,9,6),'') AS orderTime
+		FROM TB_ORDER_LIST WHERE HAWB_NO = #{hawbNo}
+		) m1
+	</select>
+	<select id="selectHawbDate" parameterType="String" resultType="hashMap">
+		select
+			ISNULL(format(W_DATE, 'yyyy-MM-dd'),'') AS hawbDate,
+			ISNULL(format(W_DATE, 'HH:mm:ss'),'') AS hawbTime
+		from TB_HAWB where HAWB_NO = #{hawbNo}
+	</select>
+	<select id ="selectMawbDate" parameterType="String" resultType="hashMap">
+		SELECT
+			concat(substring(depDate,1,4),'-',substring(depDate,5,2),'-',substring(depDate,7,2)) depDate,
+			concat(substring(depTime,1,2),':',substring(depTime,3,2),':00') depTime
+		FROM (
+			SELECT
+				ISNULL(DEP_DATE,'') AS depDate,
+				ISNULL(DEP_TIME,'') AS depTime
+			FROM TB_MAWB
+			WHERE MAWB_NO = (SELECT MAWB_NO FROM TB_HAWB WHERE HAWB_NO = #{hawbNo})
+		) M1
+	</select>
+</mapper>

@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.api.shopify.ShopifyMapper">
+	
+	<update id="updateApiOrderListHawb" parameterType="com.example.temp.api.aci.vo.ApiOrderListVO" >
+		UPDATE TB_ORDER_LIST SET
+		<if test="orgStation != null and orgStation !=''">
+			ORG_STATION = (SELECT STATION_CODE FROM TB_STATION WHERE STATION_NAME=#{orgStation}),
+		</if>
+		<if test="hawbNo != null and hawbNo !=''">
+			HAWB_NO = #{hawbNo},
+		</if>
+		<if test="dstnNation != null and dstnNation !=''">
+			DSTN_NATION = #{dstnNation},
+		</if>
+		<if test="transCode != null and transCode !=''">
+			TRANS_CODE = #{transCode},
+		</if>
+		<if test="boxCnt != null and boxCnt !=''">
+			BOX_CNT = #{boxCnt},
+		</if>
+		<if test="userWta != null and userWta !=''">
+			USER_WTA = #{userWta},
+		</if>
+		<if test="userWtc != null and userWtc !=''">
+			USER_WTC = #{userWtc},
+		</if>
+		<if test="shipperName != null and shipperName !=''">
+			SHIPPER_NAME = #{shipperName},
+		</if>
+		<if test="shipperZip != null and shipperZip !=''">
+			SHIPPER_ZIP = #{shipperZip},
+		</if>
+		<if test="shipperTel != null and shipperTel !=''">
+			SHIPPER_TEL = #{shipperTel},
+		</if>
+		<if test="shipperCntry != null and shipperCntry !=''">
+			SHIPPER_CNTRY = #{shipperCntry},
+		</if>
+		<if test="shipperCity != null and shipperCity !=''">
+			SHIPPER_CITY = #{shipperCity},
+		</if>
+		<if test="shipperState != null and shipperState !=''">
+			SHIPPER_STATE = #{shipperState},
+		</if>
+		<if test="shipperAddr != null and shipperAddr !=''">
+			SHIPPER_ADDR = #{shipperAddr},
+		</if>
+		<if test="shipperAddrDetail != null and shipperAddrDetail !=''">
+			SHIPPER_ADDR_DETAIL = #{shipperAddrDetail},
+		</if>
+		<if test="cneeName != null and cneeName !=''">
+			CNEE_NAME = #{cneeName},
+		</if>
+		<if test="cneeAddr != null and cneeAddr !=''">
+			CNEE_ADDR = #{cneeAddr},
+		</if>
+		<if test="cneeZip != null and cneeZip !=''">
+			CNEE_ZIP = #{cneeZip},
+		</if>
+		<if test="cneeTel != null and cneeTel !=''">
+			CNEE_TEL = #{cneeTel},
+		</if>
+		<if test="cneeHp != null and cneeHp !=''">
+			CNEE_HP = #{cneeHp},
+		</if>
+		<if test="cneeCntry != null and cneeCntry !=''">
+			CNEE_CNTRY = #{cneeCntry},
+		</if>
+		<if test="cneeCity != null and cneeCity !=''">
+			CNEE_CITY = #{cneeCity},
+		</if>
+		<if test="cneeState != null and cneeState !=''">
+			CNEE_STATE = #{cneeState},
+		</if>
+		<if test="cneeDistrict != null and cneeDistrict !=''">
+			CNEE_DISTRICT = #{cneeDistrict},
+		</if>
+		<if test="cneeAddrDetail != null and cneeAddrDetail !=''">
+			CNEE_ADDR_DETAIL = #{cneeAddrDetail},
+		</if>
+		<if test="userLength != null and userLength !=''">
+			USER_LENGTH = #{userLength},
+		</if>
+		<if test="userWidth != null and userWidth !=''">
+			USER_WIDTH = #{userWidth},
+		</if>
+		<if test="userHeight != null and userHeight !=''">
+			USER_HEIGHT = #{userHeight},
+		</if>
+		<if test="wUserId != null and wUserId !=''">
+			W_USER_ID = #{wUserId},
+		</if>
+		<if test="wUserIp != null and wUserIp !=''">
+			W_USER_IP = #{wUserIp},
+		</if>
+		<if test="orderDate != null and orderDate !=''">
+			ORDER_DATE = #{orderDate},
+		</if>
+		<if test="nativeCneeName != null and nativeCneeName !=''">
+			NATIVE_CNEE_NAME = #{nativeCneeName},
+		</if>
+		<if test="nativeCneeAddr != null and nativeCneeAddr !=''">
+			NATIVE_CNEE_ADDR = #{nativeCneeAddr},
+		</if>
+		<if test="nativeCneeAddrDetail != null and nativeCneeAddrDetail !=''">
+			NATIVE_CNEE_ADDR_DETAIL = #{nativeCneeAddrDetail},
+		</if>
+		<if test="dimUnit != null and dimUnit !=''">
+			DIM_UNIT = #{dimUnit},
+		</if>
+		<if test="wtUnit != null and wtUnit !=''">
+			WT_UNIT = #{wtUnit},
+		</if>
+		<if test="buySite != null and buySite !=''">
+			BUY_SITE = #{buySite},
+		</if>
+			ORDER_TYPE = #{orderType},
+			W_DATE = (Select Convert(varchar(10),Getdate(),112) + Replace(Convert(varchar(8),Getdate(),108),':',''))
+		WHERE NNO = #{nno} AND USER_ID = #{userId}	
+	</update>
+	
+	<select id="selectStoreUrl" parameterType="String" resultType="com.example.temp.api.shopify.ApiShopifyInfoVO">
+		SELECT * FROM TB_SHOPIFY WHERE ORG_STATION = (SELECT STATION_NAME FROM TB_STATION WHERE STATION_CODE = #{orgStation});
+	</select>
+	
+	<select id="selectTransCodeByUserId" parameterType="String" resultType="String">
+		--SELECT REMARK FROM TB_TRANS_COM WHERE TRANS_CODE = (
+		SELECT TRANS_CODE FROM TB_USER_TRANS_COM 
+		WHERE USER_ID =#{userId} AND 
+		ORG_NATION = (SELECT NATION_CODE FROM TB_STATION WHERE STATION_NAME = #{orgStation}) AND 
+		DSTN_NATION = #{dstnNation}
+		--);
+	</select>
+	
+	<insert id="insertApiOrderList" parameterType="com.example.temp.api.aci.vo.ApiOrderListVO">
+		INSERT INTO
+			TB_ORDER_LIST (
+		        NNO,
+		        ORG_STATION,
+		        DSTN_NATION,
+		        DSTN_STATION,
+		        TRANS_CODE,
+		        HAWB_NO,
+		        [USER_ID],
+		        ORDER_TYPE,
+		        ORDER_NO,
+		        BOX_CNT,
+		        USER_WTA,
+		        USER_WTC,
+		        SHIPPER_NAME,
+		        SHIPPER_ZIP,
+		        SHIPPER_TEL,
+		        SHIPPER_CNTRY,
+		        SHIPPER_CITY,
+		        SHIPPER_STATE,
+		        SHIPPER_ADDR,
+		        SHIPPER_ADDR_DETAIL,
+		        CNEE_NAME,
+		        CNEE_ADDR,
+		        CNEE_ZIP,
+		        CNEE_TEL,
+		        CNEE_HP,
+		        CNEE_CNTRY,
+		        CNEE_CITY,
+		        CNEE_STATE,
+		        CNEE_DISTRICT,
+		        CNEE_ADDR_DETAIL,
+		        USER_LENGTH,
+		        USER_WIDTH,
+		        USER_HEIGHT,
+		        W_USER_ID,
+		        W_USER_IP,
+		        W_DATE,
+		        ORDER_DATE,
+		        NATIVE_CNEE_NAME,
+		        NATIVE_CNEE_ADDR,
+		        NATIVE_CNEE_ADDR_DETAIL,
+		        DIM_UNIT,
+		        BUY_SITE,
+		        WT_UNIT,
+		        GET_BUY,
+				MALL_TYPE,
+				WH_REQ_MSG,
+				DLV_REQ_MSG
+		    )VALUES(
+		    	#{nno},
+		    	(SELECT STATION_CODE FROM TB_STATION WHERE STATION_NAME = #{orgStation}),
+				#{dstnNation},
+				#{dstnStation},
+				<!-- (SELECT TRANS_CODE FROM TB_TRANS_COM WHERE TRANS_NAME = #{transCode}), -->
+				<!-- (SELECT TRANS_CODE FROM TB_TRANS_COM WHERE REMARK = #{transCode}), -->
+				#{transCode},
+				#{hawbNo},
+				#{userId},
+				#{orderType},
+				#{orderNo},
+				#{boxCnt},
+				#{userWta},
+				#{userWtc},
+				#{shipperName},
+				#{shipperZip},
+				#{shipperTel},
+				#{shipperCntry},
+				#{shipperCity},
+				#{shipperState},
+				#{shipperAddr},
+				#{shipperAddrDetail},
+				#{cneeName},
+				#{cneeAddr},
+				#{cneeZip},
+				#{cneeTel},
+				#{cneeHp},
+				#{cneeCntry},
+				#{cneeCity},
+				#{cneeState},
+				#{cneeDistrict},
+				#{cneeAddrDetail},
+				#{userLength},
+				#{userWidth},
+				#{userHeight},
+				#{wUserId},
+				#{wUserIp},
+				(Select Convert(varchar(10),Getdate(),112) + Replace(Convert(varchar(8),Getdate(),108),':','')),
+				#{orderDate},
+				#{nativeCneeName},
+				#{nativeCneeAddr},
+				#{nativeCneeAddrDetail},
+				#{dimUnit},
+				#{buySite},
+				#{wtUnit},
+				#{getBuy},
+				#{mallType},
+				#{whReqMsg},
+				#{dlvReqMsg}
+		    );
+	</insert>
+	
+	<insert id="insertApiOrderItem" parameterType="com.example.temp.api.aci.vo.ApiOrderItemListVO">
+		INSERT INTO
+		    TB_ORDER_ITEM (
+		        NNO,
+		        SUB_NO,
+		        ORG_STATION,
+		        [USER_ID],
+		        HS_CODE,
+		        ITEM_DETAIL,
+		        NATIVE_ITEM_DETAIL,
+		        ITEM_CNT,
+		        UNIT_VALUE,
+		        BRAND,
+		        MAKE_CNTRY,
+		        MAKE_COM,
+		        ITEM_DIV,
+		        QTY_UNIT,
+		        CHG_CURRENCY,
+		        <!-- ITEM_METERIAL, -->
+		        CUS_ITEM_CODE,
+		        ITEM_URL,
+		        ITEM_IMG_URL,
+		        TRK_COM,
+		        TRK_NO,
+		        TRK_DATE,
+		        USER_WTA,
+		        USER_WTC,
+		        W_USER_ID,
+		        W_USER_IP,
+		        W_DATE
+		    )values(
+				        #{nno},
+				        #{subNo},
+				        (SELECT STATION_CODE FROM TB_STATION WHERE STATION_NAME = #{orgStation}),
+				        #{userId},
+				        #{hsCode},
+				        #{itemDetail},
+				        #{nativeItemDetail},
+				        #{itemCnt},
+				        ISNULL((SELECT UNIT_VALUE FROM TB_TAKEIN_CODE WHERE CUS_ITEM_CODE = #{cusItemCode}),#{unitValue}),
+				        #{brand},
+				        #{makeCntry},
+				        #{makeCom},
+				        #{itemDiv},
+				        #{qtyUnit},
+				        #{chgCurrency},
+				        <!-- #{itemMeterial}, -->
+				        #{cusItemCode},
+				        #{itemUrl},
+				        #{itemImgUrl},
+				        #{trkCom},
+				        #{trkNo},
+				        <if test ="trkDate != null and trkDate != ''">
+				        	#{trkDate},
+				        </if>
+				        <if test ="trkDate == null or trkDate == ''">
+				        	Getdate(),
+				        </if>
+				        DBO.FN_WEIGHT_CHG(
+				        	(SELECT WT_UNIT FROM TB_TAKEIN_CODE WHERE CUS_ITEM_CODE = #{cusItemCode}),
+							'KG',				        	
+				        	(SELECT ISNULL(WTA,0) FROM TB_TAKEIN_CODE WHERE CUS_ITEM_CODE = #{cusItemCode})
+				        ),
+				        DBO.FN_WEIGHT_CHG(
+				        	(SELECT WT_UNIT FROM TB_TAKEIN_CODE WHERE CUS_ITEM_CODE = #{cusItemCode}),
+							'KG',
+				        	(SELECT ISNULL(WTC,0) FROM TB_TAKEIN_CODE WHERE CUS_ITEM_CODE = #{cusItemCode})
+			        	),
+				        #{userId},
+				        #{wUserIp},
+				        Getdate()
+				    );
+	
+	</insert>
+	
+	<select id="selectCount" parameterType="hashMap" resultType="Integer">
+		SELECT SUM(A.AB) FROM 
+		(SELECT COUNT(NNO) AS AB FROM TB_ORDER_LIST WHERE USER_ID = #{userId} and ORDER_NO = #{orderNo} and ORDER_TYPE='takein'
+		UNION ALL
+		SELECT COUNT(NNO) AS AB FROM TB_HAWB WHERE USER_ID = #{userId} and ORDER_NO = #{orderNo}) A
+	</select>
+	
+	<select id ="selectTotalWeight" parameterType="String" resultType="String">
+		SELECT SUM(CONVERT(FLOAT,F2.WTA)) totalWeight FROM (
+			select (SELECT DBO.FN_WEIGHT_CHG(WT_UNIT,#{wtUnit},WTA) FROM TB_TAKEIN_CODE WHERE
+				CUS_ITEM_CODE = F1.CUS_ITEM_CODE)*ITEM_CNT WTA FROM TB_ORDER_ITEM F1 WHERE NNO=#{nno}
+		) F2
+	</select>
+	
+	<select id="selectTakeItemCnt" resultType="Integer">
+		SELECT SUM(F4.CNT4-F1.CNT) AS takeItemCnt FROM 
+		(
+			SELECT ISNULL(SUM(ITEM_CNT),0) AS CNT FROM TB_ORDER_ITEM WHERE CUS_ITEM_CODE = #{cusItemCode} AND NNO NOT IN 
+			(
+				SELECT NNO FROM TB_STOCK WHERE CUS_ITEM_CODE like #{cusItemCode} AND ISNULL(OUT_NNO,'') != '' 
+			)
+		) F1,
+		(
+			SELECT SUM(F3.CNT3 - F2.CNT2) AS CNT4 FROM (
+				SELECT COUNT(*) AS CNT2 FROM TB_STOCK WHERE CUS_ITEM_CODE like #{cusItemCode} AND ISNULL(OUT_NNO,'') != ''
+			) F2,
+			(
+				SELECT COUNT(*) AS CNT3 FROM TB_STOCK WHERE CUS_ITEM_CODE like #{cusItemCode}
+			) F3
+		) F4
+	</select>
+	
+	<insert id ="insertShopifyFulfilInfo" parameterType="hashMap">
+		INSERT INTO TB_SHOPIFY_FULFILINFO (NNO, [USER_ID], ORDER_NO, HAWB_NO, ORDER_ID, FULFIL_ITEM_ID, W_DATE)
+		VALUES ( #{nno}, #{userId}, #{orderNo}, #{hawbNo}, #{orderId}, #{fulfilItemId}, getdate());
+	</insert>
+	
+	<select id="selectFulfilInfo" parameterType="String" resultType="hashMap">
+		SELECT  NNO as nno, 
+				USER_ID as userId,
+				ORDER_ID as orderId,
+				FULFIL_ITEM_ID as fulfilItemId 
+		FROM TB_SHOPIFY_FULFILINFO WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectFulfillment" parameterType="String" resultType="hashMap">
+		SELECT NNO AS nno, USER_ID AS userID, ORDER_NO AS orderNo, ORDER_ID AS orderId, FULFILL_ORDER_ID AS fulFillId
+		FROM TB_SHOPIFY_FULFILLMENT WHERE NNO = #{nno}
+	</select>
+	
+	
+	<select id="selectBlApply" parameterType="hashMap" resultType="com.example.temp.member.vo.BlApplyVO" statementType="CALLABLE">
+		DECLARE
+			@RST_STATUS	NVARCHAR(50),
+			@RST_CODE NVARCHAR(50),
+			@RST_MSG NVARCHAR(100),
+			@RST_NNO NVARCHAR(50),
+			@RST_HAWB_NO NVARCHAR(50)
+		
+		EXEC SP_SHOPIFY_BL_APPLY
+			#{nno},
+			#{wUserId},
+			#{wUserIp},
+			'US',
+			#{transCode},
+			#{orderNo},
+			#{userId},
+			@RST_STATUS output,
+			@RST_CODE output,
+			@RST_MSG output,
+			@RST_NNO output,
+			@RST_HAWB_NO output
+	
+		SELECT @RST_STATUS as STATUS, @RST_CODE as RST_CODE, @RST_MSG as RST_MSG, @RST_NNO as NNO, @RST_HAWB_NO as HAWB_NO;
+	</select>
+
+	<insert id="insertShopifyFulfillData" parameterType="hashMap">
+		INSERT INTO TB_SHOPIFY_FULFILLMENT (NNO, USER_ID, ORDER_NO, ORDER_ID, FULFILL_ORDER_ID)
+		VALUES (#{nno}, #{userId}, #{orderNo}, #{orderId}, #{fulfillId})
+	</insert>
+</mapper>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.manager.mapper.ManagerTransComChangeMapper">
+
+	<select id="selectTransComChg" parameterType="hashMap" resultType="hashMap">
+		 SELECT idx , 
+		        ORG_STATION AS orgStation,
+		       (SELECT STATION_NAME FROM TB_STATION where STATION_CODE = F1.ORG_STATION) AS stationName ,
+		        DSTN_NATION AS dstnNation,
+		        (SELECT  CONCAT(NATION_E_NAME,' (',NATION_NAME,')') FROM TB_NATION_CODE WHERE NATION_CODE = F1.DSTN_NATION) AS nationName ,
+		        TRANS_CODE AS transCode,
+		        (SELECT TRANS_NAME FROM TB_TRANS_COM WHERE TRANS_CODE = F1.TRANS_CODE) AS transName,
+		        CHANGE_WT_TYPE AS changeWtType, 
+		        USER_ID AS userId,
+		        MIN_WTA AS minWta,
+		        MAX_WTA AS maxWta,
+		        MIN_WTC AS minWtc ,
+		        MAX_WTC AS maxWtc,
+		        WT_UNIT AS wtUnit,
+		        W_USER_ID AS wUserId,
+		        W_USER_IP AS wUserIp,
+		        W_DATE AS wDate 
+		   FROM TB_TRANS_COM_CHANGE F1
+		  WHERE DSTN_NATION LIKE CONCAT('%',#{dstnNation},'%')
+		    AND USER_ID = #{userId}
+		    AND ORG_STATION = #{orgStation}
+		   ORDER BY orgStation DESC, minWta ASC;
+	</select>
+	
+	<select id="selectNation" parameterType="hashMap" resultType="hashMap">
+		SELECT NATION_CODE as nationCode, 
+               CONCAT(NATION_E_NAME,' (',NATION_NAME,')') as nationName
+          FROM TB_NATION_CODE 
+         WHERE NATION_CODE LIKE CONCAT('%',#{nationCode},'%')
+           AND NATION_CODE IN (SELECT DSTN_NATION FROM TB_TRANS_ZONE WHERE ORG_NATION = (SELECT NATION_CODE 
+                                                 FROM TB_STATION 
+                                                 WHERE STATION_CODE = #{orgStation}))
+	</select>
+	<select id="selectTrans" parameterType="hashMap" resultType="hashMap">
+	SELECT TRANS_CODE , 
+           TRANS_NAME , 
+           REMARK ,
+           CONCAT(TRANS_NAME,' (',REMARK,')') AS  TRANS_NAME_REMARK
+ 	  FROM TB_TRANS_COM
+ 	 WHERE TRANS_CODE IN ((SELECT TRANS_CODE FROM TB_TRANS_ZONE 
+                            WHERE DSTN_NATION = #{dstnNation}
+                              AND ORG_NATION = (SELECT NATION_CODE 
+                                                 FROM TB_STATION 
+                                                 WHERE STATION_CODE = #{orgStation})))
+    </select>
+    
+    <select id="deleteTransComChangeDel" parameterType="hashMap" resultType="hashMap" statementType="CALLABLE">
+    	    DECLARE
+			@IDX NVARCHAR(50) ,
+			@D_USER_ID NVARCHAR(50),
+			@D_USER_IP NVARCHAR(50),
+			@RST_STATUS NVARCHAR(50) , 
+			@RST_CODE NVARCHAR(10) , 
+			@RST_MSG NVARCHAR(100)  
+			
+			SET @IDX  = #{idx}
+			SET @D_USER_ID = #{dUserId}
+			SET @D_USER_IP  = #{dUserIp}
+			
+			EXEC SP_TRANS_COM_CHANGE_DEL
+			@IDX ,
+			@D_USER_ID ,
+			@D_USER_IP ,
+			@RST_STATUS  OUTPUT, 
+			@RST_CODE  OUTPUT, 
+			@RST_MSG  OUTPUT 
+
+			SELECT 
+			@RST_STATUS  AS rstStatus, 
+			@RST_CODE AS rstCode, 
+			@RST_MSG AS  rstMsg
+    </select>
+    <select id="insertTransComChangeIn" parameterType="hashMap" resultType="hashMap" statementType="CALLABLE">
+    		 DECLARE
+			@ORG_STATION NVARCHAR(3),
+			@DSTN_NATION NVARCHAR(2),
+			@TRANS_CODE NVARCHAR(50),
+			@USER_ID NVARCHAR(50),
+			@CHANGE_WT_TYPE NVARCHAR(10),
+			@MIN_WTA FLOAT ,
+			@MAX_WTA FLOAT ,
+			@WT_UNIT NVARCHAR(2) ,
+			@W_USER_ID NVARCHAR(50) ,
+			@W_USER_IP NVARCHAR(50) ,
+			@RST_STATUS NVARCHAR(50) OUTPUT, 
+			@RST_CODE NVARCHAR(10) OUTPUT, 
+			@RST_MSG NVARCHAR(100) OUTPUT 
+			
+			
+			SET @ORG_STATION = #{orgStation}
+			SET @DSTN_NATION = #{dstnNation}
+			SET @TRANS_CODE = #{transCode}
+			SET @USER_ID = #{userId}
+			SET @CHANGE_WT_TYPE = #{changeWtType}
+			SET @MIN_WTA = #{minWta}
+			SET @MAX_WTA = #{maxWta}
+			SET @WT_UNIT = #{wtUnit}
+			SET @W_USER_ID = #{wUserId}
+			SET @W_USER_IP =  #{wUserIp}
+			
+			EXEC SP_TRANS_COM_CHANGE_IN
+			@ORG_STATION ,
+			@DSTN_NATION ,
+			@TRANS_CODE ,
+			@USER_ID ,
+			@CHANGE_WT_TYPE ,
+			@MIN_WTA  ,
+			@MAX_WTA  ,
+			@WT_UNIT  ,
+			@W_USER_ID  ,
+			@W_USER_IP  ,
+			@RST_STATUS  OUTPUT, 
+			@RST_CODE OUTPUT, 
+			@RST_MSG  OUTPUT 
+
+			SELECT 
+			@RST_STATUS  AS rstStatus, 
+			@RST_CODE AS rstCode, 
+			@RST_MSG AS  rstMsg
+    
+    </select>
+ 
+</mapper>

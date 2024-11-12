@@ -1,0 +1,1137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.manager.mapper.ManagerReturnOrderMapper">
+	<select id="selectReturnStateList" resultType="hashMap">
+		SELECT
+			ISNULL(CODE,'') AS code,
+			ISNULL(NAME,'') AS name
+		FROM TB_CODE
+		WHERE CODE_DIV = 'RETURN_STATE'
+	</select>
+	
+	<select id="selectReturnOrderListCnt" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*)
+		FROM TB_RETURN_ORDER_LIST
+		WHERE ORG_STATION = #{orgStation} AND STATE IN ('A000', 'A001', 'A002', 'B001', 'C001')
+		<if test="userId != null and userId != ''">
+			AND USER_ID LIKE CONCAT('%',#{userId},'%')
+		</if>
+		<if test="fromDate != null and fromDate != ''">
+			AND LEFT(NNO, 8) <![CDATA[ >= ]]> #{fromDate}
+		</if>
+		<if test="toDate != null and toDate != ''">
+			AND LEFT(NNO, 8) <![CDATA[ <= ]]> #{toDate}
+		</if>
+		<if test="koblNo != null and koblNo != ''">
+			AND KOBL_NO LIKE CONCAT('%',#{koblNo},'%')
+		</if>
+		<if test="orderNo != null and orderNo != ''">
+			AND ORDER_NO LIKE CONCAT('%',#{orderNo},'%')
+		</if>
+		<if test="state != '' and state != null">
+			AND STATE = #{state}
+		</if>
+	</select>
+	
+	<select id="selectReturnOrderList" parameterType="hashMap" resultType="com.example.temp.member.vo.ReturnOrderListVO">
+		SELECT *
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER(ORDER BY W_DATE DESC) AS ROWNUM,
+				NNO,
+				USER_ID,
+				ISNULL(STATE,'') AS STATE,
+				ISNULL((SELECT NAME FROM TB_CODE WHERE CODE = F1.STATE AND CODE_DIV = 'RETURN_STATE'),'') AS STATE_NAME,
+				ISNULL(KOBL_NO,'') AS KOBL_NO,
+				ISNULL(ORDER_NO,'') AS ORDER_NO,
+				ISNULL((SELECT NATION_NAME FROM TB_NATION_CODE WHERE NATION_CODE = F1.DSTN_NATION),'') AS DSTN_NATION,
+				ISNULL(TRK_COM,'') AS TRK_COM,
+				ISNULL(TRK_NO,'') AS TRK_NO,
+				ISNULL(TRK_DATE,'') AS TRK_DATE,
+				ISNULL(W_DATE,'') AS W_DATE,
+				ISNULL((SELECT TOP 1 ITEM_IMG_URL FROM TB_RETURN_ITEM_LIST WHERE ORG_STATION = F1.ORG_STATION AND USER_ID = F1.USER_ID AND NNO = F1.NNO AND ISNULL(ITEM_IMG_URL,'') != '' ORDER BY SUB_NO),'') AS ITEM_IMG_URL,
+				ISNULL(ATTN_NAME,'') AS ATTN_NAME,
+				ISNULL(ATTN_TEL,'') AS ATTN_TEL,
+				ISNULL(ATTN_EMAIL,'') AS ATTN_EMAIL,
+				ISNULL(PICK_TYPE,'') AS PICK_TYPE,
+				ISNULL(TAX_TYPE,'') AS TAX_TYPE,
+				ISNULL(RETURN_TYPE,'') AS RETURN_TYPE
+			FROM TB_RETURN_ORDER_LIST F1
+			WHERE ORG_STATION = #{orgStation} AND STATE IN ('A000', 'A001', 'A002', 'B001', 'C001')
+			<if test="userId != null and userId != ''">
+				AND USER_ID LIKE CONCAT('%',#{userId},'%')
+			</if>
+			<if test="fromDate != null and fromDate != ''">
+				AND LEFT(NNO, 8) <![CDATA[ >= ]]> #{fromDate}
+			</if>
+			<if test="toDate != null and toDate != ''">
+				AND LEFT(NNO, 8) <![CDATA[ <= ]]> #{toDate}
+			</if>
+			<if test="koblNo != null and koblNo != ''">
+				AND KOBL_NO LIKE CONCAT('%',#{koblNo},'%')
+			</if>
+			<if test="trkNo != null and trkNo != ''">
+				AND TRK_NO LIKE CONCAT('%',#{trkNo},'%')
+			</if>
+			<if test="state != '' and state != null">
+				AND STATE = #{state}
+			</if>
+		) M1
+		WHERE M1.ROWNUM BETWEEN #{paging.boardStart} AND #{paging.boardEnd}
+		ORDER BY ROWNUM
+	</select>
+	
+	<select id="selectReturnOrderEpostList" resultType="com.example.temp.member.vo.ReturnOrderListVO">
+		SELECT
+			F1.NNO,
+			ISNULL(SHIPPER_NAME,'') AS SHIPPER_NAME,
+			ISNULL(SHIPPER_TEL,'') AS SHIPPER_TEL,
+			ISNULL(SHIPPER_HP,'') AS SHIPPER_HP,
+			ISNULL(SHIPPER_ADDR,'') AS SHIPPER_ADDR,
+			ISNULL(SHIPPER_ADDR_DETAIL,'') AS SHIPPER_ADDR_DETAIL,
+			ISNULL(SHIPPER_ZIP,'') AS SHIPPER_ZIP,
+			ISNULL(KOBL_NO,'') AS KOBL_NO,
+			STUFF((SELECT ','+ITEM_DETAIL FROM TB_RETURN_ITEM_LIST WHERE NNO = F1.NNO FOR XML PATH('')), 1, 1, '') AS ITEM_DETAIL,
+			(SELECT SUM(ITEM_WTA) FROM TB_RETURN_ITEM_LIST WHERE NNO = F1.NNO) AS WTA,
+			(SELECT SUM(ITEM_CNT) FROM TB_RETURN_ITEM_LIST WHERE NNO = F1.NNO) AS ITEM_CNT
+		FROM TB_RETURN_ORDER_LIST F1
+		WHERE F1.STATE = 'A001' AND F1.PICK_TYPE = 'B'
+	</select>
+	
+	<select id="selectReturnOrderCntForWhWork" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*)
+		FROM TB_RETURN_ORDER_LIST
+		WHERE ORG_STATION = #{orgStation} AND STATE IN ('B001', 'C001')
+		<if test="fromDate != null and fromDate != ''">
+			AND LEFT(NNO, 8) <![CDATA[ >= ]]> #{fromDate}
+		</if>
+		<if test="toDate != null and toDate != ''">
+			AND LEFT(NNO, 8) <![CDATA[ <= ]]> #{toDate}
+		</if>
+		<if test="koblNo != null and koblNo != ''">
+			AND KOBL_NO LIKE CONCAT('%',#{koblNo},'%')
+		</if>
+		<if test="trkNo != null and trkNo != ''">
+			AND TRK_NO LIKE CONCAT('%',#{trkNo},'%')
+		</if>
+		<if test="userId != null and userId != ''">
+			AND USER_ID LIKE CONCAT('%',#{userId},'%')
+		</if>
+		<if test="state != null and state != ''">
+			AND STATE = #{state}
+		</if>
+	</select>
+	
+	<select id="selectReturnOrderListForWhWork" parameterType="hashMap" resultType="com.example.temp.member.vo.ReturnOrderListVO">
+		SELECT *
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER(ORDER BY W_DATE DESC) AS ROWNUM,
+				NNO,
+				ISNULL(STATE,'') AS STATE,
+				ISNULL((SELECT NAME FROM TB_CODE WHERE CODE = F1.STATE AND CODE_DIV = 'RETURN_STATE'),'') AS STATE_NAME,
+				ISNULL(KOBL_NO,'') AS KOBL_NO,
+				ISNULL(TRK_NO,'') AS TRK_NO,
+				ISNULL(USER_ID,'') AS USER_ID,
+				ISNULL(ORDER_NO,'') AS ORDER_NO,
+				ISNULL(ATTN_NAME,'') AS ATTN_NAME,
+				ISNULL(ATTN_TEL,'') AS ATTN_TEL,
+				ISNULL(ATTN_EMAIL,'') AS ATTN_EMAIL,
+				ISNULL((SELECT ITEM_IMG_URL FROM TB_RETURN_ITEM_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND SUB_NO = 1),'') AS ITEM_IMG_URL,
+				ISNULL((SELECT ITEM_DETAIL FROM TB_RETURN_ITEM_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND SUB_NO = 1),'') AS ITEM_DETAIL,
+				ISNULL((SELECT SUM(ITEM_CNT) FROM TB_RETURN_ITEM_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID),0) AS ITEM_CNT
+			FROM TB_RETURN_ORDER_LIST F1
+			WHERE ORG_STATION = #{orgStation} AND STATE IN ('B001', 'C001')
+			<if test="fromDate != null and fromDate != ''">
+				AND LEFT(NNO, 8) <![CDATA[ >= ]]> #{fromDate}
+			</if>
+			<if test="toDate != null and toDate != ''">
+				AND LEFT(NNO, 8) <![CDATA[ <= ]]> #{toDate}
+			</if>
+			<if test="koblNo != null and koblNo != ''">
+				AND KOBL_NO LIKE CONCAT('%',#{koblNo},'%')
+			</if>
+			<if test="trkNo != null and trkNo != ''">
+				AND TRK_NO LIKE CONCAT('%',#{trkNo},'%')
+			</if>
+			<if test="userId != null and userId != ''">
+				AND USER_ID LIKE CONCAT('%',#{userId},'%')
+			</if>
+			<if test="state != null and state != ''">
+				AND STATE = #{state}
+			</if>
+		) M1
+		WHERE M1.ROWNUM BETWEEN #{paging.boardStart} AND #{paging.boardEnd}
+		ORDER BY ROWNUM
+	</select>
+	
+	<select id="selectReturnOrderCheck" parameterType="hashMap" resultType="hashMap">
+		WITH FILTER_NNO AS (
+		    SELECT F1.NNO, F1.STATE
+		    FROM TB_RETURN_ORDER_LIST F1
+		    WHERE TRK_NO = #{barcodeNo}
+		)
+		SELECT
+			ISNULL((SELECT NNO FROM FILTER_NNO), '') AS NNO,
+			ISNULL((SELECT STATE FROM FILTER_NNO),'') AS STATE,
+			CASE
+				WHEN ISNULL((SELECT STATE FROM FILTER_NNO),'') = '' THEN ''
+				ELSE (SELECT NAME FROM TB_CODE WHERE CODE = (SELECT STATE FROM FILTER_NNO) AND CODE_DIV = 'RETURN_STATE')
+			END AS STATE_NAME;
+	</select>
+	
+	<select id="selectReturnOrderInfo" parameterType="hashMap" resultType="com.example.temp.member.vo.ReturnOrderListVO">
+		SELECT
+			NNO,
+			ISNULL(ORG_STATION,'') AS ORG_STATION,
+			ISNULL(DSTN_NATION,'') AS DSTN_NATION,
+			ISNULL(DSTN_STATION,'') AS DSTN_STATION,
+			ISNULL(USER_ID,'') AS USER_ID,
+			ISNULL(ORDER_TYPE,'') AS ORDER_TYPE,
+			ISNULL(ORDER_NO,'') AS ORDER_NO,
+			ISNULL(ORDER_DATE,'') AS ORDER_DATE,
+			ISNULL(PICK_TYPE,'') AS PICK_TYPE,
+			ISNULL(RETURN_TYPE,'') AS RETURN_TYPE,
+			ISNULL(KOBL_NO,'') AS KOBL_NO,
+			ISNULL(TRK_COM,'') AS TRK_COM,
+			ISNULL(TRK_NO,'') AS TRK_NO,
+			ISNULL(TRK_DATE,'') AS TRK_DATE,
+			ISNULL(WH_MSG,'') AS WH_MSG,
+			ISNULL(SHIPPER_NAME,'') AS SHIPPER_NAME,
+			ISNULL(SHIPPER_ZIP,'') AS SHIPPER_ZIP,
+			ISNULL(SHIPPER_TEL,'') AS SHIPPER_TEL,
+			ISNULL(SHIPPER_HP,'') AS SHIPPER_HP,
+			ISNULL(SHIPPER_CNTRY,'') AS SHIPPER_CNTRY,
+			ISNULL(SHIPPER_CITY,'') AS SHIPPER_CITY,
+			ISNULL(SHIPPER_STATE,'') AS SHIPPER_STATE,
+			ISNULL(SHIPPER_ADDR,'') AS SHIPPER_ADDR,
+			ISNULL(SHIPPER_ADDR_DETAIL,'') AS SHIPPER_ADDR_DETAIL,
+			ISNULL(CNEE_NAME,'') AS CNEE_NAME,
+			ISNULL(CNEE_ADDR,'') AS CNEE_ADDR,
+			ISNULL(CNEE_ZIP,'') AS CNEE_ZIP,
+			ISNULL(CNEE_TEL,'') AS CNEE_TEL,
+			ISNULL(CNEE_HP,'') AS CNEE_HP,
+			ISNULL(CNEE_CNTRY,'') AS CNEE_CNTRY,
+			ISNULL(CNEE_CITY,'') AS CNEE_CITY,
+			ISNULL(CNEE_STATE,'') AS CNEE_STATE,
+			ISNULL(CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL,
+			ISNULL(NATIVE_CNEE_NAME,'') AS NATIVE_CNEE_NAME,
+			ISNULL(NATIVE_CNEE_ADDR,'') AS NATIVE_CNEE_ADDR,
+			ISNULL(NATIVE_CNEE_ADDR_DETAIL,'') AS NATIVE_CNEE_ADDR_DETAIL,
+			ISNULL(ATTN_NAME,'') AS ATTN_NAME,
+			ISNULL(ATTN_TEL,'') AS ATTN_TEL,
+			ISNULL(ATTN_EMAIL,'') AS ATTN_EMAIL,
+			ISNULL(RETURN_REASON,'') AS RETURN_REASON,
+			ISNULL(RETURN_REASON_DETAIL,'') AS RETURN_REASON_DETAIL,
+			ISNULL(TAX_TYPE,'') AS TAX_TYPE,
+			ISNULL(TAX_RETURN,'') AS TAX_RETURN,
+			ISNULL(STATE,'') AS STATE,
+			ISNULL(W_USER_ID,'') AS W_USER_ID,
+			ISNULL(W_USER_IP,'') AS W_USER_IP,
+			ISNULL(W_DATE,'') AS W_DATE,
+			ISNULL(FOOD,'') AS FOOD,
+			ISNULL(CD_REMARK,'') AS CD_REMARK,
+			(SELECT SUM(ITEM_CNT) FROM TB_RETURN_ITEM_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID) AS TOTAL_ITEM_CNT
+		FROM TB_RETURN_ORDER_LIST F1
+		WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectReturnItemInfo" parameterType="hashMap" resultType="hashMap">
+		SELECT
+			NNO AS nno, SUB_NO AS subNo,
+			ISNULL(ITEM_DETAIL,'') AS itemDetail,
+			ISNULL(BRAND,'') AS brand,
+			ITEM_CNT - (SELECT COUNT(*) FROM TB_STOCK WHERE NNO = F1.NNO AND SUB_NO = F1.SUB_NO) AS itemCnt,
+			ISNULL(UNIT_VALUE,0) AS unitValue,
+			ISNULL(UNIT_CURRENCY,'') AS unitCurrency,
+			ISNULL(MAKE_COM,'') AS makeCom,
+			ISNULL(MAKE_CNTRY,'') AS makeCntry,
+			ISNULL(ITEM_IMG_URL,'') AS itemImgUrl,
+			ISNULL(ITEM_URL,'') AS itemUrl
+		FROM TB_RETURN_ITEM_LIST F1
+		WHERE NNO = #{nno} AND ITEM_CNT != (SELECT COUNT(*) FROM TB_STOCK WHERE NNO = F1.NNO AND SUB_NO = F1.SUB_NO)
+		ORDER BY SUB_NO
+	</select>
+	
+	<select id="selectStockInfo" resultType="hashMap">
+		SELECT CONCAT('RETURN_IN','_',NEXT VALUE FOR SEQ_STOCK_NO) AS stockNo;
+	</select>
+	
+	<insert id="insertStockInfo" parameterType="hashMap">
+		INSERT INTO TB_STOCK (
+		STOCK_NO, STOCK_TYEP, ORG_STATION, USER_ID, RACK_CODE, NNO, SUB_NO, TAKE_IN_CODE, WH_IN_DATE, WH_STATUS, WTA, WIDTH, HEIGHT, 
+		LENGTH, PER, WTC, WT_UNIT, DIM_UNIT, OUT_NNO, TRK_COM, TRK_NO, W_USER_ID, W_USER_IP, W_DATE, GROUP_IDX, CUS_ITEM_CODE, REMARK) VALUES (
+		#{stockNo}, 'RETURN_IN', #{orgStation}, #{userId}, #{rackCode}, #{nno}, #{subNo}, '', #{whInDate}, #{whRst}, 0, #{userWidth}, #{userHeight},
+		#{userLength}, #{per}, #{wtc}, #{wtUnit}, #{dimUnit}, '', #{trkCom}, #{trkNo}, #{wUserId}, #{wUserIp}, GETDATE(), #{groupIdx}, '', #{whMemo})
+	</insert>
+	
+	<insert id="insertInspFile" parameterType="hashMap">
+		INSERT INTO TB_INSP_FILE (NNO, INSP_TYPE, FILE_DIR, W_USER_ID, W_USER_IP) VALUES
+		(#{nno}, 'RETURN', #{filePath}, #{wUserId}, #{wUserIp})
+	</insert>
+	
+	<select id="selectStockInfoList" parameterType="hashMap" resultType="hashMap">
+		SELECT STOCK_NO AS stockNo, GROUP_IDX AS groupIdx, WH_STATUS AS whRst, RACK_CODE AS rackCode, SUB_NO AS subNo,
+			ISNULL((SELECT ITEM_DETAIL FROM TB_RETURN_ITEM_LIST WHERE NNO = F1.NNO AND SUB_NO = F1.SUB_NO),'') AS itemDetail
+		FROM TB_STOCK F1 WHERE NNO = #{nno}
+	</select>
+	
+	<update id="updateReturnOrderWhStatus" parameterType="hashMap">
+		UPDATE TB_RETURN_ORDER_LIST SET WH_STATUS = #{whRst}, WH_STATUS_SUB = #{whStatus}, WH_STATUS_DETAIL = #{whStatusDetail} WHERE NNO = #{nno}
+	</update>
+	
+	<update id="updateReturnOrderStateInfo" parameterType="com.example.temp.member.vo.ReturnOrderListVO">
+		UPDATE TB_RETURN_ORDER_LIST SET STATE = #{state} WHERE NNO = #{nno}
+	</update>
+	
+	<select id="selectGroupIdx" resultType="String">
+		SELECT CONCAT(CONVERT(VARCHAR(10), GETDATE(),112),'_',RIGHT(NEXT VALUE FOR SEQ_GROUP_IDX,5));
+	</select>
+	
+	<select id="execSpWhoutStockReturnIn" parameterType="hashMap" resultType="hashMap"  statementType="CALLABLE">
+		DECLARE
+			@ORG_STATION NVARCHAR(3),
+			@STOCK_NO NVARCHAR(50),
+			@W_USER_ID NVARCHAR(50),
+			@W_USER_IP NVARCHAR(50),
+			@RST_NNO NVARCHAR(50),
+			@RST_STATUS NVARCHAR(50),
+			@RST_CODE NVARCHAR(10),
+			@RST_MSG NVARCHAR(50)
+
+		SET @ORG_STATION = #{orgStation}
+		SET @STOCK_NO = #{stockNo}
+		SET @W_USER_ID = #{wUserId}
+		SET @W_USER_IP = #{wUserIp}
+			
+		EXEC SP_WHOUT_STOCK_RETURN_IN
+			@ORG_STATION,
+			@STOCK_NO,
+			@W_USER_ID,
+			@W_USER_IP,
+			@RST_NNO OUTPUT,
+			@RST_STATUS OUTPUT,
+			@RST_CODE OUTPUT,
+			@RST_MSG OUTPUT
+			
+		SELECT 
+		ISNULL(@RST_NNO,'') AS rstNno,
+		ISNULL(@RST_STATUS,'')  AS rstStatus,
+		ISNULL(@RST_CODE,'') AS rstCode,
+		ISNULL(@RST_MSG,'') AS rstMsg;
+	</select>
+	
+	<select id="selectStockUnCheckInfoList" parameterType="hashMap" resultType="hashMap">
+		SELECT STOCK_NO AS stockNo, GROUP_IDX AS groupIdx, RACK_CODE AS rackCode, SUB_NO AS subNo,
+			(SELECT ITEM_DETAIL FROM TB_RETURN_ITEM_LIST WHERE NNO = F1.NNO AND SUB_NO = F1.SUB_NO) AS itemDetail
+		FROM TB_STOCK F1
+		WHERE NNO = #{nno}
+			AND STOCK_NO NOT IN (SELECT STOCK_NO FROM TMP_WHOUT_STOCK WHERE NNO = #{nno} AND ORG_STATION = #{orgStation} AND W_USER_ID = #{wUserId})
+			AND ISNULL(OUT_NNO,'') = ''
+			AND ORG_STATION = #{orgStation}
+	</select>
+	
+	<select id="selectStockOutList" parameterType="hashMap" resultType="hashMap">
+		SELECT F1.NNO AS nno, F1.SUB_NO AS subNo, F1.ITEM_DETAIL AS itemDetail, F1.ITEM_CNT AS itemCnt,
+			(SELECT COUNT(*) FROM TMP_WHOUT_STOCK WHERE NNO = F1.NNO AND SUB_NO = F1.SUB_NO AND W_USER_ID = #{wUserId} AND ORG_STATION = #{orgStation}) AS whoutCnt
+		FROM TB_RETURN_ITEM_LIST F1
+		WHERE NNO = #{nno}
+		<if test="stockNo != null and stockNo != ''">
+			AND NNO IN (SELECT NNO FROM TMP_WHOUT_STOCK WHERE W_USER_ID = #{wUserId} AND ORG_STATION = #{orgStation} AND NNO = #{nno})
+		</if>
+	</select>
+	
+	<select id="selectSubNoByStockNo" parameterType="hashMap" resultType="Integer">
+		SELECT SUB_NO FROM TMP_WHOUT_STOCK WHERE W_USER_ID = #{wUserId} AND STOCK_NO = #{stockNo} AND NNO = #{nno}
+	</select>
+	
+	<delete id="deleteStockOutList" parameterType="hashMap">
+		DELETE FROM TMP_WHOUT_STOCK WHERE W_USER_ID = #{wUserId} AND ORG_STATION = #{orgStation} AND NNO = #{nno}
+	</delete>
+	
+	<select id="selectTransCodeList" parameterType="HashMap" resultType="hashMap">
+		SELECT ISNULL(TRANS_CODE,'ACI') AS transCode, ISNULL(NATION_CODE,'ACI') AS transName
+		FROM TB_USER_TRANS_COM F1, TB_RETURN_ORDER_LIST F2
+		WHERE F1.USER_ID = F2.USER_ID
+			AND ORG_NATION = (SELECT NATION_CODE FROM TB_STATION WHERE STATION_CODE = F2.ORG_STATION)
+			AND F1.DSTN_NATION = F2.DSTN_NATION
+			AND F2.NNO = #{nno}
+	</select>
+	
+	<select id="selectStockOutReturnItemInfo" parameterType="hashMap" resultType="com.example.temp.member.vo.UserOrderItemVO">
+		SELECT
+			NNO,
+			SUB_NO,
+			ISNULL(ORG_STATION,'') AS ORG_STATION,
+			ISNULL(USER_ID,'') AS USER_ID,
+			ISNULL(HS_CODE,'') AS HS_CODE,
+			ISNULL(ITEM_DETAIL,'') AS ITEM_DETAIL,
+			ISNULL(NATIVE_ITEM_DETAIL,'') AS NATIVE_ITEM_DETAIL,
+			ISNULL(UNIT_CURRENCY,'') AS UNIT_CURRENCY,
+			ISNULL(UNIT_VALUE,0) AS UNIT_VALUE,
+			ISNULL(BRAND,'') AS BRAND,
+			ISNULL(MAKE_CNTRY,'') AS MAKE_CNTRY,
+			ISNULL(MAKE_COM,'') AS MAKE_COM,
+			ISNULL(ITEM_WTA,0) AS ITEM_WTA,
+			ISNULL(WT_UNIT,'') AS WT_UNT,
+			ISNULL(ITEM_DIV,'') AS ITEM_DIV,
+			ISNULL(ITEM_URL,'') AS ITEM_URL,
+			ISNULL(ITEM_IMG_URL,'') AS ITEM_IMG_URL,
+			ISNULL(CUS_ITEM_CODE,'') AS CUS_ITEM_CODE,
+			ISNULL((SELECT COUNT(*) FROM TMP_WHOUT_STOCK WHERE NNO = F1.NNO AND SUB_NO = F1.SUB_NO AND W_USER_ID = #{wUserId}),0) AS ITEM_CNT
+		FROM TB_RETURN_ITEM_LIST F1
+		WHERE NNO = #{nno}
+	</select>
+	
+	<insert id="insertReturnItemToTmpItemInfo" parameterType="com.example.temp.member.vo.UserOrderItemVO">
+		INSERT INTO TMP_ORDER_ITEM 
+			(NNO, SUB_NO, ORG_STATION, USER_ID, HS_CODE, ITEM_DETAIL, NATIVE_ITEM_DETAIL, UNIT_CURRENCY, ITEM_CNT, UNIT_VALUE, BRAND, MAKE_CNTRY,
+			MAKE_COM, ITEM_DIV, WT_UNIT, QTY_UNIT, PACKAGE_UNIT, EXCHANGE_RATE, CHG_CURRENCY, ITEM_METERIAL, TAKE_IN_CODE, USER_WTA,
+			USER_WTC, ITEM_URL, ITEM_IMG_URL, TRK_COM, TRK_NO, TRK_DATE, CUS_ITEM_CODE, W_USER_ID, W_USER_IP, W_DATE, NATION_CODE, DIM_UNIT, STATUS) VALUES
+			(#{nno}, #{subNo}, #{orgStation}, #{userId}, #{hsCode}, #{itemDetail}, #{nativeItemDetail}, #{unitCurrency}, #{itemCnt}, #{unitValue}, #{brand}, #{makeCntry},
+			#{makeCom}, #{itemDiv}, #{wtUnit}, #{qtyUnit}, #{packageUnit}, #{exchangeRate}, #{chgCurrency}, #{itemMeterial}, #{takeInCode}, #{userWta},
+			#{userWtc}, #{itemUrl}, #{itemImgUrl}, #{trkCom}, #{trkNo}, GETDATE(), #{cusItemCode}, #{wUserId}, #{wUserIp}, GETDATE(), #{nationCode}, #{dimUnit}, #{status})
+	</insert>
+	
+	<insert id="insertReturnOrderToTmpOrderInfo" parameterType="com.example.temp.member.vo.UserOrderListVO">
+		INSERT INTO TMP_ORDER_LIST (
+			NNO, ORG_STATION, DSTN_NATION, DSTN_STATION, USER_ID, ORDER_TYPE, ORDER_NO, HAWB_NO, BOX_CNT, USER_WTA, USER_WTC, 
+			SHIPPER_NAME, SHIPPER_ZIP, SHIPPER_TEL, SHIPPER_HP, SHIPPER_CNTRY, SHIPPER_CITY, SHIPPER_STATE, SHIPPER_ADDR, SHIPPER_ADDR_DETAIL, 
+			CNEE_NAME, CNEE_ADDR, CNEE_ZIP, CNEE_TEL, CNEE_HP, CNEE_CNTRY, CNEE_CITY, CNEE_STATE, CNEE_ADDR_DETAIL, USER_LENGTH, USER_WIDTH, 
+			USER_HEIGHT, W_USER_ID, W_USER_IP, W_DATE, TRANS_CODE, ORDER_DATE, STATUS, DIM_UNIT, WT_UNIT,
+			USER_EMAIL, CNEE_EMAIL, CUSTOMS_NO, NATIVE_CNEE_ADDR, NATIVE_CNEE_ADDR_DETAIL, GET_BUY, BUY_SITE, MALL_TYPE, WH_REQ_MSG,
+			DLV_REQ_MSG, CNEE_DISTRICT, SHIPPER_REFERENCE, CNEE_REFERENCE1, CNEE_REFERENCE2, PAYMENT, FOOD, UPLOAD_TYPE) VALUES
+			(#{nno}, #{orgStation}, #{dstnNation}, #{dstnStation}, #{userId}, #{orderType}, #{orderNo}, '', #{boxCnt}, #{userWta}, #{userWtc},
+			#{shipperName}, #{shipperZip}, #{shipperTel}, #{shipperHp}, #{shipperCntry}, #{shipperCity}, #{shipperState}, #{shipperAddr}, #{shipperAddrDetail},
+			#{cneeName}, #{cneeAddr}, #{cneeZip}, #{cneeTel}, #{cneeHp}, #{cneeCntry}, #{cneeCity}, #{cneeState}, #{cneeAddrDetail}, #{userLength}, #{userWidth},
+			#{userHeight}, #{wUserId}, #{wUserIp}, #{wDate}, #{transCode}, #{orderDate}, #{status}, #{dimUnit}, #{wtUnit},
+			#{userEmail}, #{cneeEmail}, #{customsNo}, #{nativeCneeAddr}, #{nativeCneeAddrDetail}, #{getBuy}, #{buySite}, #{mallType}, #{whReqMsg},
+			#{dlvReqMsg}, #{cneeDistrict}, #{shipperReference}, #{cneeReference1}, #{cneeReference2}, #{payment}, #{food}, #{uploadType})
+	</insert>
+	
+	<select id="selectReturnTmpListCnt" parameterType="hashMap" resultType="Integer">
+		SELECT
+			ISNULL(MAX(ROWNUM),0)
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER(ORDER BY LEFT(F1.NNO,14) DESC, F2.SUB_NO ASC) AS ROWNUM,
+				F1.NNO,
+				F1.ORG_STATION,
+				F2.SUB_NO,
+				F2.ITEM_DETAIL,
+				F2.ITEM_CNT,
+				ISNULL(F1.USER_ID,'') AS USER_ID,
+				ISNULL(F1.ORDER_NO,'') AS ORDER_NO,
+				ISNULL((SELECT NATION_NAME FROM TB_NATION_CODE WHERE NATION_CODE = F1.DSTN_NATION),'') AS DSTN_NATION,
+				ISNULL(TRANS_CODE,'') AS TRANS_CODE,
+				ISNULL(F1.CNEE_NAME,'') AS CNEE_NAME,
+				ISNULL(F1.CNEE_ADDR,'') AS CNEE_ADDR,
+				ISNULL(F1.CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL,
+				ISNULL(F1.CNEE_ZIP,'') AS CNEE_ZIP,
+				ISNULL(F1.CNEE_TEL,'') AS CNEE_TEL,
+				ISNULL(F3.KOBL_NO,'') AS KOBL_NO,
+				ISNULL(F3.TRK_NO,'') AS TRK_NO
+			FROM TMP_ORDER_LIST F1, TMP_ORDER_ITEM F2, TB_RETURN_ORDER_LIST F3
+			WHERE 
+				F1.NNO = F2.NNO
+				AND F1.ORG_STATION = F2.ORG_STATION
+				AND F1.USER_ID = F2.USER_ID
+				AND F1.NNO = F3.NNO
+				AND F1.ORG_STATION = F3.ORG_STATION
+				AND F1.USER_ID = F3.USER_ID
+				AND F2.NNO = F3.NNO
+				AND F2.USER_ID = F3.USER_ID
+				AND F1.ORDER_TYPE = 'RETURN' AND F1.ORG_STATION = #{orgStation}
+				<if test="fromDate != null and fromDate != ''">
+				AND LEFT(F1.W_DATE, 8) <![CDATA[ >= ]]> #{fromDate}
+				</if>
+				<if test="toDate != null and toDate != ''">
+				AND LEFT(F1.W_DATE, 8) <![CDATA[ <= ]]> #{toDate}
+				</if>
+				<if test="transCode != null and transCode != ''">
+				AND TRANS_CODE = #{transCode}
+				</if>
+				<if test="koblNo != null and koblNo != ''">
+				AND F3.KOBL_NO LIKE CONCAT('%',#{koblNo},'%')
+				</if>
+				<if test="trkNo != null and trkNo != ''">
+				AND F3.TRK_NO LIKE CONCAT('%',#{trkNo},'%')
+				</if>
+				<if test="userId != null and userId != ''">
+				AND F3.USER_ID LIKE CONCAT('%',#{userId},'%')
+				</if>
+			) M1
+	</select>
+	
+	<select id="selectReturnOrderTmpList" parameterType="hashMap" resultType="com.example.temp.member.vo.ShpngListVO">
+		SELECT *
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER(ORDER BY LEFT(F1.NNO,14) DESC, F2.SUB_NO ASC) AS ROWNUM,
+				F1.NNO,
+				F1.ORG_STATION,
+				F2.SUB_NO,
+				F2.ITEM_DETAIL,
+				F2.ITEM_CNT,
+				ISNULL(UNIT_VALUE,0) AS UNIT_VALUE,
+				ITEM_CNT * UNIT_VALUE AS ITEM_VALUE,
+				ISNULL(F1.USER_ID,'') AS USER_ID,
+				ISNULL(F1.ORDER_NO,'') AS ORDER_NO,
+				ISNULL((SELECT NATION_NAME FROM TB_NATION_CODE WHERE NATION_CODE = F1.DSTN_NATION),'') AS DSTN_NATION,
+				ISNULL(TRANS_CODE,'') AS TRANS_CODE,
+				ISNULL(F1.CNEE_NAME,'') AS CNEE_NAME,
+				ISNULL(F1.CNEE_ADDR,'') AS CNEE_ADDR,
+				ISNULL(F1.CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL,
+				ISNULL(F1.CNEE_ZIP,'') AS CNEE_ZIP,
+				ISNULL(F1.CNEE_TEL,'') AS CNEE_TEL,
+				ISNULL(F3.KOBL_NO,'') AS KOBL_NO,
+				ISNULL(F3.TRK_NO,'') AS TRK_NO
+			FROM TMP_ORDER_LIST F1, TMP_ORDER_ITEM F2, TB_RETURN_ORDER_LIST F3
+			WHERE 
+				F1.NNO = F2.NNO
+				AND F1.ORG_STATION = F2.ORG_STATION
+				AND F1.USER_ID = F2.USER_ID
+				AND F1.NNO = F3.NNO
+				AND F1.ORG_STATION = F3.ORG_STATION
+				AND F1.USER_ID = F3.USER_ID
+				AND F2.NNO = F3.NNO
+				AND F2.USER_ID = F3.USER_ID
+				AND F1.ORDER_TYPE = 'RETURN' AND F1.ORG_STATION = #{orgStation}
+				<if test="fromDate != null and fromDate != ''">
+				AND LEFT(F1.W_DATE, 8) <![CDATA[ >= ]]> #{fromDate}
+				</if>
+				<if test="toDate != null and toDate != ''">
+				AND LEFT(F1.W_DATE, 8) <![CDATA[ <= ]]> #{toDate}
+				</if>
+				<if test="transCode != null and transCode != ''">
+				AND TRANS_CODE = #{transCode}
+				</if>
+				<if test="koblNo != null and koblNo != ''">
+				AND F3.KOBL_NO LIKE CONCAT('%',#{koblNo},'%')
+				</if>
+				<if test="trkNo != null and trkNo != ''">
+				AND F3.TRK_NO LIKE CONCAT('%',#{trkNo},'%')
+				</if>
+				<if test="userId != null and userId != ''">
+				AND F3.USER_ID LIKE CONCAT('%',#{userId},'%')
+				</if>
+		) M1
+		WHERE M1.ROWNUM BETWEEN #{paging.boardStart} AND #{paging.boardEnd}
+		ORDER BY ROWNUM
+	</select>
+	
+	<select id="selectErrorList" parameterType="String" resultType="String">
+		SELECT NAME 
+			FROM TB_ARA_CODE WHERE CODE IN 
+				(SELECT * FROM FN_SPLIT((SELECT [STATUS] FROM TMP_ORDER_LIST WHERE nno = #{nno}) ,','))
+		UNION ALL
+		SELECT VALUE AS NAME FROM FN_SPLIT22((SELECT [STATUS] FROM TMP_ORDER_LIST WHERE nno = #{nno}) ,',') 
+			WHERE VALUE NOT IN (SELECT CODE FROM TB_ARA_CODE);
+	</select>
+	
+	<select id="selectErrorItem" parameterType="String" resultType="String">
+		SELECT NAME 
+		FROM TB_ARA_CODE WHERE CODE IN 
+			(SELECT * FROM FN_SPLIT((SELECT [STATUS] FROM TMP_ORDER_ITEM WHERE nno = #{nno} AND SUB_NO = #{subNo}) ,','));
+	</select>
+	
+	<select id="selectErrorMatch" parameterType="String" resultType="String">
+		SELECT ERROR_MSG FROM TB_ERROR_MATCH WHERE NNO = #{nno}
+	</select>
+
+	<update id="updateEpostInfo" parameterType="com.example.temp.member.vo.ReturnOrderListVO">
+		UPDATE TB_RETURN_ORDER_LIST SET TRK_NO = #{trkNo}, TRK_COM = 'EPOST', STATE = #{state}
+		WHERE STATE = 'A001' AND NNO = #{nno}
+	</update>
+	
+	<select id="selectUserOrderInfo" parameterType="hashMap" resultType="com.example.temp.member.vo.UserOrderListVO">
+		SELECT
+			F1.NNO,
+			ORG_STATION,
+			DSTN_NATION,
+			USER_ID,
+			ISNULL(ORDER_TYPE,'') AS ORDER_TYPE,
+			ISNULL(F1.ORDER_NO,'') AS ORDER_NO,
+			ISNULL(HAWB_NO,'') AS HAWB_NO,
+			ISNULL(BOX_CNT,1) AS BOX_CNT,
+			ISNULL(USER_WTA,0) AS USER_WTA,
+			ISNULL(USER_WTC,0) AS USER_WTC,
+			ISNULL(SHIPPER_NAME,'') AS SHIPPER_NAME,
+			ISNULL(SHIPPER_ZIP,'') AS SHIPPER_ZIP,
+			ISNULL(SHIPPER_TEL,'') AS SHIPPER_TEL,
+			ISNULL(SHIPPER_HP,'') AS SHIPPER_HP,
+			ISNULL(SHIPPER_CNTRY,'') AS SHIPPER_CNTRY,
+			ISNULL(SHIPPER_CITY,'') AS SHIPPER_CITY,
+			ISNULL(SHIPPER_STATE,'') AS SHIPPER_STATE,
+			ISNULL(SHIPPER_ADDR,'') AS SHIPPER_ADDR,
+			ISNULL(SHIPPER_ADDR_DETAIL,'') AS SHIPPER_ADDR_DETAIL,
+			ISNULL(CNEE_NAME,'') AS CNEE_NAME,
+			ISNULL(CNEE_ADDR,'') AS CNEE_ADDR,
+			ISNULL(CNEE_ZIP,'') AS CNEE_ZIP,
+			ISNULL(CNEE_TEL,'') AS CNEE_TEL,
+			ISNULL(CNEE_HP,'') AS CNEE_HP,
+			ISNULL(CNEE_CNTRY,'') AS CNEE_CNTRY,
+			ISNULL(CNEE_CITY,'') AS CNEE_CITY,
+			ISNULL(CNEE_STATE,'') AS CNEE_STATE,
+			ISNULL(CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL,
+			ISNULL(USER_LENGTH,0) AS USER_LENGTH,
+			ISNULL(USER_WIDTH,0) AS USER_WIDTH,
+			ISNULL(USER_HEIGHT,0) AS USER_HEIGHT,
+			ISNULL(USER_EMAIL,'') AS USER_EMAIL,
+			ISNULL(W_USER_ID,'') AS W_USER_ID,
+			ISNULL(W_USER_IP,'') AS W_USER_IP,
+			ISNULL(F1.W_DATE,'') AS W_DATE,
+			ISNULL(TRANS_CODE,'') AS TRANS_CODE,
+			ISNULL(ORDER_DATE,'') AS ORDER_DATE,
+			ISNULL(STATUS,'') AS STATUS,
+			ISNULL(CNEE_EMAIL,'') AS CNEE_EMAIL,
+			ISNULL(CUSTOMS_NO,'') AS CUSTOMS_NO,
+			ISNULL(NATIVE_CNEE_NAME,'') AS NATIVE_CNEE_NAME,
+			ISNULL(NATIVE_CNEE_ADDR,'') AS NATIVE_CNEE_ADDR,
+			ISNULL(NATIVE_CNEE_ADDR_DETAIL,'') AS NATIVE_CNEE_ADDR_DETAIL,
+			ISNULL(DIM_UNIT,'') AS DIM_UNIT,
+			ISNULL(WT_UNIT,'') AS WT_UNIT,
+			ISNULL(BUY_SITE,'') AS BUY_SITE,
+			ISNULL(GET_BUY,'') AS GET_BUY,
+			ISNULL(MALL_TYPE,'') AS MALL_TYPE,
+			ISNULL(WH_REQ_MSG,'') AS WH_REQ_MSG,
+			ISNULL(DLV_REQ_MSG,'') AS DLV_REQ_MSG,
+			ISNULL(CNEE_DISTRICT,'') AS CNEE_DISTRICT,
+			ISNULL(SHIPPER_REFERENCE,'') AS SHIPPER_REFERENCE,
+			ISNULL(CNEE_REFERENCE1,'') AS CNEE_REFERENCE1,
+			ISNULL(CNEE_REFERENCE2,'') AS CNEE_REFERENCE2,
+			ISNULL(PAYMENT,'') AS PAYMENT,
+			ISNULL(FOOD,'') AS FOOD,
+			ISNULL(F3.EXP_REG_NO,'') AS EXP_REG_NO,
+			ISNULL(F3.EXP_NO,'') AS EXP_NO,
+			ISNULL(F3.SEND_YN,'') AS SEND_YN,
+			ISNULL(F3.EXP_BUSINESS_NUM,'') AS EXP_BUSINESS_NUM,
+			ISNULL(F3.EXP_SHIPPER_CODE,'') AS EXP_SHIPPER_CODE,
+			ISNULL(F3.EXP_BUSINESS_NAME,'') AS EXP_BUSINESS_NAME,
+			ISNULL(F3.API_STATUS,'') AS API_STATUS,
+			ISNULL(F3.SIMPLE_YN,'') AS SIMPLE_YN,
+			ISNULL(F3.EXP_VALUE,'noExplicence') AS EXP_VALUE,
+			(SELECT TRANS_NAME FROM TB_TRANS_COM WHERE TRANS_CODE = F1.TRANS_CODE) AS TRANS_NAME
+		FROM TMP_ORDER_LIST F1
+		LEFT OUTER JOIN TB_EXPLICENCE F3 ON F1.NNO = F3.NNO
+		WHERE F1.NNO = #{nno}
+	</select>
+	
+	<select id="selectUserOrderItem" parameterType="hashMap" resultType="com.example.temp.member.vo.UserOrderItemVO">
+		SELECT
+			NNO,
+			SUB_NO,
+			ORG_STATION,
+			USER_ID,
+			ISNULL(HS_CODE,'') AS HS_CODE,
+			ISNULL(ITEM_DETAIL,'') AS ITEM_DETAIL,
+			ISNULL(UNIT_CURRENCY,'') AS UNIT_CURRENCY,
+			ISNULL(ITEM_CNT,1) AS ITEM_CNT,
+			ISNULL(UNIT_VALUE,0) AS UNIT_VALUE,
+			ISNULL(BRAND,'') AS BRAND,
+			ISNULL(MAKE_CNTRY,'') AS MAKE_CNTRY,
+			ISNULL(MAKE_COM,'') AS MAKE_COM,
+			ISNULL(ITEM_DIV,'') AS ITEM_DIV,
+			ISNULL(WT_UNIT,'') AS WT_UNIT,
+			ISNULL(QTY_UNIT,'') AS QTY_UNIT,
+			ISNULL(PACKAGE_UNIT,'') AS PACKAGE_UNIT,
+			ISNULL(EXCHANGE_RATE,0) AS EXCHANGE_RATE,
+			ISNULL(CHG_CURRENCY,'') AS CHG_CURRENCY,
+			ISNULL(CHG_AMT,0) AS CHG_AMT,
+			ISNULL(ITEM_METERIAL,'') AS ITEM_METERIAL,
+			ISNULL(TAKE_IN_CODE,'') AS TAKE_IN_CODE,
+			ISNULL(USER_WTA,0) AS USER_ITEM_WTA,
+			ISNULL(USER_WTC,0) AS USER_ITEM_WTC,
+			ISNULL(ITEM_URL,'') AS ITEM_URL,
+			ISNULL(ITEM_IMG_URL,'') AS ITEM_IMG_URL,
+			ISNULL(STATUS,'') AS STATUS,
+			ISNULL(TRK_COM,'') AS TRK_COM,
+			ISNULL(TRK_NO,'') AS TRK_NO,
+			FORMAT(TRK_DATE,'yyyyMMdd') AS TRK_DATE,
+			ISNULL(NATIVE_ITEM_DETAIL,'') AS NATIVE_ITEM_DETAIL,
+			ISNULL(CUS_ITEM_CODE,'') AS CUS_ITEM_CODE,
+			ISNULL(W_USER_ID,'') AS W_USER_ID,
+			ISNULL(W_USER_IP,'') AS W_USER_IP,
+			ISNULL(W_DATE,'') AS W_DATE,
+			ISNULL(NATION_CODE,'') AS NATION_CODE,
+			ISNULL(DIM_UNIT,'') AS DIM_UNIT,
+			ISNULL(ITEM_COLOR,'') AS ITEM_COLOR,
+			ISNULL(ITEM_SIZE,'') AS ITEM_SIZE
+		FROM TMP_ORDER_ITEM WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectUserOrgNation" parameterType="hashMap" resultType="String">
+		SELECT ORG_NATION FROM TB_USER_TRANS_COM WHERE USER_ID = #{userId} GROUP BY ORG_NATION
+	</select>
+	
+	<select id="selectDstnTrans" parameterType="hashMap" resultType="com.example.temp.member.vo.UserTransComVO">
+		SELECT
+			IDX,
+			TRANS_CODE,
+			(SELECT NATION_NAME FROM TB_NATION_CODE WHERE NATION_CODE = F1.DSTN_NATION) AS NATION_NAME,
+			(SELECT NATION_NAME FROM TB_NATION_CODE WHERE NATION_CODE = F1.ORG_NATION) AS ORG_NAME,
+			DSTN_NATION
+		FROM TB_USER_TRANS_COM F1 WHERE USER_ID = #{userId}
+	</select>
+	
+	<insert id="insertHawbInfo" parameterType="hashMap">
+		DELETE FROM TB_HAWB WHERE NNO = #{nno};
+		
+		INSERT INTO TB_HAWB 
+			(NNO, ORG_STATION, DSTN_NATION, DSTN_STATION, USER_ID, ORDER_NO, TRANS_CODE, HAWB_NO, MAWB_NO, 
+			BOX_CNT, WTA, WTC, WT_UNIT, W_USER_ID, W_USER_IP, W_DATE)
+		SELECT NNO, ORG_STATION, DSTN_NATION, DSTN_STATION, USER_ID, ORDER_NO, TRANS_CODE, HAWB_NO, '',
+			BOX_CNT, USER_WTA, USER_WTC, WT_UNIT, #{wUserId}, #{wUserIp}, GETDATE() 
+		FROM TB_ORDER_LIST
+		WHERE USER_ID = #{userId} AND NNO = #{nno};
+	</insert>
+	
+	<insert id="insertHawbItemInfo" parameterType="hashMap">
+		DELETE FROM TB_HAWB_ITEM WHERE NNO = #{nno};
+		
+		INSERT INTO TB_HAWB_ITEM
+			(NNO, SUB_NO, HAWB_NO, ORG_STATION, USER_ID, ITEM_CNT, WT_UNIT)
+		SELECT NNO, SUB_NO, (SELECT HAWB_NO FROM TB_ORDER_LIST WHERE USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION AND NNO = F1.NNO) HAWB_NO, 
+			ORG_STATION, USER_ID, ITEM_CNT, WT_UNIT
+		FROM TB_ORDER_ITEM F1
+		WHERE USER_ID = #{userId} AND NNO = #{nno};
+	</insert>
+	
+	<insert id="insertVolumeInfo" parameterType="hashMap">
+		DELETE FROM TB_VOLUME WHERE NNO = #{nno} AND USER_ID = #{userId} AND ORG_STATION = #{orgStation};
+		
+		INSERT INTO TB_VOLUME 
+			(ORG_STATION, USER_ID, NNO, HAWB_NO, WIDTH, HEIGHT, LENGTH, PER, DIM_UNIT, WT_UNIT, W_USER_ID, W_USER_IP, W_DATE)
+		SELECT ORG_STATION, USER_ID, NNO, HAWB_NO, USER_WIDTH, USER_HEIGHT, USER_LENGTH, 
+				(SELECT TOP 1 PER FROM TB_STOCK WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) PER,
+				DIM_UNIT, WT_UNIT, #{wUserId}, #{wUserIp}, GETDATE()
+		FROM TB_ORDER_LIST F1
+		WHERE NNO = #{nno} AND USER_ID = #{userId} AND ORG_STATION = #{orgStation};
+	</insert>
+	
+	<update id="updateStockOutNno" parameterType="hashMap">
+		UPDATE TB_STOCK
+		SET OUT_NNO = F1.OUT_NNO
+		FROM TMP_WHOUT_STOCK F1
+		WHERE TB_STOCK.NNO = F1.NNO
+			AND TB_STOCK.SUB_NO = F1.SUB_NO
+			AND TB_STOCK.STOCK_NO = F1.STOCK_NO
+			AND TB_STOCK.USER_ID = F1.USER_ID
+			AND TB_STOCK.ORG_STATION = F1.ORG_STATION
+			AND F1.NNO = #{nno}
+			AND F1.W_USER_ID = #{wUserId};
+		
+		DELETE FROM TMP_WHOUT_STOCK WHERE NNO = #{nno} AND ORG_STATION = #{orgStation} AND W_USER_ID = #{wUserId};
+	</update>
+	
+	<select id="selectGroupIdxByNno" parameterType="String" resultType="String">
+		SELECT GROUP_IDX FROM TB_STOCK WHERE NNO = #{nno} GROUP BY GROUP_IDX
+	</select>
+	
+	<delete id="deleteTmpReturnOrderInfo" parameterType="com.example.temp.member.vo.ReturnOrderListVO">
+		DELETE TMP_ORDER_LIST WHERE NNO = #{nno};
+		DELETE TMP_ORDER_ITEM WHERE NNO = #{nno};
+	</delete>
+	
+	<delete id="deleteTmpWhoutStock" parameterType="com.example.temp.member.vo.ReturnOrderListVO">
+		DELETE TMP_WHOUT_STOCK WHERE NNO = #{nno};
+	</delete>
+	
+	<select id="selectReturnOrderShipmentCnt" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*) FROM TB_RETURN_ORDER_LIST F1
+		WHERE ORG_STATION = #{orgStation}
+			AND STATE IN ('C002', 'C003')
+		<if test="fromDate != null and fromDate != ''">
+			AND (SELECT TOP 1 WH_IN_DATE FROM TB_STOCK WHERE STOCK_TYEP = 'RETURN_IN' AND NNO = F1.NNO AND USER_ID = F1.USER_ID ORDER BY STOCK_NO) <![CDATA[ >= ]]> #{fromDate}
+		</if>
+		<if test="toDate != null and toDate != ''">
+			AND (SELECT TOP 1 WH_IN_DATE FROM TB_STOCK WHERE STOCK_TYEP = 'RETURN_IN' AND NNO = F1.NNO AND USER_ID = F1.USER_ID ORDER BY STOCK_NO) <![CDATA[ <= ]]> #{toDate}
+		</if>
+		<if test="koblNo != null and koblNo != ''">
+			AND KOBL_NO LIKE CONCAT('%',#{koblNo},'%')
+		</if>
+		<if test="trkNo != null and trkNo != ''">
+			AND TRK_NO LIKE CONCAT('%',#{trkNo},'%')
+		</if>
+		<if test="userId != null and userId != ''">
+			AND USER_ID LIKE CONCAT('%',#{userId},'%')
+		</if>
+	</select>
+	
+	<select id="selectReturnOrderShipment" parameterType="hashMap" resultType="com.example.temp.member.vo.ReturnOrderListVO">
+		SELECT *
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER(ORDER BY W_DATE DESC) AS ROWNUM,
+				NNO,
+				USER_ID,
+				ISNULL(STATE,'') AS STATE,
+				ISNULL((SELECT NAME FROM TB_CODE WHERE CODE = F1.STATE AND CODE_DIV = 'RETURN_STATE'),'') AS STATE_NAME,
+				ISNULL(KOBL_NO,'') AS KOBL_NO,
+				ISNULL(ORDER_NO,'') AS ORDER_NO,
+				ISNULL((SELECT NATION_NAME FROM TB_NATION_CODE WHERE NATION_CODE = F1.DSTN_NATION),'') AS DSTN_NATION,
+				ISNULL(TRK_COM,'') AS TRK_COM,
+				ISNULL(TRK_NO,'') AS TRK_NO,
+				ISNULL(TRK_DATE,'') AS TRK_DATE,
+				ISNULL((SELECT TOP 1 WH_IN_DATE FROM TB_STOCK WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION ORDER BY W_DATE DESC),'') AS W_DATE,
+				ISNULL(ATTN_NAME,'') AS ATTN_NAME,
+				ISNULL(ATTN_TEL,'') AS ATTN_TEL,
+				ISNULL(ATTN_EMAIL,'') AS ATTN_EMAIL,
+				ISNULL((SELECT TOP 1 ITEM_IMG_URL FROM TB_RETURN_ITEM_LIST WHERE ORG_STATION = F1.ORG_STATION AND USER_ID = F1.USER_ID AND NNO = F1.NNO AND ISNULL(ITEM_IMG_URL,'') != '' ORDER BY SUB_NO),'') AS ITEM_IMG_URL,
+				ISNULL((SELECT COUNT(*) FROM TMP_ORDER_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID),0) AS TMP_CHK,
+				ISNULL((SELECT GROUP_IDX FROM TB_STOCK WHERE NNO = F1.NNO AND STOCK_TYEP = 'RETURN_IN' GROUP BY GROUP_IDX),'') AS GROUP_IDX
+			FROM TB_RETURN_ORDER_LIST F1
+			WHERE ORG_STATION = #{orgStation}
+				AND STATE IN ('C002', 'C003')
+			<if test="fromDate != null and fromDate != ''">
+				AND (SELECT TOP 1 WH_IN_DATE FROM TB_STOCK WHERE STOCK_TYEP = 'RETURN_IN' AND NNO = F1.NNO AND USER_ID = F1.USER_ID ORDER BY STOCK_NO) <![CDATA[ >= ]]> #{fromDate}
+			</if>
+			<if test="toDate != null and toDate != ''">
+				AND (SELECT TOP 1 WH_IN_DATE FROM TB_STOCK WHERE STOCK_TYEP = 'RETURN_IN' AND NNO = F1.NNO AND USER_ID = F1.USER_ID ORDER BY STOCK_NO) <![CDATA[ <= ]]> #{toDate}
+			</if>
+			<if test="koblNo != null and koblNo != ''">
+				AND KOBL_NO LIKE CONCAT('%',#{koblNo},'%')
+			</if>
+			<if test="trkNo != null and trkNo != ''">
+				AND TRK_NO LIKE CONCAT('%',#{trkNo},'%')
+			</if>
+			<if test="userId != null and userId != ''">
+				AND USER_ID LIKE CONCAT('%',#{userId},'%')
+			</if>
+		) M1
+		WHERE M1.ROWNUM BETWEEN #{paging.boardStart} AND #{paging.boardEnd}
+		ORDER BY ROWNUM
+	</select>
+	
+	<select id="selectReturnOrderWhoutListCnt" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*)
+		FROM TB_ORDER_LIST F1, TB_HAWB F2
+		WHERE F1.ORDER_TYPE = 'RETURN' AND F1.ORG_STATION = #{orgStation}
+			AND F1.NNO = F2.NNO
+			AND F1.USER_ID = F2.USER_ID
+			AND F1.TRANS_CODE = F2.TRANS_CODE
+			AND F1.ORG_STATION = F2.ORG_STATION
+		<if test="fromDate != null and fromDate != ''">
+			AND CONVERT(NVARCHAR, F2.W_DATE, 112) <![CDATA[ >= ]]> #{fromDate}
+		</if>
+		<if test="toDate != null and toDate != ''">
+			AND CONVERT(NVARCHAR, F2.W_DATE, 112) <![CDATA[ <= ]]> #{toDate}
+		</if>
+		<if test="orderNo != null and orderNo != ''">
+			AND F1.ORDER_NO LIKE CONCAT('%',#{orderNo},'%')
+		</if>
+		<if test="userId != null and userId != ''">
+			AND F1.USER_ID LIKE CONCAT('%',#{userId},'%')
+		</if>
+		<if test="hawbNo != null and hawbNo != ''">
+			AND F1.HAWB_NO LIKE CONCAT('%',#{hawbNo},'%')
+		</if>
+	</select>
+	
+	<select id="selectReturnOrderWhoutList" parameterType="hashMap" resultType="com.example.temp.member.vo.ReturnOrderListVO">
+		SELECT *
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER(ORDER BY F2.W_DATE DESC) AS ROWNUM,
+				F1.NNO,
+				F1.USER_ID,
+				ISNULL(F1.ORDER_NO,'') AS ORDER_NO,
+				ISNULL(F1.HAWB_NO,'') AS HAWB_NO,
+				ISNULL(F2.MAWB_NO,'') AS MAWB_NO,
+				ISNULL((SELECT TRK_NO FROM TB_DELIVERY_INFO WHERE NNO = F1.NNO AND HAWB_NO = F1.HAWB_NO),(SELECT VALUE_MATCH_NO FROM TB_MATCHING_INFO WHERE NNO = F1.NNO AND KEY_HAWB_NO = F1.HAWB_NO)) AS AGENCY_BL,
+				ISNULL(F2.WTA,0) AS WTA,
+				ISNULL(F2.WTC,0) AS WTC,
+				ISNULL(F1.TRANS_CODE,'') AS TRANS_CODE,
+				ISNULL(F2.BOX_CNT,1) AS BOX_CNT,
+				ISNULL((SELECT NATION_NAME FROM TB_NATION_CODE WHERE NATION_CODE = F1.DSTN_NATION),'') AS DSTN_NATION,
+				ISNULL((SELECT ITEM_DETAIL FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION AND SUB_NO = 1),'') AS ITEM_DETAIL,
+				ISNULL((SELECT SUM(ITEM_CNT) FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION), 0) AS TOTAL_ITEM_CNT,
+				CONVERT(NVARCHAR, F2.W_DATE, 23) AS W_DATE,
+				ISNULL((SELECT KOBL_NO FROM TB_RETURN_ORDER_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),'') AS KOBL_NO,
+				ISNULL((SELECT TRK_NO FROM TB_RETURN_ORDER_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),'') AS TRK_NO,
+				ROUND(F3.WIDTH,2) AS WIDTH,
+				ROUND(F3.LENGTH,2) AS LENGTH,
+				ROUND(F3.HEIGHT,2) AS HEIGHT
+			FROM TB_ORDER_LIST F1, TB_HAWB F2
+			LEFT JOIN TB_STOCK F3 ON F3.NNO = F2.NNO AND F3.USER_ID = F2.USER_ID AND F3.ORG_STATION = F2.ORG_STATION AND F3.STOCK_TYEP = 'RETURN_IN'
+			WHERE F1.ORDER_TYPE = 'RETURN' AND F1.ORG_STATION = #{orgStation}
+				AND F1.NNO = F2.NNO
+				AND F1.USER_ID = F2.USER_ID
+				AND F1.TRANS_CODE = F2.TRANS_CODE
+				AND F1.ORG_STATION = F2.ORG_STATION
+			<if test="fromDate != null and fromDate != ''">
+				AND CONVERT(NVARCHAR, F2.W_DATE, 112) <![CDATA[ >= ]]> #{fromDate}
+			</if>
+			<if test="toDate != null and toDate != ''">
+				AND CONVERT(NVARCHAR, F2.W_DATE, 112) <![CDATA[ <= ]]> #{toDate}
+			</if>
+			<if test="orderNo != null and orderNo != ''">
+				AND F1.ORDER_NO LIKE CONCAT('%',#{orderNo},'%')
+			</if>
+			<if test="koblNo != null and koblNo != ''">
+				AND ISNULL((SELECT KOBL_NO FROM TB_RETURN_ORDER_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),'') LIKE CONCAT('%',#{koblNo},'%')
+			</if>
+			<if test="userId != null and userId != ''">
+				AND F1.USER_ID LIKE CONCAT('%',#{userId},'%')
+			</if>
+			<if test="hawbNo != null and hawbNo != ''">
+				AND F1.HAWB_NO LIKE CONCAT('%',#{hawbNo},'%')
+			</if>
+		) M1
+		WHERE M1.ROWNUM BETWEEN #{paging.boardStart} AND #{paging.boardEnd}
+		ORDER BY ROWNUM
+	</select>
+	
+	<select id="selectReturnOrderStockListCnt" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*) 
+		FROM TB_RETURN_ORDER_LIST F1, TB_STOCK F2
+		WHERE F1.ORG_STATION = #{orgStation} AND STATE IN ('C002','D005')
+			AND F1.NNO = F2.NNO AND F1.USER_ID = F2.USER_ID AND F1.ORG_STATION = F2.ORG_STATION
+		<if test="fromDate != null and fromDate != ''">
+			AND F2.WH_IN_DATE <![CDATA[ >= ]]> #{fromDate}
+		</if>
+		<if test="toDate != null and toDate != ''">
+			AND F2.WH_IN_DATE <![CDATA[ <= ]]> #{toDate}
+		</if>
+		<if test="koblNo != null and koblNo != ''">
+			AND KOBL_NO LIKE CONCAT('%',#{koblNo},'%')
+		</if>
+		<if test="trkNo != null and trkNo != ''">
+			AND TRK_NO LIKE CONCAT('%',#{trkNo},'%')
+		</if>
+		<if test="userId != null and userId != ''">
+			AND F1.USER_ID LIKE CONCAT('%',#{userId},'%')
+		</if>
+	</select>
+	
+	<select id="selectReturnOrderStockList" parameterType="hashMap" resultType="com.example.temp.member.vo.ReturnOrderListVO">
+		SELECT *
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER(ORDER BY (SELECT TOP 1 W_DATE FROM TB_STOCK WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION ORDER BY W_DATE DESC) DESC) AS ROWNUM,
+				NNO,
+				USER_ID,
+				ISNULL(STATE,'') AS STATE,
+				ISNULL((SELECT TOP 1 WH_IN_DATE FROM TB_STOCK WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION ORDER BY W_DATE DESC),'') AS WH_IN_DATE,
+				ISNULL(WH_STATUS,'') AS WH_STATUS,
+				ISNULL(KOBL_NO,'') AS KOBL_NO,
+				ISNULL(TRK_NO,'') AS TRK_NO,
+				ISNULL((SELECT ITEM_DETAIL FROM TB_RETURN_ITEM_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION AND SUB_NO = 1),'') AS ITEM_DETAIL,
+				ISNULL((SELECT SUM(ITEM_CNT) FROM TB_RETURN_ITEM_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) AS ITEM_CNT,
+				ISNULL((SELECT COUNT(*) FROM TB_STOCK WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),0) AS WHIN_CNT,
+				ISNULL(ATTN_NAME,'') AS ATTN_NAME,
+				ISNULL(ATTN_TEL,'') AS ATTN_TEL,
+				ISNULL(ATTN_EMAIL,'') AS ATTN_EMAIL,
+				ISNULL((SELECT TOP 1 CONTENT FROM TB_RETURN_CS_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION AND ADMIN_YN = 'N' ORDER BY W_DATE DESC),'') AS USER_MEMO,
+				ISNULL((SELECT TOP 1 CONTENT FROM TB_RETURN_CS_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION AND ADMIN_YN = 'Y' ORDER BY W_DATE DESC),'') AS ADMIN_MEMO
+			FROM TB_RETURN_ORDER_LIST F1
+			WHERE ORG_STATION = '082' AND STATE IN ('C002','D005')
+			<if test="fromDate != null and fromDate != ''">
+				AND F2.WH_IN_DATE <![CDATA[ >= ]]> #{fromDate}
+			</if>
+			<if test="toDate != null and toDate != ''">
+				AND F2.WH_IN_DATE <![CDATA[ <= ]]> #{toDate}
+			</if>
+			<if test="koblNo != null and koblNo != ''">
+				AND KOBL_NO LIKE CONCAT('%',#{koblNo},'%')
+			</if>
+			<if test="trkNo != null and trkNo != ''">
+				AND TRK_NO LIKE CONCAT('%',#{trkNo},'%')
+			</if>
+			<if test="userId != null and userId != ''">
+				AND F1.USER_ID LIKE CONCAT('%',#{userId},'%')
+			</if>
+		) M1
+		WHERE M1.ROWNUM BETWEEN #{paging.boardStart} AND #{paging.boardEnd}
+		ORDER BY ROWNUM
+	</select>
+	
+	<select id="selectReturnCsListCnt" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*)
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER(ORDER BY F1.W_DATE DESC) AS ROWNUM,
+				IDX AS idx,
+				F1.NNO AS nno,
+				F1.ORG_STATION AS orgStation,
+				ISNULL(F2.USER_ID,'') AS userId,
+				ISNULL(F1.W_USER_ID,'') AS wUserId,
+				ISNULL(F2.KOBL_NO,'') AS koblNo,
+				ISNULL(F2.TRK_NO,'') AS trkNo,
+				ISNULL(F2.TRK_COM,'') AS trkCom,
+				ISNULL(CONVERT(NVARCHAR, F2.W_DATE, 112),'') AS registDate,
+				ISNULL(CONVERT(NVARCHAR, F1.W_DATE, 120),'') AS wDate,
+				ISNULL(F2.SHIPPER_NAME,'') AS shipperName,
+				ISNULL(F1.CONTENT,'') AS content,
+				ISNULL(F1.ADMIN_YN,'') AS adminYn,
+				CASE
+					WHEN ISNULL(ADMIN_YN,'') = 'N' AND ISNULL(READ_YN,'') = 'N' THEN 'Y'
+					ELSE 'N'
+				END AS newYn
+			FROM TB_RETURN_CS_LIST F1, TB_RETURN_ORDER_LIST F2
+			WHERE F1.NNO = F2.NNO
+				AND F1.ORG_STATION = F2.ORG_STATION
+				AND F1.ORG_STATION = #{orgStation}
+			<if test="userId != null and userId != ''">
+				AND F2.USER_ID LIKE CONCAT('%',#{userId},'%')
+			</if>
+			<if test="koblNo != null and koblNo != ''">
+				AND F2.KOBL_NO LIKE CONCAT('%',#{koblNo},'%')
+			</if>
+			<if test="trkNo != null and trkNo != ''">
+				AND F2.TRK_NO LIKE CONCAT('%',#{trkNo},'%')
+			</if>
+			<if test='chk != null and chk != "" and chk == "Y"'>
+				AND ISNULL(ADMIN_YN,'') = 'N' AND ISNULL(READ_YN,'') = 'N'
+			</if>
+		) M1
+	</select>
+	
+	<select id="selectReturnCsList" parameterType="hashMap" resultType="hashMap">
+		SELECT *
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER(ORDER BY F1.W_DATE DESC) AS ROWNUM,
+				IDX AS idx,
+				F1.NNO AS nno,
+				F1.ORG_STATION AS orgStation,
+				ISNULL(F2.USER_ID,'') AS userId,
+				ISNULL(F1.W_USER_ID,'') AS wUserId,
+				ISNULL(F2.KOBL_NO,'') AS koblNo,
+				ISNULL(F2.TRK_NO,'') AS trkNo,
+				ISNULL(F2.TRK_COM,'') AS trkCom,
+				ISNULL(CONVERT(NVARCHAR, F2.W_DATE, 23),'') AS registDate,
+				ISNULL(CONVERT(NVARCHAR, F1.W_DATE, 120),'') AS wDate,
+				ISNULL(F2.SHIPPER_NAME,'') AS shipperName,
+				ISNULL(F1.CONTENT,'') AS content,
+				ISNULL(F1.ADMIN_YN,'') AS adminYn,
+				CASE
+					WHEN ISNULL(ADMIN_YN,'') = 'N' AND ISNULL(READ_YN,'') = 'N' THEN 'Y'
+					ELSE 'N'
+				END AS newYn
+			FROM TB_RETURN_CS_LIST F1, TB_RETURN_ORDER_LIST F2
+			WHERE F1.NNO = F2.NNO
+				AND F1.ORG_STATION = F2.ORG_STATION
+				AND F1.ORG_STATION = #{orgStation}
+			<if test="userId != null and userId != ''">
+				AND F2.USER_ID LIKE CONCAT('%',#{userId},'%')
+			</if>
+			<if test="koblNo != null and koblNo != ''">
+				AND F2.KOBL_NO LIKE CONCAT('%',#{koblNo},'%')
+			</if>
+			<if test="trkNo != null and trkNo != ''">
+				AND F2.TRK_NO LIKE CONCAT('%',#{trkNo},'%')
+			</if>
+			<if test='chk != null and chk != "" and chk == "Y"'>
+				AND ISNULL(ADMIN_YN,'') = 'N' AND ISNULL(READ_YN,'') = 'N'
+			</if>
+		) M1
+		WHERE M1.ROWNUM BETWEEN #{paging.boardStart} AND #{paging.boardEnd}
+	</select>
+	
+	<delete id="deleteReturnCs" parameterType="hashMap">
+		DELETE FROM TB_RETURN_CS_LIST WHERE NNO = #{nno} AND IDX = #{idx}
+	</delete>
+	
+	<insert id="insertEtcValue" parameterType="hashMap">
+		INSERT INTO TB_ETC (ORG_STATION, USER_ID, ETC_DATE, ETC_TYPE, NNO, HAWB_NO, ETC_VALUE, ETC_CURRENCY, REMARK, W_USER_ID, W_USER_IP) VALUES 
+		(#{orgStation}, #{userId}, #{etcDate}, #{etcType}, #{nno}, #{hawbNo}, #{etcValue}, #{etcCurrency}, #{etcRemark}, #{wUserId}, #{wUserIp})
+	</insert>
+	
+	<select id="selectStockByGrpIdx" parameterType="hashMap" resultType="hashMap">
+		SELECT
+			ISNULL(STOCK_NO,'') AS stockNo,
+			(SELECT NAME FROM TB_CODE WHERE CODE = A.WH_STATUS AND CODE_DIV ='WH_STATUS') AS whStatusName,
+			ISNULL((SELECT SHIPPER_NAME FROM TB_RETURN_ORDER_LIST WHERE NNO = A.NNO),'') AS shipperName,
+			ISNULL(USER_ID,'') AS userId,
+			ISNULL(RACK_CODE,'') AS rackCode,
+			ISNULL((SELECT KOBL_NO FROM TB_RETURN_ORDER_LIST WHERE NNO = A.NNO),'') AS koblNo,
+			ISNULL((SELECT ORDER_NO FROM TB_RETURN_ORDER_LIST WHERE NNO = A.NNO),'') AS orderNo
+		FROM TB_STOCK A WHERE NNO = #{nno} AND GROUP_IDX = #{groupIdx}
+	</select>
+	
+	<select id="selectReturnTaxListCnt" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*)
+		FROM TB_RETURN_ORDER_LIST
+		WHERE ORG_STATION = #{orgStation} AND TAX_TYPE = 'Y'
+		<if test="fromDate != null and fromDate != ''">
+			AND LEFT(NNO, 8) <![CDATA[ >= ]]> #{fromDate}
+		</if>
+		<if test="toDate != null and toDate != ''">
+			AND LEFT(NNO, 8) <![CDATA[ <= ]]> #{toDate}
+		</if>
+		<if test="koblNo != null and koblNo != ''">
+			AND KOBL_NO LIKE CONCAT('%',#{koblNo},'%')
+		</if>
+		<if test="trkNo != null and trkNo != ''">
+			AND TRK_NO LIKE CONCAT('%',#{trkNo},'%')
+		</if>
+		<if test="userId != null and userId != ''">
+			AND USER_ID LIKE CONCAT('%',#{userId},'%')
+		</if>
+	</select>
+	
+	<select id="selectReturnTaxList" parameterType="hashMap" resultType="com.example.temp.member.vo.ReturnOrderListVO">
+		SELECT *
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER(ORDER BY F1.W_DATE DESC) AS ROWNUM,
+				F1.NNO,
+				F1.USER_ID,
+				ISNULL(F1.KOBL_NO,'') AS KOBL_NO,
+				ISNULL(F1.TRK_NO,'') AS TRK_NO,
+				ISNULL(F1.ATTN_NAME,'') AS ATTN_NAME,
+				ISNULL(F1.ATTN_TEL,'') AS ATTN_TEL,
+				ISNULL(F1.ATTN_EMAIL,'') AS ATTN_EMAIL,
+				ISNULL((SELECT TOP 1 CONTENT FROM TB_RETURN_CS_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION AND ADMIN_YN = 'N' ORDER BY W_DATE DESC),'') AS USER_MEMO,
+				ISNULL((SELECT TOP 1 CONTENT FROM TB_RETURN_CS_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION AND ADMIN_YN = 'Y' ORDER BY W_DATE DESC),'') AS ADMIN_MEMO,
+				(SELECT COUNT(*) FROM TB_RETURN_FILE_LIST WHERE NNO = F1.NNO) AS FILE_CNT
+			FROM TB_RETURN_ORDER_LIST F1
+			WHERE ORG_STATION = #{orgStation} AND TAX_TYPE = 'Y'
+			<if test="fromDate != null and fromDate != ''">
+				AND LEFT(F1.NNO, 8) <![CDATA[ >= ]]> #{fromDate}
+			</if>
+			<if test="toDate != null and toDate != ''">
+				AND LEFT(F1.NNO, 8) <![CDATA[ <= ]]> #{toDate}
+			</if>
+			<if test="koblNo != null and koblNo != ''">
+				AND KOBL_NO LIKE CONCAT('%',#{koblNo},'%')
+			</if>
+			<if test="trkNo != null and trkNo != ''">
+				AND TRK_NO LIKE CONCAT('%',#{trkNo},'%')
+			</if>
+			<if test="userId != null and userId != ''">
+				AND USER_ID LIKE CONCAT('%',#{userId},'%')
+			</if>
+		) M1
+		WHERE M1.ROWNUM BETWEEN #{paging.boardStart} AND #{paging.boardEnd}
+	</select>
+	
+	<select id="selectReturnWhInItemInfo" parameterType="hashMap" resultType="hashMap">
+		SELECT
+			NNO AS nno,
+			SUB_NO AS subNo,
+			ISNULL(ITEM_DETAIL,'') AS itemDetail,
+			ISNULL(ITEM_CNT,0) AS itemCnt,
+			ISNULL((SELECT COUNT(*) FROM TB_STOCK WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND SUB_NO = F1.SUB_NO),0) AS whInCnt
+		FROM TB_RETURN_ITEM_LIST F1
+		WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectReturnOrderFileList" parameterType="String" resultType="hashMap">
+		SELECT
+			NNO,
+			ISNULL(FILE_REASON,'') AS fileReason,
+			ISNULL(FILE_CAPTURE,'') AS fileCapture,
+			ISNULL(FILE_MESSENGER,'') AS fileMessenger,
+			ISNULL(FILE_COMM,'') AS fileComm,
+			ISNULL(FILE_BANK,'') AS fileBank,
+			ISNULL(FILE_LICENSE,'') AS fileLicense
+		FROM TB_RETURN_FILE_LIST
+		WHERE NNO = #{nno}
+	</select>
+	
+	<delete id="deleteTmpWhoutInfo" parameterType="hashMap">
+		DELETE FROM TMP_WHOUT_STOCK WHERE W_USER_ID = #{wUserId} AND ORG_STATION = #{orgStation}
+	</delete>
+</mapper>

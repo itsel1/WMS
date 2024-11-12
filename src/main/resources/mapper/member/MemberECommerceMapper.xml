@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.member.mapper.MemberECommerceMapper">
+
+	<select id="selectShopifyInfoCount" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*) FROM TB_SHOPIFY_NEW WHERE USER_ID = #{userId}
+	</select>
+
+	<select id="selectShopifyInfo" parameterType="hashMap" resultType="com.example.temp.api.ecommerce.dto.Shopify">
+		SELECT 
+			ISNULL(F1.USER_ID,'') AS USER_ID,
+			ISNULL(SHOPIFY_URL,'') AS SHOPIFY_URL,
+			ISNULL(F1.API_KEY,'') AS API_KEY,
+			ISNULL(API_TOKEN,'') AS API_TOKEN,
+			ISNULL(COM_E_NAME,'') AS COM_E_NAME,
+			ISNULL(USER_TEL,'') AS USER_TEL,
+			ISNULL(USER_ZIP,'') AS USER_ZIP,
+			ISNULL(USER_E_STATE,'') AS USER_E_STATE,
+			ISNULL(USER_E_CITY,'') AS USER_E_CITY,
+			ISNULL(USER_E_ADDR,'') AS USER_E_ADDR,
+			ISNULL(USER_E_ADDR_DETAIL,'') AS USER_E_ADDR_DETAIL,
+			ISNULL(USER_HP,'') AS USER_HP,
+			ISNULL(USER_EMAIL,'') AS USER_EMAIL,
+			ISNULL(STORE_URL,'') AS STORE_URL,
+			ISNULL((SELECT ORG_NATION FROM TB_USER_TRANS_COM WHERE USER_ID = F1.USER_ID GROUP BY ORG_NATION),'') AS ORG_NATION
+		FROM TB_SHOPIFY_NEW F1 JOIN TB_CUSTOMER F2 ON F1.USER_ID = F2.USER_ID 
+		WHERE F1.USER_ID = #{userId}
+	</select>
+	
+	<select id="selectExistOrderCount" parameterType="hashMap" resultType="Integer">
+		SELECT
+		CASE
+			WHEN (SELECT COUNT(*) FROM TB_ORDER_LIST WHERE USER_ID = #{userId} AND ORDER_NO = #{orderNo}) > 0 THEN 1
+			WHEN (SELECT COUNT(*) FROM TMP_ORDER_LIST WHERE USER_ID = #{userId} AND ORDER_NO = #{orderNo}) > 0 THEN 1
+			ELSE 0
+		END ORDER_CNT;
+	</select>
+	
+	<select id="selectShopeeInfoCount" parameterType="String" resultType="Integer">
+		SELECT COUNT(*) FROM TB_SHOPEE WHERE USER_ID = #{userId}
+	</select>
+	
+	<select id="selectShopeeAppInfo" parameterType="hashMap" resultType="com.example.temp.api.ecommerce.dto.Shopee">
+		SELECT ISNULL(PARTNER_KEY,'') AS PARTNER_KEY, ISNULL(PARTNER_ID,'') AS PARTNER_ID, ISNULL(CONVERT(CHAR(10),KEY_EXPIRY_DATE,23),'') AS KEY_EXPIRY_DATE
+		FROM TB_SHOPEE_APP WHERE USER_ID = #{userId}
+	</select>
+	
+	<select id="selectShopeeInfo" parameterType="hashMap" resultType="com.example.temp.api.ecommerce.dto.Shopee">
+		SELECT
+			ISNULL(F1.USER_ID,'') AS USER_ID,
+			ISNULL(SHOPEE_ID,'') AS SHOPEE_ID,
+			ISNULL(MERCHANT_YN,'') AS MERCHANT_YN,
+			ISNULL(REFRESH_TOKEN,'') AS REFRESH_TOKEN,
+			ISNULL(TOKEN_CREATED,'') AS TOKEN_CREATED,
+			ISNULL(TOKEN_EXPIRES,'') AS TOKEN_EXPIRES,
+			ISNULL(AUTH_EXPIRES,'') AS AUTH_EXPIRES,
+			ISNULL(SHOP_NAME,'') AS SHOP_NAME,
+			ISNULL(SHOP_REGION,'') AS SHOP_REGION,
+			ISNULL(F1.USE_YN,'') AS USE_YN,
+			ISNULL(F1.W_DATE,'') AS W_DATE,
+			ISNULL(COM_E_NAME,'') AS COM_E_NAME,
+			ISNULL(USER_TEL,'') AS USER_TEL,
+			ISNULL(USER_ZIP,'') AS USER_ZIP,
+			ISNULL(USER_E_STATE,'') AS USER_E_STATE,
+			ISNULL(USER_E_CITY,'') AS USER_E_CITY,
+			ISNULL(USER_E_ADDR,'') AS USER_E_ADDR,
+			ISNULL(USER_E_ADDR_DETAIL,'') AS USER_E_ADDR_DETAIL,
+			ISNULL(USER_HP,'') AS USER_HP,
+			ISNULL(USER_EMAIL,'') AS USER_EMAIL,
+			ISNULL(STORE_URL,'') AS STORE_URL,
+			ISNULL((SELECT ORG_NATION FROM TB_USER_TRANS_COM WHERE USER_ID = F1.USER_ID GROUP BY ORG_NATION),'') AS ORG_NATION,
+			ISNULL((SELECT PARTNER_KEY FROM TB_SHOPEE_APP WHERE USER_ID = F1.USER_ID),'') AS PARTNER_KEY,
+			ISNULL((SELECT PARTNER_ID FROM TB_SHOPEE_APP WHERE USER_ID = F1.USER_ID),0) AS PARTNER_ID,
+			ISNULL((SELECT CONVERT(CHAR(10), KEY_EXPIRY_DATE, 23) FROM TB_SHOPEE_APP WHERE USER_ID = F1.USER_ID),'') AS KEY_EXPIRY_DATE
+		FROM TB_SHOPEE F1 , TB_CUSTOMER F2
+		WHERE F1.USER_ID = #{userId} AND F1.USER_ID = F2.USER_ID
+		<if test="useYn != null and useYn != ''">AND F1.USE_YN = #{useYn} </if>
+		<if test="merchantYn != null and merchant != ''">AND MERCHANT_YN = #{merchantYn} </if>
+		<if test="shopeeId != null and shopeeId != 0">AND SHOPEE_ID = #{shopeeId}</if>
+	</select>
+	
+	<select id="selectShopeeInfoOne" parameterType="hashMap" resultType="com.example.temp.api.ecommerce.dto.Shopee">
+		SELECT
+			ISNULL(F1.USER_ID,'') AS USER_ID,
+			ISNULL(SHOPEE_ID,'') AS SHOPEE_ID,
+			ISNULL(MERCHANT_YN,'') AS MERCHANT_YN,
+			ISNULL(REFRESH_TOKEN,'') AS REFRESH_TOKEN,
+			ISNULL(TOKEN_CREATED,'') AS TOKEN_CREATED,
+			ISNULL(TOKEN_EXPIRES,'') AS TOKEN_EXPIRES,
+			ISNULL(AUTH_EXPIRES,'') AS AUTH_EXPIRES,
+			ISNULL(SHOP_NAME,'') AS SHOP_NAME,
+			ISNULL(SHOP_REGION,'') AS SHOP_REGION,
+			ISNULL(F1.USE_YN,'') AS USE_YN,
+			ISNULL(F1.W_DATE,'') AS W_DATE,
+			ISNULL(COM_E_NAME,'') AS COM_E_NAME,
+			ISNULL(USER_TEL,'') AS USER_TEL,
+			ISNULL(USER_ZIP,'') AS USER_ZIP,
+			ISNULL(USER_E_STATE,'') AS USER_E_STATE,
+			ISNULL(USER_E_CITY,'') AS USER_E_CITY,
+			ISNULL(USER_E_ADDR,'') AS USER_E_ADDR,
+			ISNULL(USER_E_ADDR_DETAIL,'') AS USER_E_ADDR_DETAIL,
+			ISNULL(USER_HP,'') AS USER_HP,
+			ISNULL(USER_EMAIL,'') AS USER_EMAIL,
+			ISNULL(STORE_URL,'') AS STORE_URL,
+			ISNULL((SELECT ORG_NATION FROM TB_USER_TRANS_COM WHERE USER_ID = F1.USER_ID GROUP BY ORG_NATION),'') AS ORG_NATION,
+			ISNULL((SELECT PARTNER_KEY FROM TB_SHOPEE_APP WHERE USER_ID = F1.USER_ID),'') AS PARTNER_KEY,
+			ISNULL((SELECT PARTNER_ID FROM TB_SHOPEE_APP WHERE USER_ID = F1.USER_ID),0) AS PARTNER_ID,
+			ISNULL((SELECT CONVERT(CHAR(10), KEY_EXPIRY_DATE, 23) FROM TB_SHOPEE_APP WHERE USER_ID = F1.USER_ID),'') AS KEY_EXPIRY_DATE
+		FROM TB_SHOPEE F1 , TB_CUSTOMER F2
+		WHERE F1.USER_ID = #{userId} AND F1.USER_ID = F2.USER_ID
+		<if test="useYn != null and useYn != ''">AND F1.USE_YN = #{useYn} </if>
+		<if test="merchantYn != null and merchant != ''">AND MERCHANT_YN = #{merchantYn} </if>
+		<if test="shopeeId != null and shopeeId != 0">AND SHOPEE_ID = #{shopeeId}</if>
+	</select>
+	
+	<select id="execShopifyInfo" parameterType="com.example.temp.api.ecommerce.dto.Shopify">
+		IF EXISTS (SELECT 1 FROM TB_SHOPIFY_NEW WHERE USER_ID = #{userId})
+		BEGIN
+			UPDATE TB_SHOPIFY_NEW
+			SET SHOPIFY_URL = #{shopifyUrl}, API_KEY = #{apiKey}, API_TOKEN = #{apiToken}, USE_YN = #{useYn}
+			WHERE USER_ID = #{userId}
+		END
+		ELSE
+		BEGIN
+			INSERT INTO TB_SHOPIFY_NEW (USER_ID, SHOPIFY_URL, API_KEY, API_TOKEN, USE_YN, W_DATE)
+			VALUES (#{userId}, #{shopifyUrl}, #{apiKey}, #{apiToken}, #{useYn}, GETDATE())
+		END;
+	</select>
+	
+	<update id="updateShopeeInfoUseYn" parameterType="com.example.temp.api.ecommerce.dto.Shopee">
+		UPDATE TB_SHOPEE SET USE_YN = #{useYn} WHERE USER_ID = #{userId} AND SHOPEE_ID = #{shopeeId};
+	</update>
+
+	<insert id="execShopeeInfo" parameterType="com.example.temp.api.ecommerce.dto.Shopee">
+		IF EXISTS (SELECT 1 FROM TB_SHOPEE WHERE USER_ID = #{userId} AND SHOPEE_ID = #{shopeeId})
+		BEGIN
+			UPDATE TB_SHOPEE
+			SET REFRESH_TOKEN = #{refreshToken}, TOKEN_CREATED = GETDATE(), TOKEN_EXPIRES = DATEADD(DAY, 30, GETDATE()), AUTH_EXPIRES = #{authExpires}, M_DATE = GETDATE()
+			WHERE USER_ID = #{userId} AND SHOPEE_ID = #{shopeeId}
+		END
+		ELSE
+		BEGIN
+			INSERT INTO TB_SHOPEE (
+				USER_ID, SHOPEE_ID, MERCHANT_YN, REFRESH_TOKEN, TOKEN_CREATED, TOKEN_EXPIRES, AUTH_EXPIRES,
+				SHOP_NAME, SHOP_REGION, USE_YN, W_DATE
+			) VALUES (
+				#{userId}, #{shopeeId}, #{merchantYn}, #{refreshToken}, GETDATE(), DATEADD(DAY, 30, GETDATE()), #{authExpires},
+				#{shopName}, #{shopRegion}, #{useYn}, GETDATE())
+		END;
+	</insert>
+	
+	<update id="updateShopeeRefreshToken" parameterType="com.example.temp.api.ecommerce.dto.Shopee">
+		UPDATE TB_SHOPEE
+		SET REFRESH_TOKEN = #{refreshToken}, TOKEN_CREATED = GETDATE(), TOKEN_EXPIRES = DATEADD(DAY, 30, GETDATE())
+		WHERE USER_ID = #{userId} AND SHOPEE_ID = #{shopeeId}
+	</update>
+	
+	<delete id="deleteShopeeInfo" parameterType="com.example.temp.api.ecommerce.dto.Shopee">
+		DELETE FROM TB_SHOPEE WHERE USER_ID = #{userId} AND SHOPEE_ID = #{shopeeId}
+	</delete>
+	
+	<insert id="insertShopeeInfo" parameterType="com.example.temp.api.ecommerce.dto.Shopee">
+		INSERT INTO TB_SHOPEE (
+			USER_ID, SHOPEE_ID, MERCHANT_YN, REFRESH_TOKEN, TOKEN_CREATED, TOKEN_EXPIRES, AUTH_EXPIRES,
+			SHOP_NAME, SHOP_REGION, USE_YN, W_DATE
+		) VALUES (
+			#{userId}, #{shopeeId}, #{merchantYn}, #{refreshToken}, GETDATE(), DATEADD(DAY, 30, GETDATE()), #{authExpires},
+			#{shopName}, #{shopRegion}, #{useYn}, GETDATE())
+	</insert>
+	
+	<insert id="execShopeeAppInfo" parameterType="hashMap">
+		IF EXISTS (SELECT 1 FROM TB_SHOPEE_APP WHERE USER_ID = #{userId})
+		BEGIN
+			UPDATE TB_SHOPEE_APP
+			SET PARTNER_ID = #{partnerId}, PARTNER_KEY = #{partnerKey}, KEY_EXPIRY_DATE = #{keyExpiryDate}
+			WHERE USER_ID = #{userId}
+		END
+		ELSE
+		BEGIN
+			INSERT INTO TB_SHOPEE_APP VALUES
+			(#{userId}, #{partnerId}, #{partnerKey}, #{keyExpiryDate}, 'Y', GETDATE())
+		END;
+	</insert>
+	
+	<insert id="insertTmpOrder" parameterType="com.example.temp.api.ecommerce.dto.Order">
+		INSERT INTO TMP_ORDER_LIST (
+			NNO, ORG_STATION, DSTN_NATION, DSTN_STATION, [USER_ID], ORDER_TYPE, ORDER_NO, ORDER_DATE, HAWB_NO, BOX_CNT, USER_WTA, USER_WTC,
+			SHIPPER_NAME, SHIPPER_ZIP, SHIPPER_TEL, SHIPPER_HP, SHIPPER_CNTRY, SHIPPER_CITY, SHIPPER_STATE, SHIPPER_ADDR, SHIPPER_ADDR_DETAIL,
+			CNEE_NAME, CNEE_ADDR, CNEE_ZIP, CNEE_TEL, CNEE_HP, CNEE_CNTRY, CNEE_CITY, CNEE_STATE, CNEE_DISTRICT, CNEE_ADDR_DETAIL, 
+			USER_LENGTH, USER_WIDTH, USER_HEIGHT, USER_EMAIL, 
+			TRANS_CODE, 
+			CNEE_EMAIL, CUSTOMS_NO, NATIVE_CNEE_NAME, NATIVE_CNEE_ADDR, NATIVE_CNEE_ADDR_DETAIL,
+			DIM_UNIT, WT_UNIT, BUY_SITE, W_USER_ID, W_USER_IP, W_DATE, GET_BUY, MALL_TYPE, WH_REQ_MSG, DLV_REQ_MSG, STATUS, SHIPPER_REFERENCE, CNEE_REFERENCE1,
+			CNEE_REFERENCE2, PAYMENT, FOOD, DECL_TYPE, UPLOAD_TYPE, CNEE_WARD, SIGN, COSMETIC, SHIPPER_TAX_TYPE, SHIPPER_TAX_NO, CNEE_TAX_TYPE, CNEE_TAX_NO
+		) VALUES (
+			#{nno}, #{orgStation}, #{dstnNation}, #{dstnStation}, #{userId}, #{orderType}, #{orderNo}, #{orderDate}, #{hawbNo}, #{boxCnt}, #{userWta}, #{userWtc},
+			#{shipperName}, #{shipperZip}, #{shipperTel}, #{shipperHp}, #{shipperCntry}, #{shipperCity}, #{shipperState}, #{shipperAddr}, #{shipperAddrDetail},
+			#{cneeName}, #{cneeAddr}, #{cneeZip}, #{cneeTel}, #{cneeHp}, #{cneeCntry}, #{cneeCity}, #{cneeState}, #{cneeDistrict}, #{cneeAddrDetail},
+			#{userLength}, #{userWidth}, #{userHeight}, #{userEmail}, 
+			(SELECT TOP 1 TRANS_CODE FROM TB_USER_TRANS_COM WHERE USER_ID = #{userId} AND ORG_NATION = #{orgNation} AND DSTN_NATION = #{dstnNation} AND PRIORITY = '1'),
+			#{cneeEmail}, #{customsNo}, #{nativeCneeName}, #{nativeCneeAddr}, #{nativeCneeAddrDetail}, 
+			#{dimUnit}, #{wtUnit}, #{buySite}, #{wUserId}, #{wUserIp}, #{wDate}, #{getBuy}, #{mallType}, #{whReqMsg}, #{dlvReqMsg}, #{status}, #{shipperReference}, #{cneeReference1},
+			#{cneeReference2}, #{payment}, #{food}, #{declType}, #{uploadType}, #{cneeWard}, #{sign}, #{cosmetic}, #{shipperTaxType}, #{shipperTaxNo}, #{cneeTaxType}, #{cneeTaxNo})
+	</insert>
+	
+	<insert id="insertTmpItem" parameterType="com.example.temp.api.ecommerce.dto.Item">
+		INSERT INTO TMP_ORDER_ITEM (
+		    NNO, SUB_NO, ORG_STATION, [USER_ID], HS_CODE, ITEM_DETAIL, UNIT_CURRENCY, ITEM_CNT, UNIT_VALUE, BRAND, MAKE_CNTRY, MAKE_COM,
+		    ITEM_DIV, WT_UNIT, QTY_UNIT, PACKAGE_UNIT, EXCHANGE_RATE, CHG_CURRENCY, CHG_AMT, ITEM_METERIAL, TAKE_IN_CODE, USER_WTA, USER_WTC,
+		    ITEM_URL, ITEM_IMG_URL, [STATUS], TRK_COM, TRK_NO, TRK_DATE, NATIVE_ITEM_DETAIL, CUS_ITEM_CODE, W_USER_ID, W_USER_IP, W_DATE
+		) VALUES (
+		    #{nno}, #{subNo}, #{orgStation}, #{userId}, #{hsCode}, #{itemDetail}, #{unitCurrency}, #{itemCnt}, #{unitValue}, #{brand}, #{makeCntry}, #{makeCom},
+		    #{itemDiv}, #{wtUnit}, #{qtyUnit}, #{packageUnit}, #{exchangeRate}, #{chgCurrency}, #{chgAmt}, #{itemMeterial}, #{takeInCode}, #{userWta}, #{userWtc},
+			#{itemUrl}, #{itemImgUrl}, #{status}, #{trkCom}, #{trkNo}, #{trkDate}, #{nativeItemDetail}, #{cusItemCode}, #{wUserId}, #{wUserIp}, #{wDate})
+	</insert>
+	
+	<insert id="insertShopifyFulfillment" parameterType="com.example.temp.api.ecommerce.dto.Item">
+		INSERT INTO TB_SHOPIFY_FULFILLMENT (
+			NNO, USER_ID, ORDER_NO, ORDER_ID, FULFILL_ORDER_ID, W_DATE, UPDATE_YN
+		) VALUES (
+			#{nno}, #{userId}, #{orderNo}, #{orderId}, #{fulfillOrderId}, GETDATE(), 'N')
+	</insert>
+	
+	<insert id="insertExportDeclareInfo" parameterType="com.example.temp.api.Export">
+		INSERT INTO TB_EXP_DCL
+			(NNO, USER_ID, EXP_TYPE, EXP_COR, EXP_RPRSN, EXP_ADDR, EXP_ZIP, EXP_RGSTR_NO, EXP_CST_CD, 
+			AGT_COR, AGT_CST_CD, AGT_BIZ_NO, EXP_NO, SEND_YN, W_DATE) 
+		VALUES
+			(#{nno}, #{userId}, #{expType}, #{expCor}, #{expRprsn}, #{expAddr}, #{expZip}, #{expRgstrNo}, #{expCstCd},
+			#{agtCor}, #{agtCstCd}, #{agtBizNo}, #{expNo}, #{sendYn}, GETDATE());
+	</insert>
+	
+	<select id="selectTakeinItem" parameterType="hashMap" resultType="com.example.temp.api.ecommerce.dto.Item">
+		SELECT
+			TAKE_IN_CODE,
+			ISNULL(ORG_STATION,'') AS ORG_STATION,
+			ISNULL(USER_ID,'') AS USER_ID,
+			ISNULL(CUS_ITEM_CODE,'') AS CUS_ITEM_CODE,
+			ISNULL(HS_CODE,'') AS HS_CODE,
+			ISNULL(BRAND,'') AS BRAND,
+			ISNULL(ITEM_DETAIL,'') AS ITEM_DETAIL,
+			ISNULL(NATIVE_ITEM_DETAIL,'') AS NATIVE_ITEM_DETAIL,
+			ISNULL(UNIT_VALUE,0) AS UNIT_VALUE,
+			ISNULL(UNIT_CURRENCY,'USD') AS UNIT_CURRENCY,
+			ISNULL(WTA,0) AS USER_WTA,
+			ISNULL(WTC,0) AS USER_WTC,
+			ISNULL(WT_UNIT,'KG') AS WT_UNIT,
+			ISNULL(QTY_UNIT,'EA') AS QTY_UNIT,
+			ISNULL(ITEM_URL,'') AS ITEM_URL,
+			ISNULL(ITEM_IMG_URL,'') AS ITEM_IMG_URL,
+			ISNULL(ITEM_METERIAL,'') AS ITEM_METERIAL,
+			ISNULL(ITEM_DIV,'') AS ITEM_DIV,
+			ISNULL(MAKE_CNTRY,'') AS MAKE_CNTRY,
+			ISNULL(MAKE_COM,'') AS MAKE_COM,
+			ISNULL(ITEM_COLOR,'') AS ITEM_COLOR,
+			ISNULL(ITEM_SIZE,'') AS ITEM_SIZE
+		FROM TB_TAKEIN_CODE
+		WHERE USER_ID = #{userId} AND ORG_STATION = #{orgStation} AND CUS_ITEM_CODE = #{cusItemCode}
+	</select>
+	
+</mapper>

@@ -1,0 +1,1806 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.common.mapper.ComnMapper">
+	<select id='selectNNO' resultType="String">
+		SELECT
+		concat(replace(CONVERT(date,GETDATE()),'-',''),left(replace(CONVERT(time,GETDATE()),':',''),6),RIGHT(NEXT
+		VALUE FOR
+		SEQ_NNO,4),CHAR(left(round(rand(),1)*10,1)+65),CHAR(left(round(rand(),1)*10,1)+65),CHAR(left(round(rand(),1)*10,1)+65))
+		AS NNO;
+	</select>
+	
+	<select id="selectUID" resultType="String">
+		SELECT CONCAT(CHAR(LEFT(ROUND(RAND(),1)*10,1)+65), REPLACE(CONVERT(NVARCHAR(10),GETDATE(),2),'.',''), RIGHT(RAND(),3), 
+		CHAR(LEFT(ROUND(RAND(),1)*10,1)+65), CHAR(LEFT(ROUND(RAND(),1)*10,1)+65)) AS UID;
+	</select>
+	
+	<insert id="insertMemberInfo" parameterType="com.example.temp.manager.vo.ManagerVO">
+		INSERT INTO
+		    TB_CUSTOMER (
+		    <![CDATA[
+		        [USER_ID],
+		        [USER_NAME],
+		        USER_PW,
+		        USER_TEL,
+		        USER_HP,
+		        USER_ADDR,
+		        USER_ADDR_DETAIL,
+		        USER_EMAIL,
+		        ETPR_YN,
+		        DEPOSIT_YN,
+		        INSP_PRICE,
+		        USER_GRADE,
+		        INSP_YN,
+		        TAKE_YN,
+		        USER_ZIP,
+		        [ROLE],
+		        APRV_YN,
+		        COM_NAME,
+		        COM_E_NAME,
+		        USER_E_ADDR,
+		        USER_E_ADDR_DETAIL,
+		        STOCK_WEIGHT_YN,
+		        STORE_NAME,
+		        STORE_URL,
+		        RETURN_STATION,
+		        RETURN_ADDRESS,
+		        USER_UID,
+		       	ESHOP_ID,
+		       	ESHOP_API_KEY,
+		       	USER_E_STATE,
+		       	USER_E_CITY
+	        ]]>
+		    )
+		VALUES
+		    (
+		        LOWER(#{userId}),
+		        #{userName},
+		        #{userPw},
+		        #{userTel},
+		        #{userHp},
+		        #{userAddr},
+				#{userAddrDetail},
+				#{userEmail},
+				#{etprYn},
+				#{depositYn},
+				#{inspPrice},
+				#{userGrade},
+				#{inspYn},
+				#{takeYn},
+				#{userZip},
+				#{role},
+				#{aprvYn},
+				#{comName},
+				#{comEName},
+				#{userEAddr},
+				#{userEAddrDetail},
+				#{stockWeightYn},
+				#{storeName},
+				#{storeUrl},
+				#{returnStation},
+				#{returnAddr},
+				#{userUid},
+				#{eshopId},
+				#{eshopApiKey},
+				#{userEState},
+				#{userECity}
+				
+		    );
+	</insert>
+	
+	<select id="selectNationCode" resultType="com.example.temp.manager.vo.NationVO">
+		SELECT 	ISNULL(NATION_CODE,'') AS NATION_CODE,
+				ISNULL(NATION_THR_CODE,'') AS NATION_THR_CODE, 
+				ISNULL(NATION_NAME,'') AS NATION_NAME, 
+				ISNULL(NATION_E_NAME,'') AS NATION_E_NAME FROM TB_NATION_CODE
+		WHERE NATION_E_NAME != ''
+		ORDER BY NATION_E_NAME ASC;	
+	</select>
+	
+	<select id="selectUserNationCode" resultType="com.example.temp.manager.vo.NationVO" parameterType="String">
+		SELECT 	ISNULL(NATION_CODE,'') AS NATION_CODE,
+				ISNULL(NATION_THR_CODE,'') AS NATION_THR_CODE, 
+				ISNULL(NATION_NAME,'') AS NATION_NAME, 
+				ISNULL(NATION_E_NAME,'') AS NATION_E_NAME FROM TB_NATION_CODE
+		WHERE NATION_E_NAME != ''
+				AND NATION_CODE IN (SELECT DSTN_NATION FROM TB_USER_TRANS_COM WHERE USER_ID = #{value})
+		ORDER BY NATION_E_NAME ASC;
+	</select>
+	
+	<select id="selectCurrencyList" resultType="com.example.temp.manager.vo.CurrencyVO">
+		SELECT * FROM TB_CURRENCY ORDER BY NATION_E_NAME;
+	</select>
+	
+	<select id="selectOrgStation" resultType="com.example.temp.manager.vo.NationVO">
+		SELECT 
+			ISNULL(STATION_CODE,'') AS STATION_CODE,
+			ISNULL(STATION_NAME,'') AS STATION_NAME
+		FROM
+			TB_STATION
+		WHERE STATION_CODE != '111'
+		ORDER BY IDX;
+	</select>
+	
+	<select id="selectReturnStationList" resultType="hashMap" parameterType="String">
+		SELECT
+			IDX,
+			ISNULL(STATION_CODE,'') AS STATION_CODE,
+			ISNULL(STATION_NAME,'') AS STATION_NAME,
+			ISNULL(STATION_ADDR,'') AS STATION_ADDR,
+			ISNULL(STATION_ADDR_DETAIL,'') AS STATION_ADDR_DETAIL
+		FROM TB_RETURN_STATION
+		WHERE
+			STATION_CODE = #{orgStation}
+	</select>
+	
+	
+	<select id ="selectUserTrkComBlType" resultType="hashMap" parameterType="String">
+		SELECT ISNULL(ORG_NATION+'_'+DSTN_NATION+'_'+TRANS_CODE,'') AS transCodeVal,
+			   ISNULL(BL_TYPE,'A') AS blType FROM TB_USER_TRANS_COM WHERE USER_ID =#{value}
+	</select>
+	<select id ="selectUserTrkCom" resultType="String" parameterType="String">
+		SELECT ISNULL(ORG_NATION+'_'+DSTN_NATION+'_'+TRANS_CODE,'') FROM TB_USER_TRANS_COM WHERE USER_ID =#{value}
+	</select>
+	
+	<select id="makeTransMap" parameterType="hashMap" resultType="com.example.temp.common.vo.ZoneVO" >
+		SELECT 
+			(select TRANS_NAME FROM TB_TRANS_COM WHERE TRANS_CODE = F1.TRANS_CODE) AS TRANS_NAME,
+			TRANS_CODE,
+			ZONE_CODE,
+			ORG_NATION,
+			DSTN_NATION,
+			W_USER_ID,
+			W_USER_IP,
+			W_DATE,
+			IDX,
+			ORG_NATION+'_'+DSTN_NATION+'_'+TRANS_CODE AS TARGET_CODE
+		FROM TB_TRANS_ZONE F1 WHERE ORG_NATION IN 
+		<foreach collection="orgs" item="value" open="(" close=")" separator=",">
+			#{value}
+		</foreach>
+		AND
+		DSTN_NATION IN 
+		<foreach collection="dstns" item="value" open="(" close=")" separator=",">
+			#{value}
+		</foreach>
+		 ORDER BY DSTN_NATION DESC;
+	</select>
+	
+	<select id="selectNoticeList" parameterType="hashMap" resultType="com.example.temp.common.vo.NoticeVO">
+		SELECT *
+		FROM (
+		SELECT ROW_NUMBER() OVER(ORDER BY IDX DESC) AS ROWNUM, A.* FROM (
+		SELECT * FROM TB_NOTICE
+		<where>
+		 1=1 
+			<if test='searchWord != null and searchWord != ""'>
+				AND
+				TITLE LIKE '%'+#{searchWord}+'%'
+			</if>
+			<if test='role == "USER"'>
+				AND 
+				(
+					DSTN_STATION IN (select DSTN_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId}) OR 
+					DSTN_STATION IN (select ORG_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId})
+				) AND (
+					ORG_STATION IN (select ORG_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId}) OR 
+					ORG_STATION IN (SELECT DSTN_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId})
+				)
+			</if>
+		</where>
+		) A ) B 
+		<where>
+			<if test='paging.boardStart !=null and paging.boardStart !="" and paging.boardEnd != null and paging.boardEnd !=""'>
+				B.ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectNoticeDetail" parameterType="hashMap" resultType="com.example.temp.common.vo.NoticeVO">
+		SELECT A.*,
+		<![CDATA[
+			(CASE WHEN EXISTS (SELECT B.* FROM TB_NOTICE B WHERE B.IDX > #{ntcNo}) THEN (SELECT C.IDX FROM (SELECT B.*,ROW_NUMBER() OVER(ORDER BY IDX DESC) AS RN FROM TB_NOTICE B WHERE B.IDX > #{ntcNo}
+		]]>
+			<if test='role == "USER"'>
+			AND 
+			(
+				B.DSTN_STATION IN (select DSTN_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId}) OR 
+				B.DSTN_STATION IN (select ORG_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId})
+			) AND (
+				B.ORG_STATION IN (select ORG_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId}) OR 
+				B.ORG_STATION IN (SELECT DSTN_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId})
+			)
+			</if>
+		<![CDATA[	
+			) C WHERE C.RN = 1) ELSE -1 END) AS NEXT_YN,
+			(CASE WHEN EXISTS (SELECT B.* FROM TB_NOTICE B WHERE B.IDX < #{ntcNo}) THEN (SELECT C.IDX FROM (SELECT B.*,ROW_NUMBER() OVER(ORDER BY IDX DESC) AS RN FROM TB_NOTICE B WHERE B.IDX < #{ntcNo}
+		]]>
+			<if test='role == "USER"'>
+			AND 
+			(
+				B.DSTN_STATION IN (select DSTN_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId}) OR 
+				B.DSTN_STATION IN (select ORG_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId})
+			) AND (
+				B.ORG_STATION IN (select ORG_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId}) OR 
+				B.ORG_STATION IN (SELECT DSTN_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId})
+			)
+			</if>
+		<![CDATA[	
+			) C WHERE C.RN = 1) ELSE -1 END) AS PREV_YN
+		]]>
+		FROM TB_NOTICE A WHERE A.idx = #{ntcNo}
+		
+	</select>
+	
+	<select id="selectBoardList" parameterType="com.example.temp.common.vo.BoardVO" resultType="com.example.temp.common.vo.BoardVO">
+	
+	</select>	
+	<select id="selectTotalCntNotice" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*) FROM TB_NOTICE 
+		<where>
+		 1=1
+			<if test='searchWord != null and searchWord != ""'>
+				AND
+				TITLE LIKE '%'+#{searchWord}+'%'
+			</if>
+			<if test='role == "USER"'>
+				AND 
+				(
+					DSTN_STATION IN (select DSTN_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId}) OR 
+					DSTN_STATION IN (select ORG_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId})
+				) AND (
+					ORG_STATION IN (select ORG_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId}) OR 
+					ORG_STATION IN (SELECT DSTN_NATION FROM TB_USER_TRANS_COM WHERE USER_ID=#{userId})
+				)
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectStationTonation" parameterType="String" resultType="String">
+		SELECT ISNULL((SELECT NATION_CODE FROM TB_STATION WHERE STATION_NAME = #{parameter}),(SELECT NATION_CODE FROM TB_STATION WHERE STATION_CODE = #{parameter})) AS stationCode
+	</select>
+	
+	<select id ="selectStationToNationList" parameterType="hashMap" resultType="com.example.temp.manager.vo.NationVO">
+		SELECT STATION_CODE,STATION_NAME FROM TB_STATION WHERE NATION_CODE IN
+		<foreach collection="userOrgNation" item="value" open="(" close=")" separator=",">
+			#{value}
+		</foreach>
+	</select>
+	
+	<select id="selectPdfPrintInfo" parameterType="String" resultType="com.example.temp.common.vo.PdfPrintVO">
+		SELECT 
+			(select COUNT(*) FROM TB_ORDER_ITEM WHERE NNO = F1.NNO) AS ITEM_CNT,
+			(SELECT SUM(ITEM_CNT) FROM TB_ORDER_ITEM WHERE NNO = F1.NNO)  TOTAL_CNT,
+			CASE WHEN USER_WTC = 0 THEN USER_WTA ELSE ROUND(USER_WTC,2) END AS USER_WTC,
+			(SELECT STATION_NAME FROM TB_STATION WHERE STATION_CODE = F1.ORG_STATION) AS ORG_STATION_NAME,
+			(SELECT NATION_CODE FROM TB_STATION WHERE STATION_CODE = F1.ORG_STATION) AS ORG_NATION_CODE,
+			(SELECT COM_NAME FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) AS COM_NAME,
+			(SELECT COM_E_NAME FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) AS COM_E_NAME,
+			F1.*
+		FROM TB_ORDER_LIST F1 
+	 	WHERE F1.NNO = #{orderNno} AND F1.TRANS_CODE = #{printType};
+	</select>
+	
+
+	
+	<select id="selectTempInfo" parameterType="String" resultType="com.example.temp.common.vo.PdfPrintVO">
+		SELECT 
+			(select COUNT(*) FROM TB_ORDER_ITEM WHERE NNO = F1.NNO) AS ITEM_CNT,
+			(SELECT SUM(ITEM_CNT) FROM TB_ORDER_ITEM WHERE NNO = F1.NNO)  TOTAL_CNT,
+			F1.*,
+			ISNULL((SELECT TOP 1 VALUE_MATCH_NO FROM TB_MATCHING_INFO WHERE KEY_HAWB_NO = F1.HAWB_NO AND MATCH_TRANS_CODE = #{printType} ORDER BY IDX DESC),F1.HAWB_NO) AS hawbNo2,
+			(SELECT STATION_NAME FROM TB_STATION WHERE STATION_CODE = F1.ORG_STATION) AS ORG_STATION_NAME,
+			(SELECT COM_NAME FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) AS COM_NAME,
+			(SELECT COM_E_NAME FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) AS COM_E_NAME,
+			(SELECT ITEM_DETAIL FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO = 1) AS ITEM_DETAIL
+		FROM TB_ORDER_LIST F1 
+	 	WHERE F1.NNO = #{orderNno} AND F1.TRANS_CODE = #{printType};
+	</select>
+	
+	<select id="selectTempInfoETCS" parameterType="String" resultType="com.example.temp.common.vo.PdfPrintVO">
+		SELECT 
+			(select COUNT(*) FROM TB_TAKEIN_ETC_ORDER_ITEM WHERE NNO = F1.NNO) AS ITEM_CNT,
+			(SELECT SUM(ITEM_CNT) FROM TB_TAKEIN_ETC_ORDER_ITEM WHERE NNO = F1.NNO)  TOTAL_CNT,
+			F1.*,
+			(SELECT STATION_NAME FROM TB_STATION WHERE STATION_CODE = F1.ORG_STATION) AS ORG_STATION_NAME,
+			(SELECT COM_NAME FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) AS COM_NAME,
+			(SELECT COM_E_NAME FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) AS COM_E_NAME
+		FROM TB_TAKEIN_ETC_ORDER F1 
+	 	WHERE F1.NNO = #{orderNno};
+	</select>
+	
+	<select id="selectOcsInfo" parameterType="String" resultType="com.example.temp.common.vo.PdfPrintVO">
+		SELECT ISNULL(USER_WTA, '1.0') USER_WTA,
+			   ISNULL(BOX_CNT, '1') BOX_CNT,
+			   ISNULL(ORDER_NO,'') ORDER_NO,
+			   ISNULL(WT_UNIT, '') WT_UNIT,
+			   ISNULL(SHIPPER_NAME, '') COM_NAME,
+			   ISNULL((SELECT [USER_NAME] FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID),'') SHIPPER_NAME,
+			   ISNULL(SHIPPER_ADDR, '') SHIPPER_ADDR,
+			   ISNULL(SHIPPER_ADDR_DETAIL, '') SHIPPER_ADDR_DETAIL,
+			   ISNULL(SHIPPER_CITY, '') SHIPPER_CITY,
+			   ISNULL(SHIPPER_STATE, '') SHIPPER_STATE,
+			   ISNULL((select NATION_E_NAME FROM TB_NATION_CODE WHERE NATION_CODE = (select NATION_CODE FROM TB_STATION WHERE STATION_CODE = ORG_STATION)),'') ORG_STATION,
+			   ISNULL(CNEE_NAME,'') CNEE_NAME,
+			   ISNULL(CNEE_ADDR,'') CNEE_ADDR,
+			   ISNULL(CNEE_ADDR_DETAIL,'') CNEE_ADDR_DETAIL,
+			   ISNULL(NATIVE_CNEE_NAME,'') NATIVE_CNEE_NAME,
+			   ISNULL(NATIVE_CNEE_ADDR,'') NATIVE_CNEE_ADDR,
+			   ISNULL(NATIVE_CNEE_ADDR_DETAIL,'') NATIVE_CNEE_ADDR_DETAIL,
+			   ISNULL(CNEE_CITY, '') CNEE_CITY,
+			   ISNULL(CNEE_STATE,'') CNEE_STATE,
+			   ISNULL(CNEE_ZIP,'') CNEE_ZIP,
+			   ISNULL((SELECT NATION_E_NAME FROM TB_NATION_CODE WHERE NATION_CODE = DSTN_NATION),'') DSTN_NATION,
+			   ISNULL(CNEE_TEL,CNEE_HP) CNEE_TEL,
+			   ISNULL(SHIPPER_TEL,SHIPPER_HP) SHIPPER_TEL,
+			   HAWB_NO FROM TB_ORDER_LIST F1 WHERE F1.NNO = #{orderNno} AND F1.TRANS_CODE = #{printType};
+	</select>
+	<!-- <select id="selectSagawaInfo" parameterType="String" resultType="com.example.temp.common.vo.PdfPrintVO">
+		SELECT F2.SALESNO,
+			F2.AREANO,
+			F2.LOCALNO,
+			F2.CITYNAME,
+			F2.GUNAME,
+			F2.DONGNAME ,
+			(select COUNT(*) FROM TB_ORDER_ITEM WHERE NNO = F1.NNO) AS ITEM_CNT,
+			F1.*,
+			(SELECT COM_NAME FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) AS COM_NAME,
+			(SELECT COM_E_NAME FROM TB_CUSTOMER WHERE USER_ID = F1.USER_ID) AS COM_E_NAME
+		FROM TB_ORDER_LIST F1 
+		LEFT OUTER JOIN  TB_SAKAWA F2 
+	    	ON REPLACE(F1.CNEE_ZIP,'-','')  = F2.ZIPCODE
+	 	WHERE F1.NNO = #{orderNno};
+	</select> -->
+	
+	<select id="selectUserCnt" parameterType="String" resultType="Integer">
+		SELECT COUNT(*) FROM TB_CUSTOMER WHERE USER_ID = LOWER(#{userId}) 
+	</select>
+	
+	<insert id="insertUserTransCom" parameterType="hashMap">
+	DECLARE @TRANS_CODE nvarchar(50)
+	DECLARE @NATION_CODE nvarchar(50)
+	
+	SET @TRANS_CODE = (SELECT TRANS_CODE FROM TB_USER_TRANS_COM WHERE USER_ID = #{userId} AND ORG_NATION = #{orgNation} AND DSTN_NATION = #{dstnNation})
+	SET @NATION_CODE = (SELECT NATION_CODE FROM TB_USER_TRANS_COM WHERE USER_ID = #{userId} AND ORG_NATION = #{orgNation} AND DSTN_NATION = #{dstnNation})
+	
+	DELETE FROM TB_USER_TRANS_COM WHERE USER_ID = #{userId} AND ORG_NATION = #{orgNation} AND DSTN_NATION = #{dstnNation}
+	
+	INSERT INTO TB_USER_TRANS_COM (
+	<![CDATA[
+		TRANS_CODE,
+		ORG_NATION,
+		DSTN_NATION,
+		USER_ID,
+		NATION_CODE, 
+		W_USER_ID,
+		W_USER_IP,
+		W_DATE,
+		PRIORITY
+	]]>
+	) VALUES (
+		@TRANS_CODE,
+		#{orgNation},
+		#{dstnNation},
+		#{userId},
+		@NATION_CODE,
+		#{wUserId},
+		#{wUserIp},
+		#{wDate},
+		(select COUNT(*)+1 FROM TB_USER_TRANS_COM WHERE USER_ID = #{userId} and ORG_NATION = #{orgNation} AND DSTN_NATION=#{dstnNation})
+	);
+	</insert>
+	<select id = "selectUserItem" parameterType="String" resultType="String">
+		SELECT ITEM_DETAIL FROM TB_ORDER_ITEM WHERE NNO = #{nno}
+	</select> 
+	
+	<select id = "selectSessionInfo" parameterType="hashMap" resultType="String">
+		SELECT TOP 1 ACCESS_IP FROM HIS_LOGIN WHERE LOGIN_ID = (SELECT TOP 1 LOGIN_ID FROM HIS_LOGIN WHERE ACCESS_IP = #{loginId} ORDER BY W_DATE DESC) ORDER BY W_DATE DESC;
+	</select>
+	
+	<select id="selectDeliverInfo" parameterType="String" resultType="com.example.temp.common.vo.DeliverTrackVO">
+	<![CDATA[ 
+		SELECT 
+			ISNULL((SELECT ORDER_NO FROM TB_ORDER_LIST WHERE HAWB_NO =#{hawbNo}),'') AS ORDER_NO,
+			ISNULL((SELECT W_DATE FROM TB_ORDER_LIST WHERE HAWB_NO = #{hawbNo}),'') AS ORDER_IN_DATE,
+			ISNULL((select CNEE_NAME FROM TB_ORDER_LIST WHERE HAWB_NO = #{hawbNo}),'') AS CNEE_NAME,
+			ISNULL((select CNEE_ADDR FROM TB_ORDER_LIST WHERE HAWB_NO = #{hawbNo}),'') AS NATIVE_CNEE_ADDR,
+			ISNULL((select CNEE_ADDR_DETAIL FROM TB_ORDER_LIST WHERE HAWB_NO = #{hawbNo}),'') AS NATIVE_CNEE_ADDR_DETAIL,
+			ISNULL((select W_DATE FROM TB_HAWB WHERE HAWB_NO = #{hawbNo}),'') AS HAWB_IN_TIME,
+			ISNULL((SELECT W_DATE FROM TB_MAWB WHERE MAWB_NO = (SELECT MAWB_NO FROM TB_HAWB WHERE HAWB_NO = #{hawbNo}) AND ORG_STATION = (SELECT ORG_STATION FROM TB_HAWB WHERE HAWB_NO = #{hawbNo})),'') AS MAWB_IN_TIME,
+			ISNULL((SELECT DEP_DATE FROM TB_MAWB WHERE MAWB_NO = (SELECT MAWB_NO FROM TB_HAWB WHERE HAWB_NO = #{hawbNo}) AND ORG_STATION = (SELECT ORG_STATION FROM TB_HAWB WHERE HAWB_NO = #{hawbNo}) AND (DEP_DATE+DEP_TIME) < format(getdate(),'yyyyMMddHHmm')),'') AS DEP_DATE,
+			ISNULL((SELECT DEP_TIME FROM TB_MAWB WHERE MAWB_NO = (SELECT MAWB_NO FROM TB_HAWB WHERE HAWB_NO = #{hawbNo}) AND ORG_STATION = (SELECT ORG_STATION FROM TB_HAWB WHERE HAWB_NO = #{hawbNo}) AND (DEP_DATE+DEP_TIME) < format(getdate(),'yyyyMMddHHmm')),'') AS DEP_TIME,
+			ISNULL((SELECT ARR_DATE FROM TB_MAWB WHERE MAWB_NO = (SELECT MAWB_NO FROM TB_HAWB WHERE HAWB_NO = #{hawbNo}) AND ORG_STATION = (SELECT ORG_STATION FROM TB_HAWB WHERE HAWB_NO = #{hawbNo}) AND (ARR_DATE+ARR_TIME) < format(getdate(),'yyyyMMddHHmm')),'') AS ARR_DATE,
+			ISNULL((SELECT ARR_TIME FROM TB_MAWB WHERE MAWB_NO = (SELECT MAWB_NO FROM TB_HAWB WHERE HAWB_NO = #{hawbNo}) AND ORG_STATION = (SELECT ORG_STATION FROM TB_HAWB WHERE HAWB_NO = #{hawbNo}) AND (ARR_DATE+ARR_TIME) < format(getdate(),'yyyyMMddHHmm')),'') AS ARR_TIME,
+			ISNULL((SELECT STATION_NAME FROM TB_STATION WHERE STATION_CODE = (SELECT ORG_STATION FROM TB_HAWB WHERE HAWB_NO = #{hawbNo})),'') AS AREA
+	]]>
+	</select>
+	
+	<select id="selectTransComByNno" parameterType="String" resultType="String">
+		SELECT TRANS_CODE FROM TB_ORDER_LIST WHERE NNO = #{nno}
+	</select>
+	
+	
+	<select id="selectHawbListARA" parameterType="String" resultType="hashMap">
+		SELECT HAWB_NO hawbNo,
+			   W_DATE wDate,
+			   ORG_STATION orgStation,
+			   USER_ID userId,
+			   (select SUM(ITEM_CNT) from TB_ORDER_ITEM where NNO = F1.NNO) totalItemCnt, 
+			   NNO nno,
+			   ORDER_NO orderNo
+	    FROM TB_ORDER_LIST F1 WHERE TRANS_CODE ='ARA' AND NNO IN 
+		<foreach collection="list" item="value" open="(" close=")" separator=",">
+			#{value}
+		</foreach>
+	</select>
+	
+	<select id="selectHawbListSaved" parameterType="hashMap" resultType="hashMap">
+		SELECT 
+			F1.HAWB_NO hawbNo,
+			F1.ORG_STATION orgStation,
+			F1.W_DATE wDate,
+			F1.USER_ID userId,
+			F1.ORDER_NO orderNo
+	    FROM TB_ORDER_LIST F1
+	    WHERE F1.TRANS_CODE =#{printType} AND F1.NNO IN 
+		<foreach collection="nnoList" item="value" open="(" close=")" separator=",">
+			#{value}
+		</foreach>
+	</select>
+	
+	<select id="selectMatchHawbNoCnt" parameterType="String" resultType="Integer">
+		SELECT COUNT(*)
+		FROM TB_DELIVERY_INFO
+		WHERE TRK_NO = #{hawbNo}
+	</select>
+	
+	<select id="selectHawbListSavedT86" parameterType="hashMap" resultType="hashMap">
+		SELECT
+			ISNULL((SELECT TRK_NO FROM TB_DELIVERY_INFO WHERE HAWB_NO = F1.HAWB_NO), HAWB_NO) hawbNo,
+			ORG_STATION orgStation,
+			W_DATE wDate,
+			USER_ID userId
+		FROM TB_ORDER_LIST F1
+		WHERE TRANS_CODE = #{printType} AND NNO IN
+		<foreach collection="nnoList" item="value" open="(" close=")" separator=",">
+			#{value}
+		</foreach>
+	</select>
+	
+	<select id="selectOrgStationName" parameterType="String" resultType="String">
+		SELECT STATION_NAME FROM TB_STATION WHERE STATION_CODE = #{orgStation}
+	</select>
+	
+	
+	<select id="selectNationInStation" resultType="com.example.temp.manager.vo.NationVO">
+		SELECT  ISNULL(NATION_CODE,'') AS NATION_CODE,
+				ISNULL(NATION_THR_CODE,'') AS NATION_THR_CODE, 
+				ISNULL(NATION_NAME,'') AS NATION_NAME, 
+				ISNULL(NATION_E_NAME,'') AS NATION_E_NAME 
+			FROM TB_NATION_CODE WHERE NATION_CODE IN (SELECT DISTINCT(NATION_CODE) FROM TB_STATION)
+	</select>
+	
+	<insert id="insertInvUserInfo" parameterType="com.example.temp.common.vo.InvUserInfoVO">
+		INSERT INTO
+		    TB_CUSTOMER_INV_INFO (
+		        INV_USER_ID,
+		        INV_USER_NAME,
+		        INV_USER_TEL,
+		        INV_USER_EMAIL,
+		        INV_COM_NAME,
+		        INV_COM_TEL,
+		        INV_COM_ADDR,
+		        INV_COM_ADDR_DETAIL
+		    )
+		VALUES
+		    (
+		        #{invUserId},
+		        #{invUserName},
+		        #{invUserTel},
+		        #{invUserEmail},
+		        #{invComName},
+		        #{invComTel},
+		        #{invComAddr},
+		        #{invComAddrDetail}
+		    );
+	</insert>
+	<select id="selectInvUserInfo" parameterType="String" resultType="com.example.temp.common.vo.InvUserInfoVO">
+		SELECT 
+			ISNULL(INV_USER_NAME,'') AS INV_USER_NAME,
+			ISNULL(INV_USER_TEL,'') AS INV_USER_TEL,
+			ISNULL(INV_USER_EMAIL,'') AS INV_USER_EMAIL,
+			ISNULL(INV_COM_NAME,'') AS INV_COM_NAME,
+			ISNULL(INV_COM_TEL,'') AS INV_COM_TEL,
+			ISNULL(INV_COM_ADDR,'') AS INV_COM_ADDR,
+			ISNULL(INV_COM_ADDR_DETAIL,'') AS INV_COM_ADDR_DETAIL
+			FROM TB_CUSTOMER_INV_INFO WHERE INV_USER_ID = #{userId}
+	</select>
+
+	<select id="selectTransComChange" parameterType="hashMap" resultType="hashMap">
+		DECLARE
+			@NNO NVARCHAR(50) ,
+			@ORG_STATION NVARCHAR(3) ,
+			@DSTN_NATION NVARCHAR(2) ,
+			@USER_ID NVARCHAR(50),
+			@TRANS_CODE NVARCHAR(50),
+			@WTA FLOAT,
+			@WTC FLOAT,
+			@W_USER_ID NVARCHAR(50),
+			@W_USER_IP NVARCHAR(50),
+			@W_DATE    NVARCHAR(50),
+			@RST_STATUS NVARCHAR(50) , 
+			@RST_CODE NVARCHAR(10) , 
+			@RST_MSG NVARCHAR(100)  ,
+			@RST_TRANS_CODE NVARCHAR(100)  
+		
+		SET @NNO  = #{nno}
+		SET @ORG_STATION  = #{orgStation}
+		SET @DSTN_NATION = #{dstnNation}
+		SET @USER_ID = #{userId}
+		SET @TRANS_CODE = #{transCode}
+		SET @WTA = #{wta}
+		SET @WTC = #{wtc}
+		SET @W_USER_ID = #{wUserId}
+		SET @W_USER_IP = #{wUserIp}
+		SET @W_DATE  = GETDATE()
+		
+		EXEC SP_TRANS_COM_CHANGE
+			@NNO ,
+			@ORG_STATION ,
+			@DSTN_NATION  ,
+			@USER_ID ,
+			@TRANS_CODE ,
+			@WTA ,
+			@WTC ,
+			@W_USER_ID ,
+			@W_USER_IP ,
+			@W_DATE   ,
+			@RST_STATUS OUTPUT, 
+			@RST_CODE OUTPUT, 
+			@RST_MSG OUTPUT,
+			@RST_TRANS_CODE OUTPUT
+		
+		SELECT 
+			@RST_STATUS rstStatus, 
+			@RST_CODE rstCode, 
+			@RST_MSG rstMsg,
+			@RST_TRANS_CODE  rstTransCode;
+	</select>
+
+	<select id="execSpHoldBl" parameterType="hashMap" resultType="hashMap">
+		DECLARE 
+			@USER_ID NVARCHAR(50),
+			@HAWB_NO NVARCHAR(50),
+			@HOLD_YN NVARCHAR(1),
+			@REMARK NVARCHAR(500),
+			@W_USER_ID NVARCHAR(50),
+			@W_USER_IP NVARCHAR(50),
+			@RST_STATUS NVARCHAR(10),
+			@RST_CODE NVARCHAR(10),
+			@RST_MSG  NVARCHAR(100),
+			@RST_HAWB_NO  NVARCHAR(100)
+
+		SET @USER_ID = #{userId}
+		SET @HAWB_NO = #{hawbNo}
+		SET @HOLD_YN = #{holdYn}
+		SET @REMARK = #{remark}
+		SET @W_USER_ID = #{wUserId}
+		SET @W_USER_IP = #{wUserIp}
+		
+		EXEC SP_HOLD
+			@USER_ID ,
+			@HAWB_NO,
+			@HOLD_YN ,
+			@REMARK ,
+			@W_USER_ID ,
+			@W_USER_IP ,
+			@RST_STATUS OUTPUT ,
+			@RST_CODE OUTPUT,
+			@RST_MSG OUTPUT,
+			@RST_HAWB_NO OUTPUT
+		
+		SELECT 
+			@RST_STATUS  AS rstStatus,
+			@RST_CODE AS rstCode,
+			@RST_MSG as rstMsg,
+			@RST_HAWB_NO as rstHawbNo 
+	</select>
+	
+	<select id="selectTransComChangeForVo" parameterType="hashMap" resultType="com.example.temp.manager.vo.ProcedureVO">
+		DECLARE
+			@NNO NVARCHAR(50) ,
+			@ORG_STATION NVARCHAR(3) ,
+			@DSTN_NATION NVARCHAR(2) ,
+			@USER_ID NVARCHAR(50),
+			@TRANS_CODE NVARCHAR(50),
+			@WTA FLOAT,
+			@WTC FLOAT,
+			@W_USER_ID NVARCHAR(50),
+			@W_USER_IP NVARCHAR(50),
+			@W_DATE    NVARCHAR(50),
+			@RST_STATUS NVARCHAR(50) , 
+			@RST_CODE NVARCHAR(10) , 
+			@RST_MSG NVARCHAR(100)  ,
+			@RST_TRANS_CODE NVARCHAR(100)  
+		
+		SET @NNO  = #{nno}
+		SET @ORG_STATION  = #{orgStation}
+		SET @DSTN_NATION = #{dstnNation}
+		SET @USER_ID = #{userId}
+		SET @TRANS_CODE = #{transCode}
+		SET @WTA = #{wta}
+		SET @WTC = #{wtc}
+		SET @W_USER_ID = #{wUserId}
+		SET @W_USER_IP = #{wUserIp}
+		SET @W_DATE  = GETDATE()
+		
+		EXEC SP_TRANS_COM_CHANGE
+			@NNO ,
+			@ORG_STATION ,
+			@DSTN_NATION  ,
+			@USER_ID ,
+			@TRANS_CODE ,
+			@WTA ,
+			@WTC ,
+			@W_USER_ID ,
+			@W_USER_IP ,
+			@W_DATE   ,
+			@RST_STATUS OUTPUT, 
+			@RST_CODE OUTPUT, 
+			@RST_MSG OUTPUT,
+			@RST_TRANS_CODE OUTPUT
+		
+		SELECT 
+			@RST_STATUS rstStatus, 
+			@RST_CODE rstCode, 
+			@RST_MSG rstMsg,
+			@RST_TRANS_CODE  rstTransCode;
+	</select>
+	
+	<select id="selectUserTransCode" parameterType="hashMap" resultType="String">
+		SELECT TRANS_CODE FROM TB_USER_TRANS_COM WHERE USER_ID = #{userId} 
+		AND DSTN_NATION = ISNULL((SELECT NATION_CODE FROM TB_NATION_CODE WHERE NATION_CODE = #{dstnNation}),(SELECT NATION_CODE FROM TB_NATION_CODE WHERE NATION_E_NAME = #{dstnNation})) 
+		AND ORG_NATION = ISNULL((SELECT NATION_CODE FROM TB_STATION WHERE STATION_CODE = #{orgStation}),(SELECT NATION_CODE FROM TB_STATION WHERE STATION_NAME = #{orgStation})) 
+		AND PRIORITY = '1';
+		
+	</select>
+	<select id="selectMatchNumByHawb" parameterType="String" resultType="String">
+		<!-- SELECT TOP 1 VALUE_MATCH_NO FROM TB_MATCHING_INFO WHERE KEY_HAWB_NO = #{hawbNo} ORDER BY IDX DESC; -->
+		SELECT ISNULL((SELECT TOP 1 VALUE_MATCH_NO FROM TB_MATCHING_INFO WHERE KEY_HAWB_NO = #{hawbNo} ORDER BY IDX DESC),#{hawbNo});
+	</select>
+	
+	<select id="selectTransCodeFromHawb" parameterType="String" resultType="String">
+		SELECT ISNULL(TRANS_CODE,'') AS TRANS_CODE FROM TB_ORDER_LIST WHERE HAWB_NO = #{hawbNo}
+	</select>
+	
+	<select id="mawbListLookUp" parameterType="hashMap" resultType="com.example.temp.manager.vo.MawbVO">
+		<![CDATA[
+			SELECT 
+				MAWB_NO,
+				ISNULL(DSTN_STATION,'') AS DSTN_STATION,
+				ISNULL(ORG_STATION,'') AS ORG_STATION,
+				DEP_DATE,
+				ARR_DATE,
+				FLT_NO,
+				(SELECT COUNT(TTH.MAWB_NO) FROM TB_HAWB TTH WHERE TTH.MAWB_NO =TTM.MAWB_NO) AS HAWB_CNT
+			FROM TB_MAWB TTM WHERE
+			ARR_DATE >= #{sDate}
+		]]>
+		<if test ="eDate != null and eDate != ''">
+		<![CDATA[
+			AND ARR_DATE <= #{eDate}
+		]]>
+		</if>
+		<![CDATA[
+			ORDER BY DEP_DATE DESC;
+		]]>
+	</select>
+	
+	<select id="selectHawbByMawb" parameterType="String" resultType="String">
+		SELECT HAWB_NO FROM TB_HAWB WHERE MAWB_NO = #{mawbNo}
+	</select>
+	
+	<select id="selectHawbInfoJson" parameterType="String" resultType="com.example.temp.trans.comn.HawbLookUpVo">
+		SELECT 
+			CONVERT(CHAR(8), F1.W_DATE, 112) W_DATE, 
+			(SELECT ARR_DATE FROM TB_MAWB WHERE MAWB_NO = F1.MAWB_NO) AS ARR_DATE, 
+			F1.MAWB_NO mawbNo,
+			'' AS SHIPPER_CODE,
+			F2.SHIPPER_NAME,
+			F2.SHIPPER_TEL,
+			F2.SHIPPER_ADDR,
+			F2.SHIPPER_ADDR_DETAIL,
+			(SELECT STORE_URL FROM TB_CUSTOMER WHERE USER_ID = F2.USER_ID) AS SHIPPER_URL,
+			F2.ORDER_NO,
+			F2.GET_BUY,
+			F2.CNEE_NAME,
+			F2.CNEE_TEL,
+			F2.CNEE_HP,
+			F2.CUSTOMS_NO,
+			F2.CNEE_ZIP,
+			F2.CNEE_ADDR,
+			F2.CNEE_ADDR_DETAIL,
+			F2.BOX_CNT,
+			F2.DIM_UNIT,
+			CASE DIM_UNIT WHEN 'CM' THEN F2.USER_WTA
+						  WHEN 'IN' THEN (F2.USER_WTA/2.2) END AS USER_WTA,
+			F2.BUY_SITE,
+			(SELECT STATION_NAME FROM TB_STATION WHERE STATION_CODE = F2.ORG_STATION) AS ORGIN_CITY,
+			F2.MALL_TYPE,
+			F2.TRANS_CODE,
+			'' SANO,
+			'' SAMALLNO,
+			'' SAADDR,
+			'' SACEO,
+			F2.ORG_STATION
+		FROM TB_HAWB F1 LEFT OUTER JOIN TB_ORDER_LIST F2 ON F1.NNO = F2.NNO WHERE F1.HAWB_NO=#{hawbNo};
+	</select>
+	
+	<select id="selectItemInfos" parameterType="String" resultType="hashMap">
+		SELECT 
+			ITEM_DETAIL AS itemDetail, 
+			COUNT(nno) AS itemTotalCnt 
+		FROM TB_ORDER_ITEM WHERE NNO = #{nno} and SUB_NO = '1' GROUP BY (ITEM_DETAIL)
+	</select>
+	<select id ="selectRegistedOrderList" resultType="com.example.temp.member.vo.ShpngListVO" parameterType="hashMap">
+		SELECT
+			(SELECT [USER_NAME] FROM TB_CUSTOMER WHERE [USER_ID] = #{userId}) AS COMPANY_NAME,
+			(SELECT REMARK FROM TB_TRANS_COM WHERE TRANS_CODE = F1.TRANS_CODE) AS TRANS_NAME,
+			F1.*,
+			F2.SUB_NO ,
+			F2.HS_CODE ,
+			F2.ITEM_DETAIL ,
+			F2.UNIT_VALUE ,
+			F2.ITEM_CNT ,
+			F2.MAKE_CNTRY,
+			F2.ITEM_METERIAL,
+			F2.ITEM_IMG_URL,
+			F2.TRK_NO,
+			ISNULL((SELECT STATION_NAME FROM TB_STATION WHERE STATION_CODE = F1.ORG_STATION),'') AS ORG_STATION_NAME,
+			ISNULL((SELECT NATION_NAME FROM TB_NATION_CODE WHERE NATION_CODE = F1.DSTN_NATION),'') AS DSTN_NATION_NAME,
+			ROUND(F2.UNIT_VALUE * F2.ITEM_CNT,2) ITEM_VALUE,
+			(CASE 
+			WHEN F1.NNO IN 
+			(SELECT NNO FROM TB_STOCK WHERE [USER_ID] = #{userId})
+			THEN 'A'
+			WHEN F1.NNO IN 
+			(SELECT NNO FROM TB_HAWB WHERE [USER_ID] = #{userId})
+			THEN 'A'
+			ELSE 'S'
+			END) AS STATUS
+		FROM (SELECT F4.* FROM (SELECT ROW_NUMBER() OVER(ORDER BY F3.W_DATE DESC) AS ROWNUM, F3.* FROM TB_ORDER_LIST F3
+				WHERE ISNULL(F3.USER_ID,'') = #{userId}
+				AND F3.ORDER_TYPE = #{orderType}
+				<choose>
+					<when test='idx !="" and idx != null and idx != "All"'>
+						AND F3.TRANS_CODE = (SELECT	TRANS_CODE FROM TB_USER_TRANS_COM WHERE IDX = #{idx})
+					</when>
+					<otherwise>
+						AND F3.TRANS_CODE IN (SELECT TRANS_CODE FROM TB_USER_TRANS_COM WHERE USER_ID = #{userId})
+					</otherwise>
+				</choose>
+			  	AND F3.NNO NOT IN (SELECT DISTINCT(NNO) FROM TB_STOCK WHERE USER_ID = #{userId})
+			  	AND F3.NNO NOT IN (SELECT DISTINCT(NNO) FROM TB_HAWB WHERE USER_ID = #{userId})) F4) F1 ,
+			 TB_ORDER_ITEM F2
+		WHERE F1.NNO = F2.NNO
+				<if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+			  		AND F1.W_DATE BETWEEN #{startDate}+'0000' AND #{endDate}+'2359'
+			  	</if>
+				ORDER BY F1.W_DATE DESC, F1.HAWB_NO DESC
+	
+	</select>
+	
+	<select id ="selectSendBeforeOrderForExcel" resultType="com.example.temp.member.vo.ShpngListVO" parameterType="hashMap">
+		SELECT
+			(SELECT [USER_NAME] FROM TB_CUSTOMER WHERE [USER_ID] = #{userId}) AS COMPANY_NAME,
+			(SELECT REMARK FROM TB_TRANS_COM WHERE TRANS_CODE = F1.TRANS_CODE) AS TRANS_NAME,
+			F1.*,
+			F2.SUB_NO ,
+			F2.HS_CODE ,
+			F2.ITEM_DETAIL ,
+			F2.UNIT_VALUE ,
+			F2.ITEM_CNT ,
+			F2.MAKE_CNTRY,
+			F2.ITEM_METERIAL,
+			F2.ITEM_IMG_URL,
+			ISNULL((SELECT STATION_NAME FROM TB_STATION WHERE STATION_CODE = F1.ORG_STATION),'') AS ORG_STATION_NAME,
+			ISNULL((SELECT NATION_NAME FROM TB_NATION_CODE WHERE NATION_CODE = F1.DSTN_NATION),'') AS DSTN_NATION_NAME,
+			ROUND(F2.UNIT_VALUE * F2.ITEM_CNT,2) ITEM_VALUE,
+			(CASE 
+			WHEN F1.NNO IN 
+			(SELECT NNO FROM TB_STOCK WHERE [USER_ID] = #{userId})
+			THEN 'A'
+			WHEN F1.NNO IN 
+			(SELECT NNO FROM TB_HAWB WHERE [USER_ID] = #{userId})
+			THEN 'A'
+			ELSE 'S'
+			END) AS STATUS
+		FROM (SELECT F4.* FROM (SELECT ROW_NUMBER() OVER(ORDER BY F3.W_DATE DESC) AS ROWNUM, F3.* FROM TB_ORDER_LIST F3
+				WHERE ISNULL(F3.USER_ID,'') = #{userId}
+				AND F3.ORDER_TYPE = #{orderType}
+					AND F3.TRANS_CODE = #{transCode}
+				AND F3.HAWB_NO != ''
+				AND HAWB_NO IN (SELECT HAWB_NO FROM TB_HAWB WHERE MAWB_NO = '' OR MAWB_NO = null)
+				) F4) F1 ,
+			 TB_ORDER_ITEM F2
+		WHERE F1.NNO = F2.NNO
+			<if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+			  		AND F1.W_DATE BETWEEN #{startDate} AND #{endDate}
+			  	</if>
+		  	ORDER BY F1.W_DATE DESC, F1.HAWB_NO DESC
+	</select>
+	<select id ="selectSendAfterOrderForExcel" resultType="com.example.temp.member.vo.ShpngListVO" parameterType="hashMap">
+		SELECT
+			(SELECT [USER_NAME] FROM TB_CUSTOMER WHERE [USER_ID] = #{userId}) AS COMPANY_NAME,
+			(SELECT REMARK FROM TB_TRANS_COM WHERE TRANS_CODE = F1.TRANS_CODE) AS TRANS_NAME,
+			F1.*,
+			F1.W_DATE AS wDate,
+			F2.SUB_NO ,
+			F2.HS_CODE ,
+			F2.ITEM_DETAIL ,
+			F2.UNIT_VALUE ,
+			F2.ITEM_CNT ,
+			F2.MAKE_CNTRY,
+			F2.ITEM_METERIAL,
+			F2.ITEM_IMG_URL,
+			ISNULL((SELECT STATION_NAME FROM TB_STATION WHERE STATION_CODE = F1.ORG_STATION),'') AS ORG_STATION_NAME,
+			ISNULL((SELECT NATION_NAME FROM TB_NATION_CODE WHERE NATION_CODE = F1.DSTN_NATION),'') AS DSTN_NATION_NAME,
+			ROUND(F2.UNIT_VALUE * F2.ITEM_CNT,2) ITEM_VALUE,
+			(CASE 
+			WHEN F1.NNO IN 
+			(SELECT NNO FROM TB_STOCK WHERE [USER_ID] = #{userId})
+			THEN 'A'
+			WHEN F1.NNO IN 
+			(SELECT NNO FROM TB_HAWB WHERE [USER_ID] = #{userId})
+			THEN 'A'
+			ELSE 'S'
+			END) AS STATUS
+		FROM (SELECT F4.* FROM (SELECT ROW_NUMBER() OVER(ORDER BY F3.W_DATE DESC) AS ROWNUM, F3.* FROM TB_ORDER_LIST F3
+				WHERE ISNULL(F3.USER_ID,'') = #{userId}
+				AND F3.ORDER_TYPE = #{orderType}
+					AND F3.TRANS_CODE = #{transCode}
+				AND F3.HAWB_NO != ''
+				AND HAWB_NO IN (SELECT HAWB_NO FROM TB_HAWB WHERE MAWB_NO != '')
+				) F4) F1 ,
+			 TB_ORDER_ITEM F2
+		WHERE F1.NNO = F2.NNO
+				<if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+			  		AND F1.W_DATE BETWEEN #{startDate} AND #{endDate}
+			  	</if>
+			ORDER BY F1.W_DATE DESC, F1.HAWB_NO DESC
+	</select>
+	
+	<select id="selectWebHookInfo" parameterType="String" resultType="hashMap">
+		SELECT
+			ISNULL(DIV,'') AS divs,
+			ISNULL(DIV_KR,'') AS divKr,
+			ISNULL((SELECT URL FROM TB_WEBHOOK_LIST F1 WHERE F1.USER_ID = #{userId} AND F1.DIV = F2.DIV),'') AS url 
+		FROM TB_WEBHOOK_INFO F2;
+	</select>
+	
+	<select id="selectWebHookInfoOne" parameterType="hashMap" resultType="String">
+		SELECT ISNULL(URL,'') AS URL FROM TB_WEBHOOK_LIST F1 WHERE F1.USER_ID = #{userId} AND F1.DIV = #{divName};
+	</select>
+	
+	<select id="selectBlList" parameterType="String" resultType="hashMap">
+		select 
+			ISNULL(BL_TYPE,'') as blType,
+			ISNULL(TRANS_CODE,'') as transCode
+		 FROM TB_BL_LIST ORDER BY TRANS_CODE, BL_TYPE;
+	</select>
+	
+	<select id="selectBlTypeTransCom" parameterType="com.example.temp.common.vo.PdfPrintVO" resultType="String">
+		SELECT ISNULL(BL_TYPE,'') AS BL_TYPE 
+		FROM TB_USER_TRANS_COM 
+		WHERE 
+			USER_ID = #{userId} AND
+			DSTN_NATION = #{dstnNation} AND 
+			ORG_NATION = (SELECT NATION_CODE
+								FROM TB_STATION 
+								WHERE STATION_NAME = #{orgStationName}) AND  
+			TRANS_CODE =	#{transCode};
+	</select>
+	
+	<select id ="selectCommercialInfo" parameterType="String" resultType="com.example.temp.common.vo.CommercialVO">
+		SELECT
+			F1.HAWB_NO,
+			CASE
+				WHEN ISNULL((SELECT DEP_DATE FROM TB_MAWB WHERE MAWB_NO = (SELECT MAWB_NO FROM TB_HAWB WHERE HAWB_NO = F1.HAWB_NO) AND ISNULL(MAWB_NO,'') != ''),'') = '' THEN ''
+				ELSE (SELECT DEP_DATE FROM TB_MAWB WHERE MAWB_NO = (SELECT MAWB_NO FROM TB_HAWB WHERE HAWB_NO = F1.HAWB_NO) AND ISNULL(MAWB_NO,'') != '')
+			END DEP_DATE,
+			F3.COM_E_NAME,
+			ISNULL((SELECT NATION_E_NAME FROM TB_NATION_CODE WHERE NATION_CODE = (SELECT NATION_CODE FROM TB_STATION WHERE STATION_CODE = F1.ORG_STATION)),'') AS SHIPPER_CNTRY,
+			F3.USER_E_ADDR,
+			F3.USER_E_ADDR_DETAIL,
+			F3.USER_TEL,
+			F1.CNEE_NAME,
+			(SELECT NATION_E_NAME FROM TB_NATION_CODE WHERE NATION_CODE = F1.DSTN_NATION) AS DSTN_NATION,
+			F1.CNEE_CNTRY,
+			F1.CNEE_STATE,
+			F1.CNEE_CITY,
+			F1.CNEE_ADDR,
+			F1.CNEE_ADDR_DETAIL,
+			ISNULL(F1.CNEE_TEL,F1.CNEE_HP) AS CNEE_TEL,
+			ISNULL(F1.BUY_SITE,'') AS BUY_SITE,
+			ISNULL(F1.PAYMENT,'') AS PAYMENT
+		FROM TB_ORDER_LIST F1 LEFT OUTER JOIN TB_CUSTOMER_INV_INFO F2 ON F1.USER_ID = F2.INV_USER_ID
+			 				  LEFT OUTER JOIN TB_CUSTOMER F3 ON F1.USER_ID = F3.USER_ID
+		WHERE F1.NNO = #{nno};
+	</select>
+	<select id = "selectCommercialItem" parameterType="String" resultType="com.example.temp.common.vo.CommercialItemVO">
+		SELECT 	ITEM_DETAIL,
+				ITEM_CNT,
+				UNIT_VALUE,
+				ISNULL(CHG_CURRENCY,ISNULL(UNIT_CURRENCY,'')) AS CHG_CURRENCY
+		FROM TB_ORDER_ITEM WHERE NNO = #{nno}
+	
+	</select>
+	<insert id ="insertSendTable" parameterType="hashMap">
+		INSERT INTO TB_SEND_DATA ([HAWB_NO], [SERVICE_NAME], [STATUS], [SEQUENCE]) VALUES (#{hawbNo},#{serviceName} , #{status}, #{sequence});
+	</insert>
+	<select id="selectHawbNoByNNO" parameterType="string" resultType="string">
+		SELECT HAWB_NO FROM TB_ORDER_LIST WHERE NNO =#{nno}
+	</select>
+	<select id="selectBlApply" parameterType="com.example.temp.member.vo.TestssVO" resultType="com.example.temp.member.vo.BlApplyVO" statementType="CALLABLE">
+		DECLARE
+		    @RST_STATUS NVARCHAR(50),
+		    @RST_CODE NVARCHAR(50),
+		    @RST_MSG NVARCHAR(100),
+		    @RST_NNO NVARCHAR(50),
+		    @RST_HAWB_NO NVARCHAR(50)
+	
+		EXEC SP_TRANS_BL_APPLY3
+			#{nno},
+			#{userId},
+			#{userIp},
+			@RST_STATUS output,
+			@RST_CODE output,
+			@RST_MSG output,
+			@RST_NNO output,
+			@RST_HAWB_NO output
+	
+		SELECT @RST_STATUS as STATUS, @RST_CODE as RST_CODE, @RST_MSG as RST_MSG, @RST_NNO as NNO, @RST_HAWB_NO as HAWB_NO;
+	</select>
+	
+	<select id="spTransBl" parameterType="hashMap" resultType="com.example.temp.member.vo.BlApplyVO" statementType="CALLABLE">
+		DECLARE
+		    @RST_STATUS NVARCHAR(50),
+		    @RST_CODE NVARCHAR(50),
+		    @RST_MSG NVARCHAR(100),
+		    @RST_NNO NVARCHAR(50),
+		    @RST_HAWB_NO NVARCHAR(50)
+	
+		EXEC SP_TRANS_BL2
+			#{nno},
+			#{userId},
+			#{userIp},
+			#{hawbNo},
+			@RST_STATUS output,
+			@RST_CODE output,
+			@RST_MSG output,
+			@RST_NNO output,
+			@RST_HAWB_NO output
+	
+		SELECT @RST_STATUS as STATUS, @RST_CODE as RST_CODE, @RST_MSG as RST_MSG, @RST_NNO as NNO, @RST_HAWB_NO as HAWB_NO;
+	</select>
+	
+	<insert id="insertTmpFromOrderList" parameterType="String">
+		INSERT INTO TMP_ORDER_LIST (
+			NNO, ORG_STATION, DSTN_NATION,
+			DSTN_STATION, [USER_ID], ORDER_TYPE, ORDER_NO, HAWB_NO, BOX_CNT,
+			USER_WTA, USER_WTC, SHIPPER_NAME, SHIPPER_ZIP, SHIPPER_TEL, SHIPPER_HP,
+			SHIPPER_CNTRY, SHIPPER_CITY, SHIPPER_STATE, SHIPPER_ADDR,
+			SHIPPER_ADDR_DETAIL, CNEE_NAME, CNEE_ADDR, CNEE_ZIP, CNEE_TEL, CNEE_HP,
+			CNEE_CNTRY, CNEE_CITY, CNEE_STATE, CNEE_DISTRICT, CNEE_ADDR_DETAIL, USER_LENGTH,
+			USER_WIDTH, USER_HEIGHT, USER_EMAIL, W_USER_ID, W_USER_IP, W_DATE,
+			TRANS_CODE, ORDER_DATE, CNEE_EMAIL, CUSTOMS_NO,
+			NATIVE_CNEE_NAME, NATIVE_CNEE_ADDR, NATIVE_CNEE_ADDR_DETAIL, DIM_UNIT,
+			WT_UNIT, BUY_SITE, GET_BUY, MALL_TYPE, WH_REQ_MSG, DLV_REQ_MSG,[STATUS],
+			SHIPPER_REFERENCE, CNEE_REFERENCE1, CNEE_REFERENCE2, PAYMENT, FOOD, UPLOAD_TYPE, CNEE_WARD,
+			COSMETIC, SIGN, SHIPPER_TAX_TYPE, SHIPPER_TAX_NO, CNEE_TAX_TYPE, CNEE_TAX_NO
+			)
+		SELECT 
+			NNO, ORG_STATION, DSTN_NATION, DSTN_STATION, [USER_ID],
+			ORDER_TYPE, ORDER_NO, '', BOX_CNT, USER_WTA, USER_WTC,
+			SHIPPER_NAME, SHIPPER_ZIP, SHIPPER_TEL, SHIPPER_HP, SHIPPER_CNTRY,
+			SHIPPER_CITY, SHIPPER_STATE, SHIPPER_ADDR, SHIPPER_ADDR_DETAIL,
+			CNEE_NAME, CNEE_ADDR, CNEE_ZIP, CNEE_TEL, CNEE_HP, CNEE_CNTRY,
+			CNEE_CITY, CNEE_STATE, CNEE_DISTRICT, CNEE_ADDR_DETAIL, USER_LENGTH, USER_WIDTH,
+			USER_HEIGHT, USER_EMAIL, W_USER_ID, W_USER_IP, W_DATE, TRANS_CODE,
+			ORDER_DATE, CNEE_EMAIL, CUSTOMS_NO, NATIVE_CNEE_NAME, NATIVE_CNEE_ADDR,
+			NATIVE_CNEE_ADDR_DETAIL, DIM_UNIT, WT_UNIT, BUY_SITE, GET_BUY,
+			MALL_TYPE, WH_REQ_MSG, DLV_REQ_MSG, #{status},SHIPPER_REFERENCE, CNEE_REFERENCE1, CNEE_REFERENCE2, PAYMENT, FOOD, UPLOAD_TYPE, CNEE_WARD,
+			COSMETIC, SIGN, SHIPPER_TAX_TYPE, SHIPPER_TAX_NO, CNEE_TAX_TYPE, CNEE_TAX_NO
+		FROM TB_ORDER_LIST 
+		WHERE NNO = #{nno}
+	</insert>
+	
+	<insert id="insertTmpFromOrderList_EMS" parameterType="String">
+		INSERT INTO TMP_ORDER_LIST (
+			NNO, ORG_STATION, DSTN_NATION,
+			DSTN_STATION, [USER_ID], ORDER_TYPE, ORDER_NO, HAWB_NO, BOX_CNT,
+			USER_WTA, USER_WTC, SHIPPER_NAME, SHIPPER_ZIP, SHIPPER_TEL, SHIPPER_HP,
+			SHIPPER_CNTRY, SHIPPER_CITY, SHIPPER_STATE, SHIPPER_ADDR,
+			SHIPPER_ADDR_DETAIL, CNEE_NAME, CNEE_ADDR, CNEE_ZIP, CNEE_TEL, CNEE_HP,
+			CNEE_CNTRY, CNEE_CITY, CNEE_STATE, CNEE_DISTRICT, CNEE_ADDR_DETAIL, USER_LENGTH,
+			USER_WIDTH, USER_HEIGHT, USER_EMAIL, W_USER_ID, W_USER_IP, W_DATE,
+			TRANS_CODE, ORDER_DATE, CNEE_EMAIL, CUSTOMS_NO,
+			NATIVE_CNEE_NAME, NATIVE_CNEE_ADDR, NATIVE_CNEE_ADDR_DETAIL, DIM_UNIT,
+			WT_UNIT, BUY_SITE, GET_BUY, MALL_TYPE, WH_REQ_MSG, DLV_REQ_MSG,[STATUS],
+			SHIPPER_REFERENCE, CNEE_REFERENCE1, CNEE_REFERENCE2, PAYMENT, FOOD)
+		SELECT 
+			NNO, ORG_STATION, DSTN_NATION, DSTN_STATION, [USER_ID],
+			ORDER_TYPE, ORDER_NO, HAWB_NO, BOX_CNT, USER_WTA, USER_WTC,
+			SHIPPER_NAME, SHIPPER_ZIP, SHIPPER_TEL, SHIPPER_HP, SHIPPER_CNTRY,
+			SHIPPER_CITY, SHIPPER_STATE, SHIPPER_ADDR, SHIPPER_ADDR_DETAIL,
+			CNEE_NAME, CNEE_ADDR, CNEE_ZIP, CNEE_TEL, CNEE_HP, CNEE_CNTRY,
+			CNEE_CITY, CNEE_STATE, CNEE_DISTRICT, CNEE_ADDR_DETAIL, USER_LENGTH, USER_WIDTH,
+			USER_HEIGHT, USER_EMAIL, W_USER_ID, W_USER_IP, W_DATE, TRANS_CODE,
+			ORDER_DATE, CNEE_EMAIL, CUSTOMS_NO, NATIVE_CNEE_NAME, NATIVE_CNEE_ADDR,
+			NATIVE_CNEE_ADDR_DETAIL, DIM_UNIT, WT_UNIT, BUY_SITE, GET_BUY,
+			MALL_TYPE, WH_REQ_MSG, DLV_REQ_MSG, #{status},SHIPPER_REFERENCE, CNEE_REFERENCE1, CNEE_REFERENCE2, PAYMENT, FOOD FROM TB_ORDER_LIST 
+		WHERE NNO = #{nno}
+	</insert>
+	
+	
+	<insert id="insertTmpFromOrderItem" parameterType="String">
+		INSERT INTO TMP_ORDER_ITEM (
+			NNO, SUB_NO, ORG_STATION, [USER_ID],
+			HS_CODE, ITEM_DETAIL, UNIT_CURRENCY, ITEM_CNT, UNIT_VALUE, BRAND,
+			MAKE_CNTRY, MAKE_COM, ITEM_DIV, WT_UNIT, QTY_UNIT, PACKAGE_UNIT,
+			EXCHANGE_RATE, CHG_CURRENCY, CHG_AMT, ITEM_METERIAL, TAKE_IN_CODE,
+			USER_WTA, USER_WTC, ITEM_URL, ITEM_IMG_URL, TRK_COM, TRK_NO, TRK_DATE,
+			NATIVE_ITEM_DETAIL, CUS_ITEM_CODE, W_USER_ID, W_USER_IP, W_DATE)
+		SELECT 
+			NNO, SUB_NO, ORG_STATION, [USER_ID], HS_CODE, ITEM_DETAIL,
+			UNIT_CURRENCY, ITEM_CNT, UNIT_VALUE, BRAND, MAKE_CNTRY, MAKE_COM,
+			ITEM_DIV, WT_UNIT, QTY_UNIT, PACKAGE_UNIT, EXCHANGE_RATE, CHG_CURRENCY,
+			CHG_AMT, ITEM_METERIAL, TAKE_IN_CODE, USER_WTA, USER_WTC, ITEM_URL,
+			ITEM_IMG_URL, TRK_COM, TRK_NO, TRK_DATE, NATIVE_ITEM_DETAIL,
+			CUS_ITEM_CODE, W_USER_ID, W_USER_IP, W_DATE FROM TB_ORDER_ITEM 
+		WHERE
+			NNO = #{nno}
+	</insert>
+	
+	<delete id="deleteUserOrderItemTmp" parameterType="String">
+		DELETE FROM TMP_ORDER_ITEM WHERE 
+		NNO = #{nno};
+		DELETE FROM TB_RUS_ORDER_ITEM_INFO WHERE 
+		NNO = #{nno};
+	</delete>
+	
+	<delete id="deleteUserOrderListTmp" parameterType="String">
+		DELETE FROM TMP_ORDER_LIST WHERE 
+		NNO = #{nno};
+		DELETE FROM TB_RUS_ORDER_LIST_INFO WHERE 
+		NNO = #{nno};
+		<!-- DELETE FROM TB_EXPLICENCE WHERE 
+		NNO = #{nno}; -->
+	</delete>
+	
+	<delete id="deleteExpLicence" parameterType="String">
+		DELETE FROM TB_EXP_DCL WHERE NNO = #{nno};
+	</delete>
+	
+	<update id="updateUserOrderListStatus" parameterType="String">
+	UPDATE TMP_ORDER_LIST SET
+		[STATUS] = REPLACE([STATUS],'TMP08','') WHERE ORDER_NO IN (
+			SELECT F1.ORDER_NO FROM
+		(
+			SELECT ORDER_NO,[USER_ID] FROM TB_ORDER_LIST
+			UNION ALL
+			SELECT ORDER_NO,[USER_ID] FROM TMP_ORDER_LIST
+		) F1 WHERE F1.[USER_ID] = #{parameter} 
+			GROUP BY F1.ORDER_NO
+			<![CDATA[
+			HAVING COUNT(*) < 2)
+			]]>
+	</update>
+	
+	<delete id="deleteUserOrder" parameterType="String">
+		EXEC SP_ORDER_DEL2
+			#{orderNno},
+			#{userId},
+			#{userIp};
+		delete from TB_ORDER_ITEM WHERE NNO = #{orderNno} AND NNO NOT IN (SELECT NNO FROM TB_STOCK WHERE STOCK_TYEP != 'RETURN_IN') AND NNO NOT IN (SELECT NNO FROM TB_HAWB);
+		delete from TB_ORDER_LIST WHERE NNO = #{orderNno} AND NNO NOT IN (SELECT NNO FROM TB_STOCK WHERE STOCK_TYEP != 'RETURN_IN') AND NNO NOT IN (SELECT NNO FROM TB_HAWB);
+		DELETE FROM TB_RUS_ORDER_LIST_INFO WHERE NNO = #{orderNno} AND NNO NOT IN (SELECT NNO FROM TB_STOCK) AND NNO NOT IN (SELECT NNO FROM TB_HAWB);
+		DELETE FROM TB_RUS_ORDER_ITEM_INFO WHERE NNO = #{orderNno} AND NNO NOT IN (SELECT NNO FROM TB_STOCK) AND NNO NOT IN (SELECT NNO FROM TB_HAWB);
+		<!-- DELETE FROM TB_EXPLICENCE WHERE NNO = #{orderNno} AND NNO NOT IN (SELECT NNO FROM TB_STOCK) AND NNO NOT IN (SELECT NNO FROM TB_HAWB); -->
+	</delete>
+	
+	<insert id = "insertUserOrderListFromTmp" parameterType="String">
+		INSERT INTO TB_ORDER_LIST(NNO,ORG_STATION,DSTN_NATION,DSTN_STATION,
+			USER_ID,ORDER_TYPE,ORDER_NO,BOX_CNT,HAWB_NO,USER_WTA,USER_WTC,SHIPPER_NAME,SHIPPER_ZIP,SHIPPER_TEL,SHIPPER_HP,SHIPPER_CNTRY,SHIPPER_CITY,
+			SHIPPER_STATE,SHIPPER_ADDR,SHIPPER_ADDR_DETAIL,CNEE_NAME,CNEE_ADDR,CNEE_ZIP,CNEE_TEL,CNEE_HP,CNEE_CNTRY,
+			CNEE_CITY,CNEE_STATE, CNEE_DISTRICT,CNEE_ADDR_DETAIL,USER_LENGTH,USER_WIDTH,USER_HEIGHT,USER_EMAIL,W_USER_ID,W_USER_IP,W_DATE,TRANS_CODE,ORDER_DATE,
+			CNEE_EMAIL,CUSTOMS_NO,NATIVE_CNEE_NAME,NATIVE_CNEE_ADDR,NATIVE_CNEE_ADDR_DETAIL,DIM_UNIT,WT_UNIT,BUY_SITE,GET_BUY, MALL_TYPE, WH_REQ_MSG, DLV_REQ_MSG,
+			SHIPPER_REFERENCE, CNEE_REFERENCE1, CNEE_REFERENCE2, PAYMENT, FOOD, UPLOAD_TYPE, CNEE_WARD, COSMETIC, SIGN, SHIPPER_TAX_TYPE, SHIPPER_TAX_NO, CNEE_TAX_TYPE, CNEE_TAX_NO
+			)
+		SELECT NNO,ORG_STATION,DSTN_NATION,DSTN_STATION,
+			USER_ID,ORDER_TYPE,ORDER_NO,BOX_CNT,HAWB_NO,USER_WTA,USER_WTC,SHIPPER_NAME,SHIPPER_ZIP,SHIPPER_TEL,SHIPPER_HP,SHIPPER_CNTRY,SHIPPER_CITY,
+			SHIPPER_STATE,SHIPPER_ADDR,SHIPPER_ADDR_DETAIL,CNEE_NAME,CNEE_ADDR,CNEE_ZIP,CNEE_TEL,CNEE_HP,CNEE_CNTRY,
+			CNEE_CITY,CNEE_STATE, CNEE_DISTRICT,CNEE_ADDR_DETAIL,USER_LENGTH,USER_WIDTH,USER_HEIGHT,USER_EMAIL,W_USER_ID,W_USER_IP,W_DATE,TRANS_CODE,ORDER_DATE,
+			CNEE_EMAIL,CUSTOMS_NO,NATIVE_CNEE_NAME,NATIVE_CNEE_ADDR,NATIVE_CNEE_ADDR_DETAIL,DIM_UNIT,WT_UNIT,BUY_SITE,GET_BUY, MALL_TYPE, WH_REQ_MSG, DLV_REQ_MSG,
+			SHIPPER_REFERENCE, CNEE_REFERENCE1, CNEE_REFERENCE2, PAYMENT, FOOD, UPLOAD_TYPE, CNEE_WARD, COSMETIC, SIGN, SHIPPER_TAX_TYPE, SHIPPER_TAX_NO, CNEE_TAX_TYPE, CNEE_TAX_NO
+		FROM TMP_ORDER_LIST WHERE NNO = #{nno}
+	</insert>
+	
+	<insert id = "insertUserOrderItemFromTmp" parameterType="String">
+		INSERT INTO TB_ORDER_ITEM (NNO,SUB_NO,ORG_STATION,USER_ID,HS_CODE,ITEM_DETAIL,NATIVE_ITEM_DETAIL,
+			UNIT_CURRENCY,ITEM_CNT,UNIT_VALUE,BRAND,MAKE_CNTRY,MAKE_COM,ITEM_DIV,WT_UNIT,
+			QTY_UNIT,PACKAGE_UNIT,EXCHANGE_RATE,CHG_CURRENCY,CHG_AMT,ITEM_METERIAL,TAKE_IN_CODE,
+			CUS_ITEM_CODE,ITEM_URL,ITEM_IMG_URL,TRK_COM,TRK_NO,TRK_DATE,USER_WTA,USER_WTC,W_USER_ID,W_USER_IP,W_DATE)
+        SELECT NNO,SUB_NO,ORG_STATION,USER_ID,HS_CODE,ITEM_DETAIL,NATIVE_ITEM_DETAIL,
+			UNIT_CURRENCY,ITEM_CNT,UNIT_VALUE,BRAND,MAKE_CNTRY,MAKE_COM,ITEM_DIV,WT_UNIT,
+			QTY_UNIT,PACKAGE_UNIT,EXCHANGE_RATE,CHG_CURRENCY,CHG_AMT,ITEM_METERIAL,TAKE_IN_CODE,
+			CUS_ITEM_CODE,ITEM_URL,ITEM_IMG_URL,TRK_COM,TRK_NO,TRK_DATE,USER_WTA,USER_WTC,W_USER_ID,W_USER_IP,W_DATE
+        FROM TMP_ORDER_ITEM WHERE NNO = #{nno}
+	</insert>
+	
+	<delete id="deleteUserOrderItem" parameterType="String">
+		DELETE FROM TB_ORDER_ITEM WHERE 
+		NNO = #{nno};
+		DELETE FROM TB_RUS_ORDER_ITEM_INFO WHERE 
+		NNO = #{nno};
+	</delete>
+	
+	<select id="selectUserRegistOrderOne" parameterType="hashMap" resultType="com.example.temp.member.vo.UserOrderListVO">
+		<!-- 
+		SELECT F1.*, (SELECT TRANS_NAME FROM TB_TRANS_COM WHERE TRANS_CODE = F1.TRANS_CODE) AS TRANS_NAME,
+			FORMAT(F2.NATIONAL_ID_DATE,'dd/MM/yyyy') AS nationalIdDate,
+			ISNULL(F2.NATIONAL_ID_AUTHORITY,'') as nationalIdAuthority,
+			FORMAT(F2.CNEE_BIRTH,'dd/MM/yyyy') AS cneeBirth,
+			ISNULL(F2.TAX_NO,'') as taxNo,
+			ISNULL(F3.SEND_YN,'') as sendYn,
+			ISNULL(F3.EXP_BUSINESS_NUM,'') as expBusinessNum,
+			ISNULL(F3.EXP_SHIPPER_CODE,'') as expShipperCode,
+			ISNULL(F3.EXP_BUSINESS_NAME,'') as expBusinessName,
+			ISNULL(F3.SIMPLE_YN,'') as simpleYn,
+			ISNULL(F3.EXP_NO,'') as expNo,
+			ISNULL(F3.EXP_VALUE,'noExplicence') as expValue,
+			ISNULL(F3.AGENCY_BUSINESS_NAME,'') as agencyBusinessName
+		FROM 
+		TB_ORDER_LIST F1 LEFT OUTER JOIN TB_RUS_ORDER_LIST_INFO F2 ON F1.NNO = F2.NNO 
+						 LEFT OUTER JOIN TB_EXPLICENCE F3 ON F1.NNO = F3.NNO
+		WHERE F1.NNO =  #{nno}
+		 -->
+		 SELECT F1.*, (SELECT TRANS_NAME FROM TB_TRANS_COM WHERE TRANS_CODE = F1.TRANS_CODE) AS TRANS_NAME,
+			FORMAT(F2.NATIONAL_ID_DATE,'dd/MM/yyyy') AS NATIONAL_ID_DATE,
+			ISNULL(F2.NATIONAL_ID_AUTHORITY,'') AS NATIONAL_ID_AUTHORITY,
+			FORMAT(F2.CNEE_BIRTH,'dd/MM/yyyy') AS CNEE_BIRTH,
+			ISNULL(F2.TAX_NO,'') AS TAX_NO,
+			ISNULL(F3.SEND_YN,'') AS SEND_YN,
+			ISNULL(F3.EXP_TYPE,'N') AS EXP_TYPE,
+			ISNULL(F3.EXP_COR,'') AS EXP_COR,
+			ISNULL(F3.EXP_RPRSN,'') AS EXP_RPRSN,
+			ISNULL(F3.EXP_ADDR,'00NECwQh10Wxb0w0BjtJlw==') AS EXP_ADDR,
+			ISNULL(F3.EXP_ZIP,'') AS EXP_ZIP,
+			ISNULL(F3.EXP_RGSTR_NO,'00NECwQh10Wxb0w0BjtJlw==') AS EXP_RGSTR_NO,
+			ISNULL(F3.EXP_CST_CD,'00NECwQh10Wxb0w0BjtJlw==') AS EXP_CST_CD,
+			ISNULL(F3.AGT_COR,'') AS AGT_COR,
+			ISNULL(F3.AGT_CST_CD,'00NECwQh10Wxb0w0BjtJlw==') AS AGT_CST_CD,
+			ISNULL(F3.AGT_BIZ_NO,'') AS AGT_BIZ_NO,
+			ISNULL(F3.EXP_NO,'') AS EXP_NO
+		FROM 
+		TB_ORDER_LIST F1 LEFT OUTER JOIN TB_RUS_ORDER_LIST_INFO F2 ON F1.NNO = F2.NNO 
+						 LEFT OUTER JOIN TB_EXP_DCL F3 ON F1.NNO = F3.NNO AND F1.USER_ID = F3.USER_ID
+		WHERE F1.NNO =  #{nno}
+	</select>
+		
+	<update id ="updateHawbNoInTbHawb" parameterType="String">
+		UPDATE TB_HAWB SET HAWB_NO = #{hawbNo} WHERE NNO = #{nno}
+	</update>
+	
+	<update id ="updateShipperReference" parameterType="String">
+		UPDATE TB_ORDER_LIST SET SHIPPER_REFERENCE = #{shipperReference} WHERE NNO = #{nno}
+	</update>
+	
+	<delete id="deleteHawbNoInTbHawb" parameterType="String">
+		UPDATE TB_STOCK SET OUT_NNO = '' WHERE NNO = #{nno};
+		DELETE FROM TB_HAWB WHERE NNO = #{nno};
+		DELETE FROM TB_HAWB_ITEM WHERE NNO = #{nno};
+	</delete>
+	
+	<delete id="deleteOrderListByNno" parameterType="String">
+		DELETE FROM TB_ORDER_LIST WHERE NNO = #{nno};
+		DELETE FROM TB_ORDER_ITEM WHERE NNO = #{nno};
+	</delete>
+	<select id="getAciFakeBl" parameterType ="com.example.temp.common.vo.AciFakeBlVO" resultType="com.example.temp.common.vo.AciFakeBlVO">
+		DECLARE
+			@NNO NVARCHAR(50),
+			@ORDER_NO NVARCHAR(50),
+			@TRANS_CODE NVARCHAR(50),
+			@USER_ID NVARCHAR(50),
+			@W_USER_ID NVARCHAR(50),
+			@W_USER_IP NVARCHAR(50),
+			@RST_STATUS NVARCHAR(50),
+			@RST_CODE NVARCHAR(50),
+			@RST_MSG NVARCHAR(100),
+			@RST_NNO NVARCHAR(100),
+			@RST_HAWB_NO NVARCHAR(100),
+			@HAWB_NO_CHK INT,
+			@HAWB_NO NVARCHAR(50)
+			
+			SET @NNO = #{nno}
+			SET @ORDER_NO = #{orderNo}
+			SET @TRANS_CODE = #{transCode}
+			SET @USER_ID = #{userId}
+			SET @W_USER_ID = #{wUserId}
+			SET @W_USER_IP = #{wUserIp}
+			
+		EXEC SP_ACI_FAKE_BL
+			 @NNO ,
+		     @ORDER_NO ,
+		     @TRANS_CODE,
+		     @USER_ID ,
+		     @W_USER_ID,
+			 @W_USER_IP,
+		     @RST_STATUS OUTPUT,
+		     @RST_CODE OUTPUT,
+		     @RST_MSG OUTPUT ,
+		     @RST_NNO OUTPUT ,
+		     @RST_HAWB_NO OUTPUT 
+			 
+		SELECT ISNULL(@RST_STATUS,'') as  rstStatus , 
+		       ISNULL(@RST_CODE,'') as rstCode , 
+		       ISNULL(@RST_MSG,'') as rstMsg , 
+		       ISNULL(@RST_HAWB_NO,'') as rstHawbNo
+	</select>
+	
+	<update id ="updateHawbNoInTbOrderList" parameterType="String">
+		UPDATE TB_ORDER_LIST SET HAWB_NO = #{hawbNo} WHERE NNO = #{nno};
+	</update>
+	
+	<delete id="deleteMatchingInfo" parameterType="com.example.temp.common.vo.MatchingVO">
+		DELETE FROM TB_MATCHING_INFO 
+		WHERE [KEY_HAWB_NO] = #{keyHawbNo} AND [MATCH_TRANS_CODE] = #{matchTransCode};   
+	</delete>
+	
+	<insert id="insertMatchingInfo" parameterType="com.example.temp.common.vo.MatchingVO">
+		INSERT INTO TB_MATCHING_INFO (
+			[KEY_HAWB_NO], 
+			[VALUE_MATCH_NO], 
+			[VALUE_HAWB_NO], 
+			[VALUE_ORDER_NO], 
+			[MATCH_TRANS_CODE],
+			[NNO]
+		) VALUES ( 
+		#{keyHawbNo}, 
+		#{valueMatchNo}, 
+		'', 
+		'',
+		#{matchTransCode},
+		#{nno}
+		) 
+	</insert>
+	
+	<select id="selectOrderDate" parameterType="String" resultType="String">
+		select LEFT(W_DATE,4)+'-'+SUBSTRING(W_DATE,5,2)+'-'+SUBSTRING(W_DATE,7,2)+' '+SUBSTRING(W_DATE,9,2)+':'+SUBSTRING(W_DATE,11,2) 
+			FROM TB_ORDER_LIST WHERE HAWB_NO = #{hawbNo}
+	</select>
+	<select id="selectHawbDate" parameterType="String" resultType="String">
+		select
+		Format(W_DATE, 'yyyy-MM-dd HH:mm') FROM TB_HAWB WHERE HAWB_NO = #{hawbNo}
+	</select>
+	<select id="selectNewRegNo" parameterType="com.example.temp.api.aci.vo.ReturnRequestVO" resultType="String" statementType="CALLABLE">
+		DECLARE
+			@RST_REG_NO NVARCHAR(50)
+
+		EXEC SP_REG_NO
+			#{nno},
+			#{orderType},
+			#{orgStation},
+			#{dstnNation},
+			@RST_REG_NO OUTPUT
+		
+		SELECT @RST_REG_NO as rstRegNo; 
+	</select>
+	<delete id="deleteRegNo" parameterType="String">
+		DELETE FROM TB_REG_NO WHERE RST_REG_NO = #{regNo}
+	</delete>
+	<select id="selectLegacyRegNo" parameterType="com.example.temp.api.aci.vo.ReturnRequestVO" resultType="String">
+		SELECT REG_NO FROM TB_RETURN_REQUEST WHERE CALCULATE_ID = #{calculateId} AND KOBL_NO = #{koblNo}
+	</select>
+	<select id="selectReturnRequestId" parameterType="hashMap" resultType="String">
+		SELECT SELLER_ID FROM TB_RETURN_REQUEST
+		<where>
+			STATE != 'E001'
+			<choose>
+				<when test='orderReference != null and orderReference != ""'>
+					AND ORDER_REFERENCE = #{orderReference}
+				</when>
+				<when test='regNo != null and regNo != ""'>
+					AND REG_NO = #{regNo}
+				</when>
+				<when test='koblNo != null and koblNo != ""'>
+					AND KOBL_NO = #{koblNo}
+				</when>
+			</choose>
+		</where>
+	</select>
+	<select id="selectReturnRequestStatus" parameterType="hashMap" resultType="java.util.LinkedHashMap">
+		SELECT 
+			NNO AS NNO,
+			ORDER_NO as ORDER_NUMBER,
+			ORDER_REFERENCE,
+			KOBL_NO,
+			REG_NO,
+			ISNULL(RE_TRK_COM,'') AS RE_TRK_COM,
+			ISNULL(RE_TRK_NO,'') AS RE_TRK_NO,
+			STATE AS RETURN_STATUS,
+			ISNULL(W_DATE,'') AS W_DATE,
+			CASE
+				WHEN ISNULL(A000_DATE,'') = '' THEN ''
+				ELSE LEFT(A000_DATE,4)+'-'+SUBSTRING(A000_DATE,5,2)+'-'+SUBSTRING(A000_DATE,7,2)+' '+SUBSTRING(A000_DATE,9,2)+':'+SUBSTRING(A000_DATE,11,2)+':'+SUBSTRING(A000_DATE,13,2)
+			END FIRST_DATE,
+			CASE
+				WHEN ISNULL(A002_DATE,'') = '' THEN ''
+				ELSE LEFT(A002_DATE,4)+'-'+SUBSTRING(A002_DATE,5,2)+'-'+SUBSTRING(A002_DATE,7,2)+' '+SUBSTRING(A002_DATE,9,2)+':'+SUBSTRING(A002_DATE,11,2)+':'+SUBSTRING(A002_DATE,13,2)
+			END W_RECEIVE_DATE,
+			CASE
+				WHEN ISNULL(B001_DATE,'') = '' THEN ''
+				ELSE LEFT(B001_DATE,4)+'-'+SUBSTRING(B001_DATE,5,2)+'-'+SUBSTRING(B001_DATE,7,2)+' '+SUBSTRING(B001_DATE,9,2)+':'+SUBSTRING(B001_DATE,11,2)+':'+SUBSTRING(B001_DATE,13,2)
+			END W_START_DATE,
+			CASE
+				WHEN ISNULL(C001_DATE,'') = '' THEN ''
+				ELSE LEFT(C001_DATE,4)+'-'+SUBSTRING(C001_DATE,5,2)+'-'+SUBSTRING(C001_DATE,7,2)+' '+SUBSTRING(C001_DATE,9,2)+':'+SUBSTRING(C001_DATE,11,2)+':'+SUBSTRING(C001_DATE,13,2)
+			END WH_IN_DATE,
+			CASE
+				WHEN ISNULL(C004_DATE,'') = '' THEN ''
+				ELSE LEFT(C004_DATE,4)+'-'+SUBSTRING(C004_DATE,5,2)+'-'+SUBSTRING(C004_DATE,7,2)+' '+SUBSTRING(C004_DATE,9,2)+':'+SUBSTRING(C004_DATE,11,2)+':'+SUBSTRING(C004_DATE,13,2)
+			END ACCEPT_DATE,
+			CASE
+				WHEN ISNULL(D005_DATE,'') = '' THEN ''
+				ELSE LEFT(D005_DATE,4)+'-'+SUBSTRING(D005_DATE,5,2)+'-'+SUBSTRING(D005_DATE,7,2)+' '+SUBSTRING(D005_DATE,9,2)+':'+SUBSTRING(D005_DATE,11,2)+':'+SUBSTRING(D005_DATE,13,2)
+			END DEL_DATE,
+			<!-- 
+			ISNULL(FORMAT(A000_DATE,'yyyy-MM-dd HH:mm:ss'),'') AS FIRST_DATE,
+			ISNULL(FORMAT(W_DATE,'yyyy-MM-dd HH:mm:ss'),'') AS W_DATE,
+			ISNULL(FORMAT(A002_DATE,'yyyy-MM-dd HH:mm:ss'),'') AS W_RECEIVE_DATE,
+			ISNULL(FORMAT(B001_DATE,'yyyy-MM-dd HH:mm:ss'),'') AS W_START_DATE,
+			ISNULL(FORMAT(C001_DATE,'yyyy-MM-dd HH:mm:ss'),'') AS WH_IN_DATE,
+			ISNULL(FORMAT(C004_DATE,'yyyy-MM-dd HH:mm:ss'),'') AS ACCEPT_DATE,
+			ISNULL(FORMAT(D005_DATE,'yyyy-MM-dd HH:mm:ss'),'') AS DEL_DATE,
+			 -->
+			CASE WHEN (select COUNT(WH_STATUS) FROM TB_STOCK WHERE NNO =F1.NNO) != 0 
+			THEN
+				(select TOP 1 WH_STATUS FROM TB_STOCK WHERE NNO =F1.NNO)
+			ELSE
+				''
+			END AS WH_STATUS,
+			ISNULL(FORMAT((SELECT TOP 1 W_DATE FROM TB_STOCK WHERE NNO = F1.NNO),'yyyy-MM-dd HH:mm:ss'),'') AS STOCK_DATE,
+			ISNULL((SELECT HAWB_NO FROM TB_ORDER_LIST WHERE NNO = F1.NNO),'') AS HAWB_NO,
+			ISNULL((SELECT FORMAT(CONVERT(DATETIME, SUBSTRING(W_DATE,1,8) + ' ' + STUFF(STUFF(SUBSTRING(W_DATE,9,12),3,0, ':'),6,0, ':'), 120), 'yyyy-MM-dd HH:mm:ss') FROM TB_ORDER_LIST WHERE NNO = F1.NNO AND ORG_STATION = F1.ORG_STATION AND USER_ID = F1.SELLER_ID),'') AS ORDER_DATE
+		FROM TB_RETURN_REQUEST F1
+		<where>
+			STATE != 'E001' AND SELLER_ID = #{sellerId}
+			<choose>
+				<when test='orderReference != null and orderReference != ""'>
+					AND ORDER_REFERENCE = #{orderReference}
+				</when>
+				<when test='regNo != null and regNo != ""'>
+					AND REG_NO = #{regNo}
+				</when>
+				<when test='koblNo != null and koblNo != ""'>
+					AND KOBL_NO = #{koblNo}
+				</when>
+			</choose>
+		</where>
+	</select>
+	<select id="selectStockMsg" parameterType="String" resultType="java.util.LinkedHashMap">
+		SELECT TOP 1 * FROM TB_STOCK_MSG WHERE NNO = #{nno}
+	</select>
+	<select id="selectStockFile" parameterType="String" resultType="java.util.LinkedHashMap">
+		SELECT * FROM TB_STOCK_FILE WHERE NNO = #{nno} ORDER BY SUB_NO ASC, IDX ASC;
+	</select>
+	
+	<select id="selectUserIdCheck" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*)
+		FROM TB_CUSTOMER
+		WHERE USER_ID = #{userId}
+	</select>
+	
+	<select id="selectUserEmail" parameterType="String" resultType="com.example.temp.member.vo.UserVO">
+		SELECT 
+			ISNULL(USER_EMAIL,'') AS USER_EMAIL
+		FROM TB_CUSTOMER
+		WHERE USER_ID = #{userId}
+	</select>
+	
+	<update id="updateUserPw" parameterType="com.example.temp.manager.vo.ManagerVO">
+		UPDATE TB_CUSTOMER
+		SET USER_PW = #{userPw}
+		WHERE USER_ID = #{userId}
+	</update>
+	
+	<select id="selectCurrencyListByDstnNation" parameterType="hashMap" resultType="hashMap">
+		SELECT
+			ISNULL(CURRENCY,'') AS currency,
+			ISNULL(NATION_CODE,'') AS nationCode,
+			ISNULL(NATION_NAME,'') AS nationName,
+			ISNULL(NATION_E_NAME,'') AS nationEname
+		FROM TB_CURRENCY
+	</select>
+	
+	<select id="selectUserDstnNationList" parameterType="String" resultType="com.example.temp.manager.vo.NationVO">
+		SELECT DSTN_NATION
+		FROM TB_USER_TRANS_COM
+		WHERE USER_ID = #{userId}
+	</select>
+	
+	<select id="updateTmpOrderStatus" parameterType="String">
+		UPDATE TMP_ORDER_LIST
+		SET [STATUS] = 'N'
+		WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectYslOrderList" resultType="String">
+		SELECT NNO
+		FROM TMP_ORDER_LIST
+		WHERE STATUS = 'N'
+	</select>
+	
+	<select id="selectPdfPrintItemInfo" parameterType="hashMap" resultType="hashMap">
+		SELECT 
+			ISNULL(ITEM_DETAIL,'') AS itemDetail,
+			ISNULL(ITEM_CNT,1) AS itemCnt,
+			ISNULL((SELECT TOP 1 RACK_CODE FROM TB_STOCK WHERE USER_ID = F1.USER_ID AND CUS_ITEM_CODE = F1.CUS_ITEM_CODE ORDER BY W_DATE),'') AS rackCode,
+			ISNULL((SELECT TAKE_IN_CODE FROM TB_TAKEIN_CODE WHERE USER_ID = F1.USER_ID AND CUS_ITEM_CODE = F1.CUS_ITEM_CODE),'') AS takeInCode
+		FROM TB_ORDER_ITEM F1
+		WHERE NNO = #{nno}
+	 	ORDER BY rackCode;
+	</select>
+	
+	<select id="selectPdfPrintInfoSimple" parameterType="String" resultType="hashMap">
+		SELECT
+			NNO AS nno,
+			HAWB_NO AS hawbNo,
+			(SELECT SUM(ITEM_CNT) FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID) AS totalItemCnt,
+			ORDER_NO AS orderNo,
+			TRANS_CODE AS transCode
+		FROM TB_ORDER_LIST F1
+		WHERE NNO = #{nno} AND ORDER_TYPE = 'TAKEIN'
+	</select>
+	
+	<select id="selectMatchCarriers" parameterType="String" resultType="hashMap">
+		SELECT
+			TRANS_CODE AS transCode,
+			TRK_NO AS matchNo
+		FROM TB_DELIVERY_INFO WHERE HAWB_NO = #{hawbNo}
+	</select>
+	
+	<select id="selectUploadDate" parameterType="String" resultType="String">
+		SELECT SUBSTRING(REPLACE(W_DATE,'-',''),0,9) W_DATE FROM TB_ORDER_LIST WHERE HAWB_NO = #{value}
+	</select>
+	
+	<insert id="insertDeliveryInfo" parameterType="hashMap">
+		INSERT INTO TB_DELIVERY_INFO (NNO, TRANS_CODE, HAWB_NO, MATCH_NO, TRK_NO) VALUES
+		(#{nno}, #{transCode}, #{hawbNo}, #{matchNo}, #{delvNo});
+	</insert>
+	
+	<select id="selectAgencyBl" parameterType="hashMap" resultType="String">
+		SELECT TRK_NO FROM TB_DELIVERY_INFO
+		WHERE HAWB_NO = #{hawbNo} OR HAWB_NO = (SELECT HAWB_NO FROM TB_DELIVERY_INFO WHERE MATCH_NO = #{hawbNo}) AND TRANS_CODE = #{transCode}
+	</select>
+	
+	<insert id="insertSubTransCode" parameterType="hashMap">
+		INSERT INTO TB_SUB_TRANS_CODE (NNO, HAWB_NO, SUB_TRANS_CODE) VALUES (#{nno}, #{hawbNo}, #{subTransCode})
+	</insert>
+	
+	<select id="selectSubTransCode" parameterType="String" resultType="String">
+		SELECT SUB_TRANS_CODE FROM TB_SUB_TRANS_CODE WHERE HAWB_NO = #{hawbNo}
+	</select>
+	
+	<select id="selectReturnMemoList" parameterType="hashMap" resultType="hashMap">
+		SELECT
+			NNO,
+			ISNULL(ORG_STATION,'') AS orgStation,
+			ISNULL(USER_ID,'') AS userId,
+			ISNULL(CONTENT,'') AS content,
+			ISNULL(ADMIN_YN,'') AS adminYn,
+			ISNULL(READ_YN,'') AS readYn,
+			ISNULL(W_USER_ID,'') AS wUserId,
+			ISNULL(W_USER_IP,'') AS wUserIp,
+			CONVERT(NVARCHAR, W_DATE, 120) AS wDate
+		FROM TB_RETURN_CS_LIST WHERE NNO = #{nno}
+		ORDER BY W_DATE DESC
+	</select>
+	
+	<insert id="insertReturnCsMemo" parameterType="hashMap">
+		INSERT INTO TB_RETURN_CS_LIST (NNO, ORG_STATION, USER_ID, CONTENT, ADMIN_YN, READ_YN, W_USER_ID, W_USER_IP) VALUES
+		(#{nno}, (SELECT ORG_STATION FROM TB_RETURN_ORDER_LIST WHERE NNO = #{nno}), #{userId}, #{content}, #{adminYn}, #{readYn}, #{userId}, #{wUserIp})
+	</insert>
+	
+	<select id="selectRecentMemoInfo" parameterType="hashMap" resultType="hashMap">
+		SELECT
+			IDX AS idx,
+			NNO AS nno,
+			ISNULL(ORG_STATION,'') AS orgStation,
+			ISNULL(USER_ID,'') AS userId,
+			ISNULL(CONTENT,'') AS content,
+			ISNULL(ADMIN_YN,'') AS adminYn,
+			ISNULL(READ_YN,'') AS readYn,
+			ISNULL(W_USER_ID,'') AS wUserId,
+			ISNULL(W_USER_IP,'') AS wUserIp
+		FROM TB_RETURN_CS_LIST
+		WHERE NNO = #{nno} AND ISNULL(READ_YN,'N') = 'N'
+	</select>
+	
+	<update id="updateReturnCsReadYn" parameterType="hashMap">
+		UPDATE TB_RETURN_CS_LIST
+		SET READ_YN = 'Y'
+		WHERE NNO = #{nno} AND IDX = #{idx}
+	</update>
+	
+	<select id="selectReturnPrintInfo" parameterType="String" resultType="hashMap">
+		SELECT
+			ISNULL(KOBL_NO,'') AS koblNo,
+			ISNULL(TRK_NO,'') AS trkNo
+		FROM TB_RETURN_ORDER_LIST
+		WHERE NNO = #{nno}
+	</select>
+	
+	<insert id="insertAraErrorMatch" parameterType="hashMap">
+		INSERT INTO TB_ERROR_MATCH (
+			[NNO],
+			[ERROR_MSG],
+			[USE_YN],
+			[W_USER_ID],
+			[W_USER_IP],
+			[W_DATE]
+		) VALUES (
+			#{nno},
+			#{errorMsg},
+			#{useYn},
+			#{wUserId},
+			#{wUserIp},
+			(SELECT LEFT((Select Convert(varchar(10),Getdate(),112) + Replace(Convert(varchar(8),Getdate(),108),':','')),12))
+		);
+	</insert>
+
+	<select id="selectTrackingNoYT" parameterType="String" resultType="String">
+		SELECT TRK_NO FROM TB_DELIVERY_INFO WHERE HAWB_NO = #{hawbNo}
+	</select>
+	
+	<insert id="insertTbErrorMatch" parameterType="hashMap">
+		INSERT INTO TB_ERROR_MATCH (
+			[NNO],
+			[ERROR_MSG],
+			[USE_YN],
+			[W_USER_ID],
+			[W_USER_IP],
+			[W_DATE]
+		) VALUES (
+			#{nno},
+			#{errorMsg},
+			'Y',
+			#{userId},
+			#{userIp},
+			(SELECT LEFT((Select Convert(varchar(10),Getdate(),112) + Replace(Convert(varchar(8),Getdate(),108),':','')),12))
+		);
+	</insert>
+	
+	<select id="selectShopifyOrderCnt" parameterType="String" resultType="Integer">
+		SELECT COUNT(*) FROM TB_SHOPIFY_FULFILLMENT WHERE NNO = #{nno};
+	</select>
+	
+	<select id="selectUserInfoByUserId" parameterType="hashMap" resultType="com.example.temp.manager.vo.ManagerVO">
+		SELECT USER_ID, ISNULL(USER_EMAIL,'') AS USER_EMAIL FROM TB_CUSTOMER WHERE USER_ID = #{userId}
+	</select>
+	
+	<select id="selectExportDeclareData" resultType="com.example.temp.api.aci.vo.ExportDeclareVO" parameterType="String">
+		select 
+			f1.nno,
+			f1.order_no,
+			f1.order_date,
+			f1.hawb_no,
+			f3.agt_cor,
+			f3.exp_cor,
+			f3.exp_rprsn,
+			f3.exp_addr,
+			f3.exp_zip,
+			f3.exp_rgstr_no,
+			f3.exp_cst_cd,
+			f1.cnee_name,
+			f1.dstn_nation,
+			isnull(f1.payment,'DDU') as payment,
+			case
+				when isnull(f2.unit_currency,'') = '' then f2.chg_currency
+				else f2.unit_currency
+			end unit_currency,
+		    round(sum(f2.unit_value * f2.item_cnt) over(partition by f1.nno),2) as total_item_value,
+			f1.box_cnt,
+			round(isnull((select wta from tb_hawb where nno = f1.nno and hawb_no = f1.hawb_no), f1.user_wta),2) as wta,
+			isnull(f1.wt_unit,'KG') as wt_unit,
+			f2.sub_no,
+			f2.item_cnt,
+			case
+				when isnull(f2.qty_unit,'') = '' then 'EA'
+				else f2.qty_unit
+			end qty_unit,
+			round(f2.unit_value,2) as unit_value,
+			round((f2.unit_value * f2.item_cnt),2) as item_value,
+			isnull(f2.item_detail,'') as item_detail,
+			isnull(f2.hs_code,'') as hs_code
+		from tb_order_list f1, tb_order_item f2, 
+			tb_exp_dcl f3, tb_hawb f4
+		where f1.nno = f2.nno and f1.org_Station = f2.org_station and f1.user_id = f2.user_id and f1.nno = f3.nno and f1.user_id = f3.user_id
+			and f1.nno = f4.nno and f1.user_id = f4.user_id and f1.org_station = f4.org_station
+			and isnull(f4.mawb_no,'') != '' and f4.mawb_no in (select mawb_no from tb_mawb where dep_date = #{depDate}) and f3.exp_type = 'E'
+		order by f2.user_id, substring(f1.nno,1,8), f1.nno, f2.sub_no;
+	</select>
+
+	<delete id="deleteExportDeclareInfo" parameterType="com.example.temp.member.vo.UserOrderListVO">
+		DELETE FROM TB_EXP_DCL WHERE NNO = #{nno} AND USER_ID = #{userId}
+	</delete>
+	
+	<select id="selectExportDeclareInfoCnt" parameterType="com.example.temp.api.aci.vo.ExportDeclare" resultType="Integer">
+		SELECT COUNT(*) FROM TB_EXP_DCL WHERE NNO = #{nno} AND USER_ID = #{userId}
+	</select>
+	
+	<insert id="insertExportDeclareInfo" parameterType="com.example.temp.api.aci.vo.ExportDeclare">
+		INSERT INTO TB_EXP_DCL
+			(NNO, USER_ID, EXP_TYPE, EXP_COR, EXP_RPRSN, EXP_ADDR, EXP_ZIP, EXP_RGSTR_NO, EXP_CST_CD, 
+			AGT_COR, AGT_CST_CD, AGT_BIZ_NO, EXP_NO, SEND_YN, W_DATE) 
+		VALUES
+			(#{nno}, #{userId}, #{expType}, #{expCor}, #{expRprsn}, #{expAddr}, #{expZip}, #{expRgstrNo}, #{expCstCd},
+			#{agtCor}, #{agtCstCd}, #{agtBizNo}, #{expNo}, #{sendYn}, GETDATE());
+	</insert>
+	
+	<update id="updateExportDeclareInfo" parameterType="com.example.temp.api.aci.vo.ExportDeclare">
+		UPDATE TB_EXP_DCL
+		SET EXP_TYPE = #{expType}, EXP_RPRSN = #{expRprsn}, EXP_ADDR = #{expAddr}, EXP_ZIP = #{expZip}, EXP_RGSTR_NO = #{expRgstrNo}, EXP_CST_CD = #{expCstCd}, 
+			AGT_COR = #{agtCor}, AGT_CST_CD = #{agtCstCd}, AGT_BIZ_NO = #{agtBizNo}, EXP_NO = #{expNo}, W_DATE = GETDATE()
+		WHERE NNO = #{nno} AND USER_ID = #{userId}
+	</update>
+	
+	<select id="selectYslData" resultType="com.example.temp.member.vo.UserOrderListVO">
+		select 
+			f1.nno,
+			f1.dstn_nation,
+			f1.order_no,
+			f1.cnee_name,
+			f1.cnee_tel,
+			f1.cnee_zip,
+			f1.CNEE_STATE,
+			f1.cnee_city,
+			f1.cnee_addr,
+			f1.cnee_addr_detail,
+			f1.box_cnt,
+			isnull(f2.chg_currency,f2.unit_currency) chg_currency,
+			f2.cus_item_code,
+			f2.item_detail,
+			f2.item_cnt,
+			round(f2.unit_value,2) unit_value
+		from tb_order_list f1, tb_order_item f2 where order_no in (
+		'Q20240328001',
+		'Q20240328002',
+		'Q20240328003',
+		'Q20240328004',
+		'Q20240328005'
+		)
+		and f1.nno = f2.nno and f1.user_id = f2.user_id and f1.org_station = f2.org_station
+	</select>
+	
+	<select id="selectMawbOrderInfo" parameterType="hashMap" resultType="com.example.temp.member.vo.UserOrderListVO">
+		select 
+			f1.nno,
+			isnull(f1.user_id,'') as user_id,
+			isnull(f1.hawb_no,'') as hawb_no,
+			isnull(f1.shipper_name,'') as shipper_name,
+			isnull(f1.shipper_state,'') as shipper_state,
+			isnull(f1.shipper_city,'') as shipper_city,
+			isnull(f1.shipper_addr,'') as shipper_addr,
+			isnull(f1.shipper_addr_detail,'') as shipper_addr_detail,
+			isnull(f1.shipper_zip,'') as shipper_zip,
+			isnull(f1.cnee_name,'') as cnee_name,
+			isnull(f1.cnee_tel,'') as cnee_tel,
+			isnull(f1.cnee_zip,'') as cnee_zip,
+			isnull(f1.cnee_state,'') as cnee_state,
+			isnull(f1.cnee_city,'') as cnee_city,
+			isnull(f1.cnee_addr,'') as cnee_addr,
+			isnull(f1.cnee_addr_detail,'') as cnee_addr_detail,
+			isnull(f1.dstn_nation,'') as dstn_nation,
+			isnull(f1.box_cnt,1) as box_cnt,
+			round(isnull(f2.wta,0),2) as wta,
+			stuff((select concat('|', item_detail, ' / ', item_cnt) from tb_order_item where nno = f1.nno and user_id = f1.user_id and org_station = f1.org_station for xml path('')), 1, 1, '') as item_detail,
+			round((select sum(item_cnt*unit_value) from tb_order_item where nno = f1.nno and user_id = f1.user_id and org_station = f1.org_station),2) as total_item_value
+		from tb_order_list f1
+		join tb_hawb f2 on f1.nno = f2.nno and f1.user_id = f2.user_id and f1.org_station = f2.org_station
+		where f2.mawb_no = #{mawbNo} and f1.org_station = #{orgStation}
+	</select>
+	
+	<select id="selectAgencyWeight" resultType="hashMap">
+		SELECT NNO AS nno, TRANS_CODE AS transCode , isnull((select key_hawb_no from tb_matching_info where nno = f1.nno),'') AS hawbNo, 
+			isnull((select value_match_no from tb_matching_info where nno = f1.nno),'') AS matchNo
+		FROM VI_DELIVERY_INFO f1
+		WHERE TRANS_CODE = 'YSL'
+		ORDER BY NNO;
+	</select>
+	
+	
+	<select id="selectYunChangeNno" resultType="String">
+		SELECT NNO FROM TB_YUN_CHANGE where ISNULL(NEW_HAWB_NO,'') = '';
+	</select>
+	
+	<update id="updateYunChangeHawbNo" parameterType="hashMap">
+		UPDATE TB_YUN_CHANGE SET NEW_HAWB_NO = #{newHawbNo} WHERE NNO = #{nno};
+	</update>
+	
+	<select id="selectViewDeliveryInfo" parameterType="hashMap" resultType="hashMap">
+		SELECT NNO AS nno, TRANS_CODE AS transCode FROM VI_DELIVERY_INFO WHERE TRANS_CODE = #{transCode} ORDER BY NNO;
+	</select>
+	
+	<select id="selectFastboxWeightLog" resultType="hashMap">
+		select 
+			nno, (select hawb_no from tb_order_list where nno = f1.nno) hawb_no, RST_CONTENTS
+		From tb_apiconn f1 where convert(nvarchar,w_date,112) = '20240423' and conn_url = '/api/fastbox/weight' order by w_date desc;
+	</select>
+	
+	<select id="selectExcelOrderList" resultType="com.example.temp.member.vo.ShpngListVO" parameterType="hashMap">
+		SELECT
+			NNO,
+			HAWB_NO,
+			ISNULL(ORDER_NO,'') AS ORDER_NO,
+			ISNULL(ORDER_DATE,'') AS ORDER_DATE,
+			ISNULL((SELECT NATION_CODE FROM TB_STATION WHERE STATION_CODE = F1.ORG_STATION),'') AS ORG_STATION,
+			ISNULL((SELECT NATION_NAME FROM TB_NATION_CODE WHERE NATION_CODE = F1.DSTN_NATION),'') AS DSTN_NATION_NAME,
+			ISNULL((SELECT NATION_E_NAME FROM TB_NATION_CODE WHERE NATION_CODE = F1.DSTN_NATION),'') AS DSTN_NATION_E_NAME,
+			ISNULL(DSTN_NATION,'') AS DSTN_NATION,
+			ISNULL(CNEE_NAME,'') AS CNEE_NAME,
+			ISNULL(NATIVE_CNEE_NAME,'') AS NATIVE_CNEE_NAME,
+			ISNULL(CNEE_TEL,'') AS CNEE_TEL,
+			ISNULL(CNEE_ZIP,'') AS CNEE_ZIP,
+			ISNULL(CNEE_ADDR,'') AS CNEE_ADDR,
+			ISNULL(CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL,
+			ISNULL(BOX_CNT,1) AS BOX_CNT,
+			ISNULL(USER_WTA,0) AS USER_WTA,
+			ISNULL((SELECT SUM(ROUND(ITEM_CNT*UNIT_VALUE,2)) FROM TB_ORDER_ITEM WHERE NNO = F1.NNO),0) AS TOTAL_ITEM_VALUE,
+			STUFF((SELECT CONCAT('|^|', SUB_NO, '|', ITEM_DETAIL, '|', ITEM_CNT, '|', ROUND(UNIT_VALUE,2), '|', ROUND(ITEM_CNT*UNIT_VALUE,2), '|', ISNULL(CHG_CURRENCY,UNIT_CURRENCY))
+					FROM TB_ORDER_ITEM F2 WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION
+					FOR XML PATH('')), 1, 1, '|') AS ITEM_INFO
+		FROM TB_ORDER_LIST F1
+		WHERE 1 = 1
+			<if test="orgStation != null and orgStation != ''">
+				AND F1.ORG_STATION = #{orgStation}
+			</if> 
+			<if test="orderType != null and orderType != ''">
+				AND F1.ORDER_TYPE = #{orderType}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND F1.USER_ID = #{userId}
+			</if>
+			<if test="fromDate != null and fromDate != ''">
+				AND SUBSTRING(F1.NNO,1,8) <![CDATA[ >= ]]> #{fromDate}
+			</if>
+			<if test="toDate != null and toDate != ''">
+				AND SUBSTRING(F1.NNO,1,8) <![CDATA[ <= ]]> #{toDate}
+			</if>
+			<if test="nnoList != null and nnoList != ''">
+				AND F1.NNO IN 
+				<foreach collection="nnoList" item="value" open="(" close=")" separator=",">
+					#{value}
+				</foreach>
+			</if>
+		ORDER BY F1.NNO DESC
+	</select>
+	
+	<select id="selectCurrencyListUse" resultType="hashMap">
+		SELECT ISNULL(NATION_NAME,'') AS nationName,
+			ISNULL(CURRENCY,'') AS currency
+		FROM TB_CURRENCY WHERE USE_YN = 'Y'
+	</select>
+	
+	<select id="selectTransCodeList" parameterType="String" resultType="hashMap">
+		SELECT F1.TRANS_CODE AS transCode, ISNULL(F2.TRANS_NAME,F1.TRANS_CODE) AS transName
+		FROM (SELECT 
+				TRANS_CODE
+			FROM TB_USER_TRANS_COM
+			WHERE ORG_NATION = (SELECT NATION_CODE FROM TB_STATION WHERE STATION_CODE = #{value})
+			GROUP BY TRANS_CODE
+		) F1, TB_TRANS_COM F2
+		WHERE F1.TRANS_CODE = F2.TRANS_CODE
+		ORDER BY F1.TRANS_CODE
+	</select>
+</mapper>

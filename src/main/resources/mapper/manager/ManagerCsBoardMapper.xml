@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.manager.mapper.ManagerCsBoardMapper">
+
+	<insert id="insertCs" parameterType="com.example.temp.manager.vo.CsBoardVO">
+		INSERT INTO TB_CS_BOARD(
+			NNO,
+			USER_ID,
+			STATUS,
+			ADMIN_YN,
+			HAWB_NO,
+			TITLE,
+			CONTENTS,
+			W_DATE,
+			W_USER_ID,
+			W_USER_IP
+		)
+		VALUES (#{nno}, #{userId}, #{status}, #{adminYn}, #{hawbNo}, #{title}, #{contents}, getDate(), #{wUserId}, #{wUserIp});
+	</insert>
+	
+	<select id="selectCsList" parameterType="hashMap" resultType="com.example.temp.manager.vo.CsBoardVO">
+		SELECT TOP 5 *
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER(ORDER BY W_DATE DESC) ROWNUM,
+				IDX,
+				ISNULL(USER_ID, '') AS USER_ID,
+				ISNULL(STATUS, '') AS STATUS,
+				ISNULL(ADMIN_YN, '') AS ADMIN_YN,
+				ISNULL(HAWB_NO, '') AS HAWB_NO,
+				ISNULL(TITLE, '') AS TITLE,
+				ISNULL(CONTENTS, '') AS CONTENTS,
+				ISNULL(W_DATE, '') AS REG_DATE,
+				ISNULL(W_USER_ID), AS W_USER_ID,
+				ISNULL(W_USER_IP), AS W_USER_IP								
+			FROM TB_CS_BOARD
+		) M1
+		WHERE M1.ROWNUM BETWEEN #{paging.boardStart} AND #{paging.boardEnd}
+	</select>
+	
+	<select id="selectCsBoardInfo" parameterType="hashMap" resultType="com.example.temp.manager.vo.CsBoardVO">
+		SELECT
+			NNO,
+			ISNULL(USER_ID, '') AS USER_ID,
+			ISNULL(STATUS, '') AS STATUS,
+			ISNULL(HAWB_NO, '') AS HAWB_NO,
+			ISNULL(TITLE, '') AS TITLE,
+			ISNULL(CONTENTS, '') AS CONTENTS,
+			ISNULL(W_DATE, '') AS REG_DATE,
+			ISNULL(W_USER_ID, '') AS W_USER_ID
+		FROM TB_CS_BOARD
+		ORDER BY REG_DATE DESC
+	</select>
+	
+
+	<select id="selectNno" resultType="String">
+		 SELECT
+		      concat('CS',replace(CONVERT(date,GETDATE()),'-',''),left(replace(CONVERT(time,GETDATE()),':',''),6),RIGHT(NEXT
+		      VALUE FOR
+		      SEQ_NNO,4),CHAR(left(round(rand(),1)*10,1)+65),CHAR(left(round(rand(),1)*10,1)+65),CHAR(left(round(rand(),1)*10,1)+65))
+		     AS NNO;
+	</select>
+	
+	<select id="selectCsDetail" parameterType="hashMap" resultType="com.example.temp.manager.vo.CsBoardVO">
+		SELECT 
+			NNO,
+			ISNULL(USER_ID, '') AS USER_ID,
+			ISNULL(STATUS, '') AS STATUS,
+			ISNULL(TITLE, '') AS TITLE,
+			ISNULL(CONTENTS, '') AS CONTENTS,
+			ISNULL(W_DATE, '') AS REG_DATE,
+			ISNULL(W_USER_ID, '') AS W_USER_ID
+		FROM TB_CS_BOARD
+		WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectCsInfoDetail" parameterType="hashMap" resultType="HashMap">
+		SELECT
+			NNO,
+			ISNULL(USER_ID,'') AS userId,
+			ISNULL(HAWB_NO,'') AS hawbNo,
+			ISNULL(STATUS,'') AS status,
+			ISNULL(TITLE,'') AS title,
+			ISNULL(CONTENT,'') AS content,
+			ISNULL(ADMIN_YN,'') AS adminYn,
+			ISNULL(W_DATE,'') AS wDate,
+			ISNULL(M_DATE,'') AS mDate
+		FROM TB_CS_CONTENTS
+		WHERE NNO = #{nno}
+	</select>
+	
+</mapper>

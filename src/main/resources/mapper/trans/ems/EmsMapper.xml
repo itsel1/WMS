@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.trans.ems.EmsMapper">
+	<select id="selectOrderInfo" parameterType="String" resultType="com.example.temp.api.aci.vo.ApiOrderListVO">
+		SELECT 
+			order_no,
+			nno,
+			LEFT(W_DATE,4)+'-'+SUBSTRING(W_DATE,5,2)+'-'+SUBSTRING(W_DATE,7,2)+' '+SUBSTRING(W_DATE,9,2)+':'+SUBSTRING(W_DATE,11,2) as W_DATE,
+			LEFT(W_DATE,4)+'.'+SUBSTRING(W_DATE,5,2)+'.'+SUBSTRING(W_DATE,7,2)+'.' as W_DATE_TWO,
+			hawb_No,
+			DSTN_NATION, --countrycd
+			(select NATION_E_NAME FROM TB_NATION_CODE WHERE NATION_CODE = DSTN_NATION) AS NATION_NAME,
+			SHIPPER_NAME, --sender
+			SHIPPER_ZIP, -- senderzipcode
+			SHIPPER_ADDR, --senderaddr1
+			SHIPPER_ADDR_DETAIL, --senderaddr2
+			CASE WHEN ISNULL(SHIPPER_TEL,'00NECwQh10Wxb0w0BjtJlw==') = '00NECwQh10Wxb0w0BjtJlw==' THEN ISNULL(SHIPPER_HP,'00NECwQh10Wxb0w0BjtJlw') ELSE SHIPPER_TEL END AS SHIPPER_TEL,
+			CASE WHEN ISNULL(SHIPPER_HP,'00NECwQh10Wxb0w0BjtJlw==') = '00NECwQh10Wxb0w0BjtJlw==' THEN ISNULL(SHIPPER_TEL,'00NECwQh10Wxb0w0BjtJlw') ELSE SHIPPER_HP END AS SHIPPER_HP,			
+			--ISNULL(SHIPPER_TEL,SHIPPER_HP) AS SHIPPER_TEL, --sendertelno1~sendertelno4
+			--ISNULL(SHIPPER_HP,SHIPPER_TEL) AS SHIPPER_HP, --sendermobile1~sendermobile4
+			ISNULL(WH_REQ_MSG,'') AS WH_REQ_MSG, -- snd_message
+			CNEE_NAME, --receivename
+			CNEE_ZIP, --receivezipcode
+			CNEE_ADDR, --receiveaddr1
+			CNEE_STATE, --receiveaddr1
+			CNEE_CITY, --receiveaddr1
+			CNEE_ADDR_DETAIL, --receiveadd3
+			CNEE_TEL, --receivetelno1~receivetelno4
+			CNEE_HP, --receivemobile1~receivemobile4
+			ISNULL(CNEE_EMAIL,'') AS CNEE_EMAIL, --receivemail
+			WT_UNIT,
+			USER_ID,
+			USER_LENGTH, --boxlength
+			USER_WIDTH, --boxwidth
+			USER_HEIGHT --boxheight
+		FROM TB_ORDER_LIST WHERE NNO = #{nno};
+	</select>
+	
+	<select id="selectOrderItem" parameterType="String" resultType="hashMap">
+		SELECT 
+			ITEM_DETAIL, --contents
+			ITEM_CNT, --number
+			ISNULL(USER_WTA,'') AS USER_WTA, --weight
+			CASE
+				WHEN ISNULL(WT_UNIT,'') = '' THEN 'KG'
+				ELSE WT_UNIT
+			END WT_UNIT,
+			UNIT_VALUE, -- value
+			CHG_CURRENCY, -- currency
+			HS_CODE, --hscode
+			ISNULL(MAKE_CNTRY,'') AS MAKE_CNTRY, -- origin
+			ITEM_DIV -- modelno
+		FROM TB_ORDER_ITEM WHERE NNO = #{nno};
+	</select>
+	<select id="selectHawbNoInTmp" parameterType="String" resultType="String">
+		select ISNULL(HAWB_NO,'') as hawbNo from TMP_ORDER_LIST WHERE NNO = #{orderNno}
+	</select>
+	
+	<select id="selectHawbNoInTB" parameterType="String" resultType="String">
+		select ISNULL(HAWB_NO,'') as hawbNo from TB_ORDER_LIST WHERE NNO = #{orderNno}
+	</select>
+</mapper>

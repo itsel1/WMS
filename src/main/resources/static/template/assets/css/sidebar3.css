@@ -1,0 +1,137 @@
+.sidebar-menu {
+	position: fixed;
+	top: 0rem;
+	left: 0rem;
+	width: 220px;
+	height: 100%;
+	z-index: 9999;
+	font-family: 'Noto Sans KR', sans-serif !important;
+	background-color: #eee;
+	transition: left 220ms ease-in, width 220ms ease-in;
+	box-shadow: 2px 0px 2px -2px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar-menu.close {
+	left: -220px;
+}
+
+.sidebar-menu .sidebar {
+	position: absolute;
+	top: 0rem;
+	left: 0rem;
+	width: 100%;
+	height: 100%;
+	background: white;
+	padding: 10px;
+}
+
+.sidebar-menu .menu-toggle {
+	position: absolute;
+	top: 20px;
+	left: 208px;
+	width: 30px;
+	height: 30px;
+	background: #fff;
+	cursor: pointer;
+	border-radius: 50%;
+	text-align: center;
+	font-size: 18px;
+	line-height: 30px;
+	color: #111;
+	z-index: 999;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.2);
+	transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+}
+
+.sidebar-menu .menu-toggle:hover {
+	box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.sidebar-menu.close .menu-toggle {
+	left: 228px;
+}
+
+.sidebar-menu.close .menu-toggle i.arrow {
+	transform: rotate(180deg);
+}
+
+.sidebar-menu .sidebar .menu-links .menu-link {
+	margin: 10px 0px;
+}
+
+.sidebar-menu .sidebar .menu-links .menu-link > a {
+	text-decoration: none;
+	display: block;
+	padding: 10px 5px;
+	color: #000;
+	border-radius: 5px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.sidebar-menu .sidebar .menu-links .menu-link > a i.menu-icon {
+	font-size: 16px;
+	width: 20px;
+	text-align: center;
+}
+
+.sidebar-menu .sidebar .menu-links .menu-link .sub-menu {
+	margin-left: 5px;
+	padding-left: 10px;
+	border-left: 1px solid #bbb;
+	max-height: 0px;
+	overflow: hidden;
+	transition: max-height 300ms ease-in-out;
+}
+
+.sidebar-menu .sidebar .menu-links .menu-link.active .sub-menu {
+	max-height: 500px;
+}
+
+.sidebar-menu .sidebar .menu-links .menu-link .sub-menu a {
+	text-decoration: none;
+	display: block;
+	padding: 5px;
+	margin: 5px 0px;
+	color: #000;
+	border-radius: 5px;
+} 
+
+.sidebar-menu .sidebar .menu-links .menu-link .sub-menu a:hover {
+	background: rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-menu .sidebar .menu-links .menu-link.active > a,
+.sidebar-menu .sidebar .menu-links .menu-link > a:hover {
+	background: rgba(0, 0, 0, 0.2);
+	border-radius: 10px;
+	transition: all 1.5s;
+}
+
+
+.side-title {
+	height: 100px;
+}
+
+.side-title > div {
+	cursor: pointer;
+	position: absolute;
+	display: block;
+	width: 90%;
+	height: 30px;
+	left: 16px;
+	top: 20px;
+	background-image: url('/image/full-logo.jpg');
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+
+
+
+
+
+
+
+

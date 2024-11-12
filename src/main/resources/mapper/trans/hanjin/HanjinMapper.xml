@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.trans.hanjin.HanjinMapper">
+
+	<select id="selectAddressInfo" parameterType="hashMap" resultType="com.example.temp.member.vo.UserOrderListVO">
+		SELECT ISNULL(CNEE_ADDR, '') AS CNEE_ADDR, ISNULL(CNEE_ADDR_DETAIL, '') AS CNEE_ADDR_DETAIL
+		FROM TMP_ORDER_LIST WHERE NNO = #{nno}
+	</select>
+	
+	<update id="updateErrorStatus" parameterType="hashMap">
+		UPDATE TMP_ORDER_LIST
+		SET STATUS = #{status}
+		WHERE NNO = #{nno}
+	</update>
+	
+	<select id="selectHjOrderInfo" parameterType="hashMap" resultType="com.example.temp.member.vo.UserOrderListVO">
+		SELECT
+			ISNULL(USER_ID,'') AS USER_ID,
+			ISNULL(CNEE_NAME,'') AS CNEE_NAME,
+			ISNULL(CNEE_TEL,'') AS CNEE_TEL,
+			ISNULL(CNEE_HP,'') AS CNEE_HP,
+			ISNULL(CNEE_ZIP,'') AS CNEE_ZIP,
+			ISNULL(CNEE_ADDR,'') AS CNEE_ADDR,
+			ISNULL(CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL,
+			ISNULL(INV_COM_NAME,'') AS SHIPPER_NAME,
+			ISNULL(INV_COM_TEL,'') AS SHIPPER_TEL,
+			ISNULL(INV_COM_ADDR,'') AS SHIPPER_ADDR,
+			ISNULL(INV_COM_ADDR_DETAIL,'') AS SHIPPER_ADDR_DETAIL,
+			ISNULL(SHIPPER_ZIP,'') AS SHIPPER_ZIP,
+			ISNULL(DLV_REQ_MSG,'') AS DLV_REQ_MSG,
+			ISNULL(ORDER_NO,'') AS ORDER_NO,
+			(SELECT SUM(ITEM_CNT) FROM TMP_ORDER_ITEM WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID) AS ITEM_CNT,
+			(SELECT ITEM_DETAIL FROM TMP_ORDER_ITEM WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND SUB_NO = 1) AS ITEM_DETAIL
+		FROM TMP_ORDER_LIST F1, TB_CUSTOMER_INV_INFO F2
+		WHERE F1.USER_ID = F2.INV_USER_ID AND NNO = #{nno}
+	</select>
+	
+	<select id="selectPrintOrderInfo" parameterType="hashMap" resultType="com.example.temp.member.vo.UserOrderListVO">
+		SELECT
+			ISNULL(HAWB_NO,'') AS HAWB_NO,
+			ISNULL(USER_ID,'') AS USER_ID,
+			ISNULL(CNEE_NAME,'') AS CNEE_NAME,
+			ISNULL(CNEE_TEL,'') AS CNEE_TEL,
+			ISNULL(CNEE_HP,'') AS CNEE_HP,
+			ISNULL(CNEE_ZIP,'') AS CNEE_ZIP,
+			ISNULL(CNEE_ADDR,'') AS CNEE_ADDR,
+			ISNULL(CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL,
+			ISNULL(INV_COM_NAME,'') AS SHIPPER_NAME,
+			ISNULL(INV_COM_TEL,'') AS SHIPPER_TEL,
+			ISNULL(INV_COM_ADDR,'') AS SHIPPER_ADDR,
+			ISNULL(INV_COM_ADDR_DETAIL,'') AS SHIPPER_ADDR_DETAIL,
+			ISNULL(DLV_REQ_MSG,'') AS DLV_REQ_MSG,
+			ISNULL(ORDER_NO,'') AS ORDER_NO,
+			(SELECT SUM(ITEM_CNT) FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID) AS TOTAL_ITEM_CNT
+		FROM TB_ORDER_LIST F1, TB_CUSTOMER_INV_INFO F2
+		WHERE F1.USER_ID = F2.INV_USER_ID AND NNO = #{nno}
+	</select>
+	
+	<select id="selectPrintItemInfo" parameterType="hashMap" resultType="com.example.temp.member.vo.UserOrderItemVO">
+		SELECT ISNULL(ITEM_DETAIL,'') AS ITEM_DETAIL FROM TB_ORDER_ITEM WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectNnoByHawbNo" parameterType="String" resultType="String">
+		SELECT NNO FROM TB_ORDER_LIST WHERE HAWB_NO = #{hawbNo}
+	</select>
+	
+	<insert id="insertRefnAddrInfo" parameterType="com.example.temp.trans.hanjin.HanjinVO">
+		INSERT INTO TB_REFN_ADDR (NNO, PD_TIM, RST_MSG, PRT_ADD, ZIP_COD, WJ_YESNO, WJ_BRCOD, HUB_COD, DOM_MID, ES_NAM, GRP_RNK, 
+			CEN_COD, DOM_RGN, RST_CODE, CEN_NAM, WJ_TRCOD, S_TML_NAM, TML_COD, ES_COD, WJ_BRNME, S_TML_COD, TML_NAM, WBL_NUM)
+		VALUES (#{nno}, #{pdTim}, #{rstMsg}, #{prtAdd}, #{zipCod}, #{wjYesno}, #{wjBrcod}, #{hubCod}, #{domMid}, #{esNam}, #{grpRnk},
+			#{cenCod}, #{domRgn}, #{rstCode}, #{cenNam}, #{wjTrcod}, #{sTmlNam}, #{tmlCod}, #{esCod}, #{wjBrnme}, #{sTmlCod}, #{tmlNam}, #{wblNum});
+	</insert>
+	
+	<update id="updateCneeZipInfo" parameterType="com.example.temp.trans.hanjin.HanjinVO">
+		UPDATE TMP_ORDER_LIST SET CNEE_ZIP = #{zipCod} WHERE NNO = #{nno};
+	</update>
+	
+	<select id="selectPrintLabelInfo" parameterType="hashMap" resultType="com.example.temp.trans.hanjin.HanjinVO">
+		SELECT
+			NNO,
+			ISNULL(PD_TIM,'') AS PD_TIM,
+			ISNULL(RST_MSG,'') AS RST_MSG,
+			ISNULL(PRT_ADD,'') AS PRT_ADD,
+			ISNULL(ZIP_COD,'') AS ZIP_COD,
+			ISNULL(WJ_YESNO,'') AS WJ_YESNO,
+			ISNULL(WJ_BRCOD,'') AS WJ_BRCOD,
+			ISNULL(HUB_COD,'') AS HUB_COD,
+			ISNULL(DOM_MID,'') AS DOM_MID,
+			ISNULL(ES_NAM,'') AS ES_NAM,
+			ISNULL(GRP_RNK,'') AS GRP_RNK,
+			ISNULL(CEN_COD,'') AS CEN_COD,
+			ISNULL(DOM_RGN,'') AS DOM_RGN,
+			ISNULL(RST_CODE,'') AS RST_CODE,
+			ISNULL(CEN_NAM,'') AS CEN_NAM,
+			ISNULL(WJ_TRCOD,'') AS WJ_TRCOD,
+			ISNULL(S_TML_NAM,'') AS S_TML_NAM,
+			ISNULL(TML_COD,'') AS TML_COD,
+			ISNULL(ES_COD,'') AS ES_COD,
+			ISNULL(WJ_BRNME,'') AS WJ_BRNME,
+			ISNULL(S_TML_COD,'') AS S_TML_COD,
+			ISNULL(TML_NAM,'') AS TML_NAM,
+			ISNULL(WBL_NUM,'') AS WBL_NUM
+		FROM TB_REFN_ADDR WHERE NNO = #{nno}
+	</select>
+</mapper>

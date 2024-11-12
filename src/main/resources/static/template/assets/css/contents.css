@@ -1,0 +1,13 @@
+@charset "UTF-8";
+
+.main-section {
+	font-family: 'Noto Sans KR', sans-serif;
+}
+
+.main-title {
+	font-weight: 600;
+}
+
+.excel-content-title {
+	font-weight: 600;
+}

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.trans.shipStation.ShipStationMapper">
+	<select id ="selectListInfoForShipStation" parameterType="String" resultType="com.example.temp.trans.shipStation.ShipStationOrderVO">
+		SELECT 	
+			ISNULL(NNO,'') AS NNO,
+			ISNULL(DSTN_NATION,'') AS DSTN_NATION,
+			ISNULL(ORG_STATION,'') AS ORG_STATION,
+			ISNULL(ORDER_NO,'') AS ORDER_NO,
+			ISNULL(USER_ID ,'') AS USER_ID,
+			ISNULL(ORDER_DATE,'') AS ORDER_DATE,
+			'awaiting_shipment' as ORDER_STATUS,
+			ISNULL(SHIPPER_NAME,'') AS SHIPPER_NAME,
+			ISNULL(SHIPPER_TEL,'') AS SHIPPER_TEL,
+			ISNULL(SHIPPER_HP,'') AS SHIPPER_HP,
+			ISNULL(USER_EMAIL,'') AS SHIPPER_EMAIL,
+			ISNULL(SHIPPER_CITY,'') AS SHIPPER_CITY,
+			ISNULL(SHIPPER_ZIP,'') AS SHIPPER_ZIP,
+			ISNULL(SHIPPER_STATE,'') AS SHIPPER_STATE,
+			ISNULL(SHIPPER_ADDR,'') AS SHIPPER_ADDR,
+			ISNULL(SHIPPER_ADDR_DETAIL,'') AS SHIPPER_ADDR_DETAIL,
+			ISNULL(CNEE_NAME,'') AS CNEE_NAME,
+			ISNULL(NATIVE_CNEE_NAME,'') AS NATIVE_CNEE_NAME,
+			ISNULL(CNEE_TEL,'') AS CNEE_TEL,
+			ISNULL(CNEE_HP,'') AS CNEE_HP,
+			ISNULL(CNEE_ZIP,'') AS CNEE_ZIP,
+			ISNULL(
+			(SELECT STATE_CODE FROM TB_STATE_CODE WHERE STATE_NAME_EN = (SELECT REPLACE(CNEE_STATE,' ',''))),
+			CNEE_STATE) AS CNEE_STATE,
+			ISNULL(CNEE_CITY,'') AS CNEE_CITY,
+			ISNULL(CNEE_DISTRICT,'') AS CNEE_DISTRICT,
+			'' AS receiverDistrict,
+			ISNULL(CNEE_ADDR,'') AS CNEE_ADDR,
+			ISNULL(CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL,
+			ISNULL(CNEE_EMAIL,'') AS CNEE_EMAIL,
+			ISNULL((SELECT UNIT_CURRENCY FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO ='1'),'') AS UNIT_CURRENCY,
+			ISNULL(NATIVE_CNEE_ADDR,'') AS NATIVE_CNEE_ADDR,
+			ISNULL(NATIVE_CNEE_ADDR_DETAIL,'') AS NATIVE_CNEE_ADDR_DETAIL,
+			ISNULL((select INV_COM_NAME FROM TB_CUSTOMER_INV_INFO WHERE INV_USER_ID = F1.USER_ID),'') as invCompany,
+			ISNULL(TRANS_CODE,'') AS TRANS_CODE,
+			ISNULL(W_DATE,'') AS W_DATE
+		FROM TB_ORDER_LIST F1 WHERE NNO = #{nno}
+	</select>
+	
+		
+	<select id ="selectItemInfoForShipStation" parameterType="String" resultType="com.example.temp.trans.shipStation.ShipStationItemVO">
+		SELECT 
+			F2.ITEM_DETAIL,
+			F2.ITEM_CNT,
+			F2.UNIT_VALUE,
+			F2.USER_ID,
+			dbo.FN_WEIGHT_CHG(F2.WT_UNIT,'OZ',F2.USER_WTA_ITEM) AS USER_WTA_ITEM,
+			F2.WT_UNIT,
+			F2.SKU,
+			F2.CHG_CURRENCY,
+			F2.MAKE_CNTRY,
+			F2.QTY_UNIT,
+			F2.HS_CODE
+		FROM (
+			SELECT 
+				ISNULL(ITEM_DETAIL,'') AS ITEM_DETAIL,
+				ISNULL(ITEM_CNT,'') AS ITEM_CNT,
+				ISNULL((SELECT UNIT_VALUE FROM TB_TAKEIN_CODE WHERE CUS_ITEM_CODE = F1.CUS_ITEM_CODE AND USER_ID = (SELECT USER_ID FROM TB_ORDER_LIST WHERE NNO = #{nno})) ,ISNULL(UNIT_VALUE,'')) AS UNIT_VALUE,
+				ISNULL(USER_ID,'') AS USER_ID,
+				ISNULL((SELECT WTA FROM TB_TAKEIN_CODE WHERE CUS_ITEM_CODE = F1.CUS_ITEM_CODE AND USER_ID = (SELECT USER_ID FROM TB_ORDER_LIST WHERE NNO = #{nno})), ISNULL(USER_WTA,'')) AS USER_WTA_ITEM,
+				ISNULL((SELECT WT_UNIT FROM TB_TAKEIN_CODE WHERE CUS_ITEM_CODE = F1.CUS_ITEM_CODE AND USER_ID = (SELECT USER_ID FROM TB_ORDER_LIST WHERE NNO = #{nno})),ISNULL((SELECT WT_UNIT FROM TB_ORDER_LIST WHERE NNO = #{nno}),'')) AS WT_UNIT,
+				ISNULL(CUS_ITEM_CODE,'') AS sku,
+				ISNULL(CHG_CURRENCY,'') AS CHG_CURRENCY,
+				ISNULL(MAKE_CNTRY,'') AS MAKE_CNTRY,
+				ISNULL(QTY_UNIT, '') AS QTY_UNIT,
+				ISNULL(HS_CODE,'') AS HS_CODE
+			FROM TB_ORDER_ITEM F1 WHERE NNO = #{nno}
+		) F2	
+	</select>
+	
+	<update id="updateHawb" parameterType="hashMap">
+		UPDATE TB_ORDER_LIST SET SHIPPER_REFERENCE = #{shipperReference}, HAWB_NO = #{hawbNo} WHERE NNO = #{nno};
+		UPDATE TB_EXPLICENCE SET EXP_REG_NO = #{hawbNo} WHERE NNO = #{nno};
+	</update>
+	
+	<insert id="insertShipStationId" parameterType="hashMap">
+		INSERT INTO TB_SHIP_STATION (NNO, [USER_ID], ORDER_NO, HAWB_NO, ORDER_ID, SHIPMENT_ID, W_DATE)
+		VALUES ( #{nno}, #{userId}, #{orderNo}, #{hawbNo}, #{orderId}, #{shipmentId}, getdate());
+
+	</insert>
+	
+	<select id="selectAciPodInfo" parameterType="hashMap" resultType="hashMap">
+		SELECT
+			(
+			SUBSTRING(F1.W_DATE,0,5)+'-'+SUBSTRING(F1.W_DATE,5,2)+'-'+SUBSTRING(F1.W_DATE,7,2)+' '+SUBSTRING(F1.W_DATE,9,2)+':'+SUBSTRING(F1.W_DATE,11,2)+':'+SUBSTRING(F1.W_DATE,13,2)
+			) as orderDate,
+			ISNULL(FORMAT(F2.W_DATE,'yyyy-MM-dd HH:mm:ss'),'')as hawbDate
+			FROM TB_ORDER_LIST F1 LEFT OUTER JOIN TB_HAWB F2 ON F1.NNO = F2.NNO
+  			WHERE F1.HAWB_NO = #{hawbNo};
+	</select>
+	
+	<insert id="insertSekoWeight" parameterType="com.example.temp.trans.seko.ApiOrderSekoVO">
+		INSERT INTO TB_AGENCY_WT ([ORG_STATION], [USER_ID], [TRANS_CODE], [HAWB_NO], [AGENCY_BL], [WTA], [WTC], [W_DATE])
+		VALUES ( #{orgStation}, #{userId}, #{transCode}, #{hawbNo}, #{hawbNo}, #{userWta}, #{userWtc}, getdate());
+	</insert>
+	
+	<select id="selectShipStationInfo" parameterType="String" resultType="hashMap">
+		SELECT 	NNO as nno, 
+				ORDER_ID as orderId, 
+				SHIPMENT_ID as shipmentId 
+		FROM TB_SHIP_STATION WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectShopifyFulfillInfo" parameterType="String" resultType="hashMap">
+		SELECT FULFILL_ORDER_ID AS fulFillId 
+		FROM TB_SHOPIFY_FULFILLMENT WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectShopifyInfo" parameterType="String" resultType="com.example.temp.api.shopify.ApiShopifyInfoVO">
+		SELECT ISNULL(USER_ID,'') AS USER_ID,
+			ISNULL(SHOPIFY_URL,'') AS SHOPIFY_URL,
+			ISNULL(API_KEY,'') AS API_KEY,
+			ISNULL(PASSWORD,'') AS PASSWORD
+		FROM TB_SHOPIFY
+		WHERE USER_ID = ISNULL((SELECT USER_ID FROM TB_ORDER_LIST WHERE NNO = #{nno}),'bmsmileus')
+	</select>
+	
+	<select id="selectShipStationOrderInfo" parameterType="hashMap" resultType="com.example.temp.trans.shipStation.ShipStationOrderVO">
+		SELECT 	
+			ISNULL(NNO,'') AS NNO,
+			ISNULL(DSTN_NATION,'') AS DSTN_NATION,
+			ISNULL(ORG_STATION,'') AS ORG_STATION,
+			ISNULL(ORDER_NO,'') AS ORDER_NO,
+			ISNULL(USER_ID ,'') AS USER_ID,
+			ISNULL(ORDER_DATE,'') AS ORDER_DATE,
+			'awaiting_shipment' as ORDER_STATUS,
+			ISNULL(SHIPPER_NAME,'') AS SHIPPER_NAME,
+			ISNULL(SHIPPER_TEL,'') AS SHIPPER_TEL,
+			ISNULL(SHIPPER_HP,'') AS SHIPPER_HP,
+			ISNULL(USER_EMAIL,'') AS SHIPPER_EMAIL,
+			ISNULL(SHIPPER_CITY,'') AS SHIPPER_CITY,
+			ISNULL(SHIPPER_ZIP,'') AS SHIPPER_ZIP,
+			ISNULL(SHIPPER_STATE,'') AS SHIPPER_STATE,
+			ISNULL(SHIPPER_ADDR,'') AS SHIPPER_ADDR,
+			ISNULL(SHIPPER_ADDR_DETAIL,'') AS SHIPPER_ADDR_DETAIL,
+			ISNULL(CNEE_NAME,'') AS CNEE_NAME,
+			ISNULL(NATIVE_CNEE_NAME,'') AS NATIVE_CNEE_NAME,
+			ISNULL(CNEE_TEL,'') AS CNEE_TEL,
+			ISNULL(CNEE_HP,'') AS CNEE_HP,
+			ISNULL(CNEE_ZIP,'') AS CNEE_ZIP,
+			ISNULL(
+			(SELECT STATE_CODE FROM TB_STATE_CODE WHERE STATE_NAME_EN = (SELECT REPLACE(CNEE_STATE,' ',''))),
+			CNEE_STATE) AS CNEE_STATE,
+			ISNULL(CNEE_CITY,'') AS CNEE_CITY,
+			ISNULL(CNEE_DISTRICT,'') AS CNEE_DISTRICT,
+			'' AS receiverDistrict,
+			ISNULL(CNEE_ADDR,'') AS CNEE_ADDR,
+			ISNULL(CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL,
+			ISNULL(CNEE_EMAIL,'') AS CNEE_EMAIL,
+			ISNULL((SELECT UNIT_CURRENCY FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO ='1'),'') AS UNIT_CURRENCY,
+			ISNULL(NATIVE_CNEE_ADDR,'') AS NATIVE_CNEE_ADDR,
+			ISNULL(NATIVE_CNEE_ADDR_DETAIL,'') AS NATIVE_CNEE_ADDR_DETAIL,
+			ISNULL((select INV_COM_NAME FROM TB_CUSTOMER_INV_INFO WHERE INV_USER_ID = F1.USER_ID),'') as invCompany,
+			ISNULL(TRANS_CODE,'') AS TRANS_CODE,
+			ISNULL(W_DATE,'') AS W_DATE
+		FROM TMP_ORDER_LIST F1 WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectShipStationItemInfo" parameterType="hashMap" resultType="com.example.temp.trans.shipStation.ShipStationItemVO">
+		SELECT 
+			F2.SUB_NO,
+			F2.ITEM_DETAIL,
+			F2.ITEM_CNT,
+			F2.UNIT_VALUE,
+			F2.USER_ID,
+			dbo.FN_WEIGHT_CHG(F2.WT_UNIT,'OZ',F2.USER_WTA_ITEM) AS USER_WTA_ITEM,
+			F2.WT_UNIT,
+			F2.SKU,
+			F2.CHG_CURRENCY,
+			F2.MAKE_CNTRY,
+			F2.QTY_UNIT,
+			F2.HS_CODE
+		FROM (
+			SELECT 
+				SUB_NO,
+				ISNULL(ITEM_DETAIL,'') AS ITEM_DETAIL,
+				ISNULL(ITEM_CNT,'') AS ITEM_CNT,
+				ISNULL(UNIT_VALUE,0) AS UNIT_VALUE,
+				ISNULL(USER_ID,'') AS USER_ID,
+				ISNULL(USER_WTA,0) AS USER_WTA_ITEM,
+				ISNULL(WT_UNIT,'KG') AS WT_UNIT,
+				ISNULL(CUS_ITEM_CODE,'') AS sku,
+				ISNULL(CHG_CURRENCY,'USD') AS CHG_CURRENCY,
+				ISNULL(MAKE_CNTRY,'') AS MAKE_CNTRY,
+				ISNULL(QTY_UNIT, '') AS QTY_UNIT,
+				ISNULL(HS_CODE,'') AS HS_CODE
+			FROM TMP_ORDER_ITEM F1 WHERE NNO = #{nno}
+		) F2
+	</select>
+
+	<update id="updateErrorStatus" parameterType="hashMap">
+		UPDATE TMP_ORDER_LIST
+		SET STATUS = #{status}
+		WHERE NNO = #{nno}
+	</update>
+	
+	<insert id="insertShipStationTest" parameterType="hashMap">
+		INSERT INTO TB_SHIP_STATION_TEST (NNO, ORDER_ID) VALUES (#{nno}, #{orderId});
+	</insert>
+	
+	<select id="selectShipStationTest" resultType="hashMap">
+		SELECT ISNULL(NNO,'') AS nno, ISNULL(ORDER_ID,'') AS orderId
+		FROM TB_SHIP_STATION_TEST WHERE ISNULL(HAWB_NO,'') = ''
+	</select>
+	
+	<update id="updateShipStationTest" parameterType="hashMap">
+		UPDATE TB_SHIP_STATION_TEST
+		SET HAWB_NO = #{hawbNo}
+		WHERE NNO = #{nno} AND ORDER_ID = #{orderId}
+	</update>
+	
+	
+</mapper>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.api.cafe24.mapper.Cafe24Mapper">
+	
+	<insert id="insertCafe24UserInfo" parameterType="com.example.temp.api.cafe24.vo.Cafe24UserInfoVo">
+			DELETE FROM TB_USER_CAFE24_INFO WHERE USER_ID = #{userId};
+	
+			INSERT INTO TB_USER_CAFE24_INFO  (USER_ID,MALL_ID)
+			VALUES (#{userId},#{mallId});
+	</insert>
+	
+	<select id = "selectUserCafe24Info" parameterType="com.example.temp.api.cafe24.vo.Cafe24UserInfoVo" resultType="com.example.temp.api.cafe24.vo.Cafe24UserInfoVo">
+			SELECT * FROM TB_USER_CAFE24_INFO WHERE USER_ID = #{userId}	
+	</select>
+
+	
+	<insert id = "insertUserCafe24Token"  parameterType="com.example.temp.api.cafe24.vo.Cafe24UserInfoVo">
+			
+			INSERT INTO HIS_USER_CAFE24_TOKEN(MALL_ID,USER_ID,CAFE24_ID,ACCESS_TOKEN,EXPIRES_AT,REFRESH_TOKEN,REFRESH_TOKEN_EXPIRES_AT,CLIENT_ID,ISSUED_AT)
+			SELECT MALL_ID,USER_ID,CAFE24_ID,ACCESS_TOKEN,EXPIRES_AT,REFRESH_TOKEN,REFRESH_TOKEN_EXPIRES_AT,CLIENT_ID,ISSUED_AT 
+			  FROM TB_USER_CAFE24_TOKEN 
+			  WHERE MALL_ID = #{mallId};
+			  
+			DELETE FROM TB_USER_CAFE24_TOKEN WHERE MALL_ID = #{mallId};   
+	
+			INSERT INTO TB_USER_CAFE24_TOKEN(MALL_ID,USER_ID,CAFE24_ID,ACCESS_TOKEN,EXPIRES_AT,REFRESH_TOKEN,REFRESH_TOKEN_EXPIRES_AT,CLIENT_ID,ISSUED_AT
+			                        )VALUES (#{mallId},#{userId},#{cafe24Id},#{accessToken},#{expiresAt},#{refreshToken},#{refreshTokenExpiresAt},#{clientId},#{issuedAt})
+	</insert>
+
+	<select id = "selectUserCafe24TokenList" parameterType="com.example.temp.api.cafe24.vo.Cafe24UserTokenInfo" resultType="com.example.temp.api.cafe24.vo.Cafe24UserTokenInfo">
+			SELECT MALL_ID,USER_ID,CAFE24_ID,ACCESS_TOKEN,EXPIRES_AT,REFRESH_TOKEN,REFRESH_TOKEN_EXPIRES_AT,CLIENT_ID,ISSUED_AT 
+			  FROM TB_USER_CAFE24_TOKEN WHERE USER_ID = #{userId}	
+	</select>
+	
+	<select id = "selectAdminCafe24TokenList" parameterType="com.example.temp.api.cafe24.vo.Cafe24UserTokenInfo"  resultType="com.example.temp.api.cafe24.vo.Cafe24UserTokenInfo">
+			SELECT MALL_ID,USER_ID,CAFE24_ID,ACCESS_TOKEN,EXPIRES_AT,REFRESH_TOKEN,REFRESH_TOKEN_EXPIRES_AT,CLIENT_ID,ISSUED_AT 
+			 FROM TB_USER_CAFE24_TOKEN	
+			WHERE 1 = 1
+			<if test='userId != null and userId != ""'>
+			 	AND USER_ID = #{userId}
+			</if>
+	</select>
+	
+	<select id = "selectUserCafe24Token" parameterType="com.example.temp.api.cafe24.vo.Cafe24UserTokenInfo" resultType="com.example.temp.api.cafe24.vo.Cafe24UserTokenInfo">
+			SELECT MALL_ID,USER_ID,CAFE24_ID,ACCESS_TOKEN,EXPIRES_AT,REFRESH_TOKEN,REFRESH_TOKEN_EXPIRES_AT,CLIENT_ID,ISSUED_AT 
+			 FROM TB_USER_CAFE24_TOKEN WHERE MALL_ID = #{mallId} AND USER_ID = #{userId}		
+	</select>
+	
+	<select id = "selectOrderChk" parameterType="com.example.temp.api.cafe24.vo.Cafe24OrderParameter" resultType="int">
+			SELECT COUNT(*)
+  			  FROM TB_CAFE24_ORDER_INFO 
+             WHERE ORDER_NO = #{orderId} 
+               AND USER_ID = #{userId}
+	</select>
+	
+	<insert id = "insertCafe24OrderInfo"  parameterType="com.example.temp.api.cafe24.vo.Cafe24OrderParameter">
+			INSERT INTO TB_CAFE24_ORDER_INFO (USER_ID,MALL_ID,SHOP_NO,ORDER_NO,W_USER_ID,W_USER_IP)
+			                          VALUES (#{userId},#{mallId},#{shopNo},#{orderId},#{wUserId},#{remoteAddr})
+			
+	</insert>
+	
+	
+	<insert id = "insertcafe24OrderItemSuppliers"  parameterType="com.example.temp.api.cafe24.vo.Cafe24OrdersItemsVo">
+			INSERT INTO TB_ORDER_ITEM_SUPPLIER (NNO,SUB_NO,USER_ID,MALL_ID,SHOP_NO,ORDER_NO,PRODUCT_NO,SUPPLIER_CODE)
+			                          VALUES (#{nno},#{subNo},#{userId},#{mallId},#{shopNo},#{orderId},#{cusItemCode},#{supplierId})
+			
+	</insert>
+	
+
+</mapper>

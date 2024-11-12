@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.manager.mapper.ManagerInspInMapper">
+
+
+	<select id="selectInspaddList" parameterType="hashMap" resultType="hashMap">
+
+			  SELECT GROUP_IDX as groupIdx,
+			         NO as no ,
+			         ROW_NUM as rowNum,
+			         ORG_STATION as orgStation,
+			         USER_ID as userId,
+			         ORDER_NO as orderNo,
+			         HAWB_NO AS hawbNo , 
+			         TRK_COM AS trkCom,
+			         TRK_NO AS trkNo,
+			         RACK_CODE AS rackCode,
+			         ITEM_DETAIL as itemDetail, 
+			         GROUP_STOCK_NO as groupStockNo,
+			         WO_CNT as woCnt,
+			         WF_CNT as  wfCnt,
+			         TOTAL_CNT as totalCnt ,
+			         (SELECT COUNT(*) FROM TB_STOCK WHERE ISNULL(OUT_NNO,'') != '' AND GROUP_IDX = M1.GROUP_IDX AND USER_ID = M1.USER_ID AND ORG_STATION = M1.ORG_STATION) outCnt,
+			         TOTAL_CNT - (SELECT COUNT(*) FROM TB_STOCK WHERE ISNULL(OUT_NNO,'') != '' AND GROUP_IDX = M1.GROUP_IDX AND USER_ID = M1.USER_ID AND ORG_STATION = M1.ORG_STATION) stockCnt,
+			         REMARK remark,
+			         W_USER_ID wUserId,
+			         W_USER_IP wUserIp,
+			         W_DATE wDate
+			   FROM (
+			  SELECT GROUP_IDX , 
+			         ROW_NUMBER() OVER(ORDER BY GROUP_IDX ASC) AS NO , 
+			         ROW_NUMBER() OVER(ORDER BY GROUP_IDX DESC ) AS ROW_NUM ,
+			         ORG_STATION,
+			         USER_ID ,
+			         MAX(RACK_CODE) AS RACK_CODE,
+			         MAX(TRK_COM) AS TRK_COM,
+			         MAX(TRK_NO) AS TRK_NO,
+			         (SELECT ORDER_NO FROM TB_ORDER_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION =F1.ORG_STATION) ORDER_NO ,
+			         (SELECT HAWB_NO FROM TB_ORDER_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION =F1.ORG_STATION) HAWB_NO ,
+			         (SELECT BRAND FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO = F1.SUB_NO AND USER_ID = F1.USER_ID AND ORG_STATION =F1.ORG_STATION) BRAND ,
+			         (SELECT ITEM_DETAIL FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO = F1.SUB_NO AND USER_ID = F1.USER_ID AND ORG_STATION =F1.ORG_STATION) ITEM_DETAIL ,
+			         GROUP_IDX AS GROUP_STOCK_NO ,
+			         SUM(CASE WHEN WH_STATUS = 'WO' THEN 1 ELSE 0 END) WO_CNT,
+			         SUM(CASE WHEN WH_STATUS = 'WF' THEN 1 ELSE 0 END) WF_CNT ,
+			         COUNT(*) TOTAL_CNT ,
+			         MAX(REMARK) REMARK,
+			         MAX(W_USER_ID) AS W_USER_ID ,
+			         MAX(W_USER_ID) AS W_USER_IP ,
+			         MAX(W_DATE) AS W_DATE 
+			    FROM TB_STOCK F1
+			   WHERE STOCK_TYEP = 'INSP_ADD_IN'
+			     AND TRK_NO LIKE CONCAT('%',#{trkNo},'%')
+			     AND TRK_COM LIKE CONCAT('%',#{trkCom},'%')
+			     AND (SELECT ORDER_NO FROM TB_ORDER_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) 
+			         LIKE CONCAT('%',#{orderNo},'%')
+			     AND (SELECT HAWB_NO FROM TB_ORDER_LIST WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) 
+			          LIKE CONCAT('%',#{hawbNo},'%')
+			     AND (SELECT ITEM_DETAIL FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND  SUB_NO = F1.SUB_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) 
+			          LIKE CONCAT('%',#{itemDetail},'%')
+			     AND USER_ID LIKE CONCAT('%',#{userId},'%')
+			     AND ORG_STATION = '082'
+			   GROUP BY NNO , 
+			            SUB_NO , 
+			            USER_ID , 
+			            ORG_STATION , 
+			            GROUP_IDX
+			   )M1
+			   ORDER BY ROW_NUM
+					
+	</select>
+	
+	<select id="selectInspaddStockDetail" parameterType="hashMap" resultType="hashMap">
+			SELECT STOCK_NO as stockNo,
+			       WH_STATUS as whStatus,
+			       (SELECT NAME FROM TB_CODE WHERE CODE_DIV = 'WH_STATUS' AND CODE = WH_STATUS)  as whStatusName,
+			       ISNULL((SELECT HAWB_NO FROM TB_HAWB WHERE NNO = F1.OUT_NNO),'') BL 
+			  FROM TB_STOCK F1
+			 WHERE WH_STATUS LIKE CONCAT('%',#{whStatus},'%')
+			   AND GROUP_IDX = #{groupIdx}
+			   AND USER_ID = #{userId}
+			   AND ORG_STATION = #{orgStation}
+			   
+	</select>
+	
+	<select id="selectInspaddGroupStockInfo" parameterType="hashMap" resultType="hashMap">
+			SELECT F1.ORG_STATION AS orgStation,
+			       F1.USER_ID  AS userId, 
+			       F1.GROUP_IDX AS groupIdx,
+			       F1.RACK_CODE AS rackCode,
+			       F1.WH_IN_DATE AS whInDate ,
+			       F1.TRK_COM AS trkNo,
+			       F1.TRK_NO  AS trkCom ,
+			       F2.ITEM_DETAIL as itemDetail ,
+			       F2.HS_CODE as hsCode ,
+			       SUM(CASE WHEN WH_STATUS = 'WO' THEN 1 ELSE 0 END) woCnt ,
+       			   SUM(CASE WHEN WH_STATUS = 'WF' THEN 1 ELSE 0 END) wfCnt 
+			 FROM TB_STOCK F1 ,
+			      TB_ORDER_ITEM F2
+			 WHERE F1.NNO = F2.NNO 
+			   AND F1.SUB_NO = F2.SUB_NO
+			   AND F1.USER_ID = F2.USER_ID
+			   AND F1.ORG_STATION = F2.ORG_STATION
+			   AND F1.WH_STATUS LIKE CONCAT('%','','%')
+			   AND F1.GROUP_IDX = #{groupIdx}
+			   AND F1.USER_ID = #{userId}
+			   AND F1.ORG_STATION = #{orgStation}
+			 GROUP BY 
+			       F1.ORG_STATION ,
+			       F1.USER_ID , 
+			       F1.GROUP_IDX,
+			       F1.RACK_CODE,
+			       F1.WH_IN_DATE ,
+			       F1.TRK_COM ,
+			       F1.TRK_NO ,
+			       F2.ITEM_DETAIL ,
+			       F2.HS_CODE
+	</select>
+	
+	<select id="updateInspGroupStockUpdate" parameterType="hashMap" resultType="hashMap">
+	
+				DECLARE
+				@ORG_STATION NVARCHAR(50),
+				@USER_ID NVARCHAR(50),
+				@GROUP_IDX NVARCHAR(50),
+				@WH_IN_DATE NVARCHAR(10),
+				@RACK_CODE NVARCHAR(50),
+				@W_USER_ID NVARCHAR(50),
+				@W_USER_IP NVARCHAR(50),
+				@RST_STATUS NVARCHAR(10) ,
+				@RST_CODE NVARCHAR(10),
+				@RST_MSG NVARCHAR(100),
+				@RST_IDX NVARCHAR(50)
+				
+				SET @ORG_STATION = #{orgStation}
+				SET @USER_ID = #{userId}
+				SET @GROUP_IDX =#{groupIdx}
+				SET @WH_IN_DATE = #{whInDate}
+				SET @RACK_CODE = #{rackCode}
+				SET @W_USER_ID =#{wUserId}
+				SET @W_USER_IP =#{wUserIp}
+				
+				
+				EXEC SP_INSP_STOCK_ADD_GROUP_UP
+				@ORG_STATION ,
+				@USER_ID,
+				@GROUP_IDX ,
+				@WH_IN_DATE,
+				@RACK_CODE,
+				@W_USER_ID ,
+				@W_USER_IP,
+				@RST_STATUS OUTPUT,
+				@RST_CODE OUTPUT,
+				@RST_MSG OUTPUT,
+				@RST_IDX OUTPUT
+				
+				SELECT
+				@RST_STATUS AS rstStatus,
+				@RST_CODE AS  rstCode,
+				@RST_MSG  AS rstMsg,
+				@RST_IDX AS rstIdx
+		
+	</select>
+	
+	<select id="selectReqReturnListCnt" parameterType="hashMap" resultType="int">
+	
+	 SELECT COUNT(*) FROM (
+		   SELECT ROW_NUMBER() OVER(ORDER BY W_DATE ASC ) NUM,
+		          ROW_NUMBER() OVER(ORDER BY W_DATE DESC) ROWNUM,
+		          ISNULL((SELECT NAME FROM TB_CODE WHERE CODE_DIV = 'RETURN_TYPE' AND CODE = F1.RETURN_TYPE),'') AS returnTypeName,
+		          ISNULL(NNO,'') AS nno,
+		          dbo.FN_RETURN_APPRV(F1.NNO , F1.USER_ID , F1.ORG_STATION) Apprv_Yn,
+			      ISNULL(ORG_STATION,'') AS orgStation,
+			      ISNULL(USER_ID,'') as userId,
+			      ISNULL(RETURN_NO,'') as returnNo,
+			      ISNULL(RETURN_TYPE,'') as returnType,
+			      ISNULL(RETURN_REASON,'') as returnReason,
+			      ISNULL(TRK_COM,'') as trkCom,
+			      ISNULL(TRK_NO,'') as trkNo,
+			      ISNULL(TRK_NO_BL,'') as trkNoBl, 
+			      ISNULL(CNEE_CNTRY,'') as  cneeCntry,
+			      ISNULL(CNEE_STATE,'') as cneeState,
+			      ISNULL(CNEE_CITY,'') as cneeCity,
+			      ISNULL(CNEE_ZIP,'') as ceeZip,
+			      ISNULL(CNEE_DISTRICT,'') as cneeDistrict,
+			      ISNULL(CNEE_ADDR,'') as cneeAddr,
+			      ISNULL(CNEE_ADDR_DETAIL,'') as cneeAddrDetail,
+			      ISNULL(CNEE_NAME,'') as cneeName,
+			      ISNULL(CNEE_TEL,'') as cneeTel,
+			      ISNULL(CNEE_HP,'') as cneeHp,
+			      ISNULL(CNEE_EMAIL,'') as cneeEmail,
+			      ISNULL(W_USER_ID,'') as wUserId,
+			      ISNULL(W_USER_IP,'') as wUserIp,
+			      ISNULL(W_DATE,'') as wDate
+			 FROM TB_REQ_RETURN_LIST F1
+			WHERE USER_ID LIKE CONCAT('%','','%')
+			  AND ORG_STATION = #{orgStation}
+			  ) M1
+	     WHERE M1.ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd}
+	</select>
+
+	<select id="selectReqReturnList" parameterType="hashMap" resultType="hashMap">
+	
+	 SELECT * FROM (
+		   SELECT ROW_NUMBER() OVER(ORDER BY W_DATE ASC ) no,
+		          ROW_NUMBER() OVER(ORDER BY W_DATE DESC) ROWNUM,
+		          ISNULL(NNO,'') AS nno,
+		          dbo.FN_RETURN_APPRV(F1.NNO , F1.USER_ID , F1.ORG_STATION) apprvYn,
+			      ISNULL(ORG_STATION,'') AS orgStation,
+			      ISNULL(USER_ID,'') as userId,
+			      ISNULL(RETURN_NO,'') as returnNo,
+			      ISNULL(RETURN_TYPE,'') as returnType,
+			      ISNULL((SELECT NAME FROM TB_CODE WHERE CODE_DIV = 'RETURN_TYPE' AND CODE = F1.RETURN_TYPE),'') AS returnTypeName,
+			      ISNULL(RETURN_REASON,'') as returnReason,
+			      ISNULL(TRK_COM,'') as trkCom,
+			      ISNULL(TRK_NO,'') as trkNo,
+			      ISNULL(TRK_NO_BL,'') as trkNoBl, 
+			      ISNULL(CNEE_CNTRY,'') as  cneeCntry,
+			      ISNULL(CNEE_STATE,'') as cneeState,
+			      ISNULL(CNEE_CITY,'') as cneeCity,
+			      ISNULL(CNEE_ZIP,'') as cneeZip,
+			      ISNULL(CNEE_DISTRICT,'') as cneeDistrict,
+			      ISNULL(CNEE_ADDR,'') as cneeAddr,
+			      ISNULL(CNEE_ADDR_DETAIL,'') as cneeAddrDetail,
+			      ISNULL(CNEE_NAME,'') as cneeName,
+			      ISNULL(CNEE_TEL,'') as cneeTel,
+			      ISNULL(CNEE_HP,'') as cneeHp,
+			      ISNULL(CNEE_EMAIL,'') as cneeEmail,
+			      ISNULL(W_USER_ID,'') as wUserId,
+			      ISNULL(W_USER_IP,'') as wUserIp,
+			      ISNULL(W_DATE,'') as wDate
+			 FROM TB_REQ_RETURN_LIST F1
+			WHERE RETURN_NO LIKE CONCAT('%',#{returnNo},'%') 
+			AND USER_ID LIKE CONCAT('%',#{userId},'%')
+			  AND ORG_STATION = #{orgStation}
+			  ) M1
+	     WHERE M1.ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd}
+	</select>
+
+
+	<select id="selectReqReturnDetatil" parameterType="hashMap" resultType="hashMap">
+		
+		SELECT ISNULL(NNO,'') AS nno,
+		          dbo.FN_RETURN_APPRV(F1.NNO , F1.USER_ID , F1.ORG_STATION) apprvYn,
+			      ISNULL(ORG_STATION,'') AS orgStation,
+			      ISNULL(USER_ID,'') as userId,
+			      ISNULL(RETURN_NO,'') as returnNo,
+			      ISNULL(RETURN_TYPE,'') as returnType,
+			      ISNULL((SELECT NAME FROM TB_CODE WHERE CODE_DIV = 'RETURN_TYPE' AND CODE = F1.RETURN_TYPE),'') AS returnTypeName,
+			      ISNULL(RETURN_REASON,'') as returnReason,
+			      ISNULL(TRK_COM,'') as trkCom,
+			      ISNULL(TRK_NO,'') as trkNo,
+			      ISNULL(TRK_NO_BL,'') as trkNoBl, 
+			      ISNULL(CNEE_CNTRY,'') as  cneeCntry,
+			      ISNULL(CNEE_STATE,'') as cneeState,
+			      ISNULL(CNEE_CITY,'') as cneeCity,
+			      ISNULL(CNEE_ZIP,'') as cneeZip,
+			      ISNULL(CNEE_DISTRICT,'') as cneeDistrict,
+			      ISNULL(CNEE_ADDR,'') as cneeAddr,
+			      ISNULL(CNEE_ADDR_DETAIL,'') as cneeAddrDetail,
+			      ISNULL(CNEE_NAME,'') as cneeName,
+			      ISNULL(CNEE_TEL,'') as cneeTel,
+			      ISNULL(CNEE_HP,'') as cneeHp,
+			      ISNULL(CNEE_EMAIL,'') as cneeEmail,
+			      ISNULL(W_USER_ID,'') as wUserId,
+			      ISNULL(W_USER_IP,'') as wUserIp,
+			      ISNULL(W_DATE,'') as wDate
+			 FROM TB_REQ_RETURN_LIST F1
+			WHERE NNO LIKE CONCAT('%',#{nno},'%') 
+			  AND USER_ID LIKE CONCAT('%',#{userId},'%')
+			  AND ORG_STATION = #{orgStation}
+	</select>
+	
+	
+	
+	<select id="selectReqReturnItemDetatil" parameterType="hashMap" resultType="hashMap">
+			SELECT  ISNULL(F2.RACK_CODE,'') AS rackCode, 
+			        ISNULL(F2.STOCK_NO,'') AS stockNo,
+			        ISNULL((SELECT ITEM_DETAIL FROM TB_ORDER_ITEM WHERE NNO = F2.NNO AND SUB_NO = F2.SUB_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),'') AS  itemDetail,
+			        1 reqCnt ,
+			        (SELECT COUNT(*) FROM TMP_WHOUT_STOCK WHERE STOCK_NO = F1.STOCK_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) resCnt
+			  FROM TB_REQ_RETURN_ITEM F1 , 
+			        TB_STOCK F2
+			  WHERE F1.STOCK_NO = F2.STOCK_NO
+			    AND F1.USER_ID = F2.USER_ID
+			    AND F1.ORG_STATION = F2.ORG_STATION
+			    AND F1.NNO LIKE CONCAT('%',#{nno},'%') 
+			    AND F1.USER_ID LIKE CONCAT('%',#{userId},'%')
+			    AND F1.ORG_STATION = #{orgStation}
+	</select>
+		
+		
+	
+	
+	<select id="selectReturnWhoutStockList" parameterType="hashMap" resultType="hashMap">
+		SELECT UPPER(F1.USER_ID) AS userId ,
+		       ISNULL(F1.RACK_CODE,'') AS rackCode,
+		       (SELECT CUS_ITEM_CODE FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO = F1.SUB_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) cusItemCode ,
+		       (SELECT ITEM_DETAIL FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO = F1.SUB_NO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION) itemDetail ,
+		       COUNT(*) stockCnt
+		  FROM TB_STOCK F1
+		 WHERE F1.STOCK_NO IN (SELECT STOCK_NO 
+		                         FROM TB_REQ_RETURN_ITEM
+		                        WHERE STOCK_NO NOT IN (SELECT STOCK_NO 
+		                                                FROM TB_RETURN_ITEM
+		                                               WHERE USER_ID = F1.USER_ID
+		                                                 AND ORG_STATION = F1.ORG_STATION)
+		                         AND USER_ID=  F1.USER_ID 
+		                         AND ORG_STATION = F1.ORG_STATION)
+		   AND F1.USER_ID LIKE CONCAT('%','','%')
+		   AND F1.ORG_STATION = #{orgStation}
+		 GROUP BY F1.USER_ID , 
+		          F1.NNO , 
+		          F1.RACK_CODE,
+		          F1.SUB_NO,
+		          F1.ORG_STATION
+	</select>
+	
+	<select id="spWhoutStockReturn" parameterType="hashMap" resultType="hashMap">	
+		DECLARE @OUT_NNO NVARCHAR(50),
+				@ORG_STATION NVARCHAR(3),
+				@STOCK_NO NVARCHAR(50),
+				@W_USER_ID NVARCHAR(50),
+				@W_USER_IP NVARCHAR(50),
+				@RST_NNO NVARCHAR(50) ,
+				@RST_STATUS NVARCHAR(50) ,
+				@RST_CODE NVARCHAR(10) ,
+				@RST_MSG NVARCHAR(50) 
+				
+				SET @OUT_NNO = #{nno}
+				SET @ORG_STATION = #{orgStation}
+				SET @STOCK_NO = #{stockNo}
+				SET @W_USER_ID = #{wUserId}
+				SET @W_USER_IP = #{wUserIp}
+	
+				EXEC SP_WHOUT_STOCK_RETURN
+				@OUT_NNO , 
+				@ORG_STATION ,
+				@STOCK_NO ,
+				@W_USER_ID ,
+				@W_USER_IP ,
+				@RST_NNO OUTPUT ,
+				@RST_STATUS OUTPUT ,
+				@RST_CODE OUTPUT ,
+				@RST_MSG OUTPUT 
+				
+				SELECT 
+				isnull(@RST_NNO,'') AS rstNno,
+				@RST_STATUS rstStatus,
+				@RST_CODE as rstCode,
+				@RST_MSG as rstMsg;
+	</select>
+</mapper>

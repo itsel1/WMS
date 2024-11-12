@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.manager.mapper.ManagerExcelMapper">
+	
+	<select id="selectUmaniFastExcel" parameterType="hashMap" resultType="com.example.temp.manager.vo.UmanifastExcelVO">
+		
+		SELECT F1.HAWB_NO , 
+		       F1.BOX_CNT ,
+		       CASE WHEN F1.WTA > F1.WTC THEN F1.WTA ELSE F1.WTC END AS WTA,
+		       STUFF((select ',' + ITEM_DETAIL from VI_HAWB_ITEM_INFO WHERE NNO = F1.NNO FOR XML PATH('')),1,1,'') ITEM_DETAIL,
+		       F3.SHIPPER_NAME,
+		       F3.SHIPPER_ADDR,
+		       F3.CNEE_NAME,
+		       (SELECT NATION_CODE FROM TB_STATION WHERE STATION_CODE = F1.ORG_STATION) AS NATION_CODE,
+		       ROUND(SUM(F2.UNIT_VALUE*F2.ITEM_CNT),2) TOTAL_VALUE,
+		       SUM(F2.ITEM_CNT) TOTAL_CNT , 
+		       MAX(F2.CURRENCY)  CURRENCY,
+		       F3.CNEE_NAME , 
+		       F3.CNEE_ADDR ,
+		       F3.DSTN_NATION , 
+		       (select DSTN_STATION from tb_Mawb where MAWB_NO = F1.MAWB_NO) DSTN_STATION,
+		       ISNULL((SELECT EXP_BUSINESS_NAME FROM TB_EXPLICENCE WHERE NNO = F1.NNO), '') AS EXP_BUSINESS_NAME,		       
+		       ISNULL((SELECT EXP_BUSINESS_NUM FROM TB_EXPLICENCE WHERE NNO = F1.NNO), '') AS EXP_BUSINESS_NUM,
+		       MAX(F2.HS_CODE ) HS_CODE 
+		FROM TB_HAWB F1 , 
+		     VI_HAWB_ITEM_INFO F2 ,
+		     TB_ORDER_LIST F3
+		WHERE F1.NNO = F2.NNO
+		  AND F1.NNO = F3.NNO
+		  AND F1.MAWB_NO = #{mawbNo}
+		  AND F1.ORG_STATION = #{orgStation}
+		GROUP BY F1.NNO , 
+		         F1.ORG_STATION , 
+		         F1.HAWB_NO ,
+		         F1.BOX_CNT , 
+		         F3.CNEE_NAME , 
+		         F3.SHIPPER_NAME , 
+		         F3.SHIPPER_ADDR , 
+		         F3.CNEE_ADDR , 
+		         F3.DSTN_NATION , 
+		         F1.MAWB_NO,
+		         F1.WTA,
+		         F1.WTC
+	</select>
+	
+	
+	<select id="selectMawbInfo" parameterType="hashMap" resultType="com.example.temp.manager.vo.MawbVO">
+		
+		SELECT REPLACE(MAWB_NO,'-','') AS MAWB_NO,ORG_STATION,DSTN_STATION,DEP_DATE,DEP_TIME,
+		       ARR_DATE,ARR_TIME,FLT_NO,W_USER_ID,W_USER_IP,W_DATE,TRANS_CODE 
+		FROM TB_MAWB F1
+	    WHERE F1.MAWB_NO = #{mawbNo}
+	      AND F1.ORG_STATION = #{orgStation}
+	</select>
+	
+	<select id="selectExcelColumnName" parameterType="String" resultType="hashMap">
+		SELECT * FROM TB_EXCEL_NAME WHERE DIV = 'DOWNLOAD' and EXCEL_NAME = #{formName} ORDER BY COL_INDEX ASC;
+	</select>
+	
+	<select id="selectRusOrder" parameterType="String" resultType="com.example.temp.manager.vo.OrderInspListVO">
+		select 
+			ORDER_NO,
+			CNEE_NAME,
+			CNEE_ADDR,
+			CNEE_ADDR_DETAIL,
+			CNEE_CITY,
+			CNEE_STATE,
+			CNEE_ZIP,
+			DSTN_NATION,
+			BOX_CNT,
+			IN_BOX_NUM,
+			F1.USER_WTA,
+			ITEM_DETAIL,
+			F2.USER_WTA AS ITEM_WTA,
+			ITEM_CNT,
+			UNIT_VALUE,
+			CHG_CURRENCY,
+			MAKE_CNTRY,
+			HS_CODE,
+			ITEM_EXPLAN,
+			ITEM_URL,
+			CNEE_EMAIL,
+			CNEE_HP,
+			CNEE_TEL,
+			CUSTOMS_NO,
+			NATIONAL_ID_DATE,
+			NATIONAL_ID_AUTHORITY,
+			NATIVE_CNEE_NAME,
+			CNEE_BIRTH,
+			TAX_NO,
+			SHIPPER_NAME,
+			(SELECT NATION_CODE FROM TB_STATION WHERE STATION_CODE = F1.ORG_STATION) AS ORG_NATION,
+			SHIPPER_CITY,
+			SHIPPER_STATE,
+			SHIPPER_ADDR,
+			SHIPPER_ADDR_DETAIL,
+			SHIPPER_ZIP,
+			HAWB_NO,
+			ITEM_BARCODE
+			FROM 
+		TB_ORDER_LIST F1 LEFT OUTER JOIN TB_ORDER_ITEM F2 ON F1.NNO = F2.NNO
+						 LEFT OUTER JOIN TB_RUS_ORDER_LIST_INFO F3 ON F1.NNO = F3.NNO
+						 LEFT OUTER JOIN TB_RUS_ORDER_ITEM_INFO F4 ON F2.NNO = F4.NNO and F2.SUB_NO = F4.SUB_NO
+		 WHERE HAWB_NO IN (SELECT HAWB_NO FROM TB_HAWB WHERE MAWB_NO = #{mawbNo}) AND TRANS_CODE = 'GTS' AND SHIPPER_REFERENCE = #{shipperReference}
+	</select>
+	
+	<select id="selectUhanExplicence" parameterType="String" resultType="hashMap">
+		SELECT
+			BOX_CNT AS boxCnt,
+	         ISNULL(
+		         (select EXP_NO FROM TB_EXPLICENCE WHERE EXP_REG_NO = #{hawbNo}),
+		         ISNULL(
+		         	(select EXP_NO FROM TB_EXPLICENCE WHERE EXP_REG_NO = (SELECT VALUE_MATCH_NO FROM TB_MATCHING_INFO WHERE KEY_HAWB_NO = #{hawbNo})),''
+		         )
+	         ) AS expNo,
+		    WTA as wta
+	    FROM 
+	    	TB_HAWB WHERE HAWB_NO =#{hawbNo}
+	
+	</select>
+</mapper>

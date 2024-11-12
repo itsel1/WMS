@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.trans.fastbox.FastBoxMapper">
+
+	<select id="selectOrderList" parameterType="String" resultType="com.example.temp.api.aci.vo.ApiOrderListVO">
+		SELECT 	
+			ISNULL(NNO,'') AS NNO,
+			ISNULL(ORDER_TYPE,'') AS ORDER_TYPE,
+			ISNULL(USER_ID,'') AS USER_ID,
+			ISNULL((SELECT INV_COM_NAME FROM TB_CUSTOMER_INV_INFO WHERE INV_USER_ID = F1.USER_ID),'') AS USER_NAME,
+			ISNULL(CONCAT(SUBSTRING(ORDER_DATE,1,4),'-', SUBSTRING(ORDER_DATE,5,2),'-', SUBSTRING(ORDER_DATE,7,2)),'') AS ORDER_DATE,
+			ISNULL(ORDER_NO,'') AS ORDER_NO,
+			ISNULL((SELECT TOP 1 CHG_CURRENCY FROM TMP_ORDER_ITEM WHERE NNO = F1.NNO),(SELECT TOP 1 UNIT_CURRENCY FROM TMP_ORDER_ITEM WHERE NNO = F1.NNO)) AS UNIT_CURRENCY,
+			ISNULL(DSTN_NATION,'') AS DSTN_NATION,
+			ISNULL(CNEE_NAME,'') AS CNEE_NAME,
+			ISNULL(NATIVE_CNEE_NAME,'') AS NATIVE_CNEE_NAME,
+			ISNULL(CNEE_TEL,'') AS CNEE_TEL,
+			ISNULL(CNEE_HP, CNEE_TEL) AS CNEE_HP,
+			ISNULL(CNEE_EMAIL,'') AS CNEE_EMAIL,
+			ISNULL(CNEE_ZIP,'') AS CNEE_ZIP,
+			ISNULL(CNEE_STATE,'') AS CNEE_STATE,
+			ISNULL(CNEE_CITY,'') AS CNEE_CITY,
+			ISNULL(CNEE_ADDR,'') AS CNEE_ADDR,
+			ISNULL(CNEE_ADDR_DETAIL,'') AS CNEE_ADDR_DETAIL, 
+			ISNULL(PAYMENT,'DDU') AS PAYMENT,
+			ISNULL(TRANS_CODE,'') AS TRANS_CODE,
+			ISNULL((SELECT NNO FROM TB_EXPLICENCE WHERE NNO = F1.NNO AND ORDER_NO = F1.ORDER_NO),'') AS EXP_VALUE
+		FROM TMP_ORDER_LIST F1 WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectOrderItemList" parameterType="String" resultType="com.example.temp.api.aci.vo.ApiOrderItemListVO">
+		SELECT 
+			ISNULL(F1.NNO,'') AS NNO,
+			ISNULL((SELECT ORDER_NO FROM TMP_ORDER_LIST WHERE NNO = F1.NNO),'') AS ORDER_NO,
+			ISNULL(CUS_ITEM_CODE,'') AS CUS_ITEM_CODE,
+			ISNULL(ITEM_DETAIL,'') AS ITEM_DETAIL,
+			ISNULL(ITEM_DIV,'') AS ITEM_DIV,
+			ISNULL(ITEM_CNT,'') AS ITEM_CNT,
+			ISNULL(CONVERT(DECIMAL(16,2), UNIT_VALUE), 0) AS UNIT_VALUE,
+			ISNULL(UNIT_VALUE,'') AS UNIT_VALUE,
+			ISNULL(HS_CODE,'') AS HS_CODE,
+			ISNULL(ITEM_METERIAL,'') AS ITEM_METERIAL
+		FROM TMP_ORDER_ITEM F1 WHERE NNO = #{nno}
+	</select>
+	
+	<insert id="insertErrorMatch" parameterType="HashMap">
+		INSERT INTO TB_ERROR_MATCH (
+			[NNO],
+			[ERROR_MSG],
+			[USE_YN],
+			[W_USER_ID],
+			[W_USER_IP],
+			[W_DATE]
+		) VALUES (
+			#{nno},
+			#{errorMsg},
+			#{useYn},
+			#{wUserId},
+			#{wUserIp},
+			(SELECT LEFT((Select Convert(varchar(10),Getdate(),112) + Replace(Convert(varchar(8),Getdate(),108),':','')),12))
+		);
+		
+	</insert>
+	
+	<insert id="insertApiConn" parameterType="hashMap">
+		INSERT INTO TB_APICONN
+		(NNO, CONN_URL, HEADER_CONTENTS, BODY_CONTENTS, RST_CONTENTS, W_USER_ID, W_USER_IP, W_DATE) VALUES
+		(#{nno}, #{connUrl}, #{headContents}, #{bodyContents}, #{rstContents}, #{wUserId}, #{wUserIp}, GETDATE())
+	</insert>
+	
+	<update id="updateApiConn" parameterType="hashMap">
+		UPDATE TB_APICONN
+		SET RST_CONTENTS = #{rstContents}, W_USER_ID = #{wUserId}, W_USER_IP = #{wUserIp}
+		WHERE NNO = #{nno}
+	</update>
+	
+	<select id="selectFbNnoOne" parameterType="com.example.temp.trans.fastbox.FastBoxParameterVO" resultType="com.example.temp.trans.fastbox.FBOrderVO">
+		SELECT
+			F1.NNO,
+			F1.ORDER_NO,
+			F1.HAWB_NO,
+			F1.USER_ID AS STORE_NAME,
+			F1.DSTN_NATION,
+			(SELECT SUM(ITEM_CNT) FROM TB_ORDER_ITEM WHERE NNO = F1.NNO) AS ITEM_CNT,
+			ISNULL((SELECT TOP 1 CHG_CURRENCY FROM TB_ORDER_ITEM WHERE NNO = F1.NNO),(SELECT TOP 1 UNIT_CURRENCY FROM TB_ORDER_ITEM WHERE NNO = F1.NNO)) AS CHG_CURRENCY,
+			(SELECT SUM(UNIT_VALUE*ITEM_CNT) FROM TB_ORDER_ITEM WHERE NNO = F1.NNO) AS TOTAL_VALUE
+		FROM TB_ORDER_LIST F1
+		WHERE F1.TRANS_CODE IN ('FB', 'FB-EMS') AND F1.NNO = #{nno};
+	</select>
+	
+	<select id="selectFBItem" parameterType="String" resultType="java.util.LinkedHashMap">
+		SELECT
+			ISNULL(ITEM_DETAIL,'') AS itemDetail,
+			ISNULL(ITEM_DIV,'') AS itemDiv,
+			ISNULL(ITEM_CNT,0) AS itemCnt
+		FROM TB_ORDER_ITEM
+		WHERE NNO = #{nno};
+	</select>
+	
+	<select id="selectFBOrderInfo" parameterType="String" resultType="java.util.LinkedHashMap">
+		SELECT
+			CASE
+				WHEN (SELECT COUNT(*) FROM TB_EXPLICENCE WHERE NNO = F1.NNO) <![CDATA[ < ]]> 1 THEN '6E33721000003X'
+				ELSE '6E33721000003X'
+			END EXP_NO,
+<!-- 			(SELECT ISNULL(EXP_NO,'6E33721000003X') FROM TB_EXPLICENCE WHERE NNO = F1.NNO) EXP_NO, -->
+			HAWB_NO
+		FROM TB_ORDER_LIST F1
+		WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectOrderInfo" parameterType="String" resultType="com.example.temp.api.aci.vo.ApiOrderListVO">
+		SELECT
+			ISNULL(NNO,'') AS NNO,
+			ISNULL(HAWB_NO,'') AS HAWB_NO,
+			ISNULL(USER_ID,'') AS USER_ID,
+			ISNULL((SELECT INV_COM_NAME FROM TB_CUSTOMER_INV_INFO WHERE INV_USER_ID = F1.USER_ID),'') AS USER_NAME,
+			ISNULL(CONCAT(SUBSTRING(ORDER_DATE,1,4),'-', SUBSTRING(ORDER_DATE,5,2),'-', SUBSTRING(ORDER_DATE,7,2)),'') AS ORDER_DATE,
+			ISNULL(ORDER_NO,'') AS ORDER_NO,
+			CASE
+            	WHEN ISNULL((SELECT CHG_CURRENCY FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO = 1),'') = '' THEN (SELECT UNIT_CURRENCY FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO = 1)
+            	ELSE (SELECT CHG_CURRENCY FROM TB_ORDER_ITEM WHERE NNO = F1.NNO AND SUB_NO = 1)
+            END UNIT_CURRENCY,
+			ISNULL(DSTN_NATION,'') AS DSTN_NATION,
+			ISNULL(CNEE_NAME,'') AS CNEE_NAME,
+			ISNULL(NATIVE_CNEE_NAME,'') AS NATIVE_CNEE_NAME,
+			ISNULL(CNEE_TEL,'') AS CNEE_TEL,
+			ISNULL(CNEE_HP, CNEE_TEL) AS CNEE_HP,
+			ISNULL(CNEE_EMAIL,'') AS CNEE_EMAIL,
+			ISNULL(CNEE_ZIP,'') AS CNEE_ZIP,
+			ISNULL(CNEE_STATE,'') AS CNEE_STATE,
+			ISNULL(CNEE_CITY,'') AS CNEE_CITY,
+			ISNULL(CNEE_ADDR,'') AS CNEE_ADDR,
+			ISNULL((SELECT INV_COM_NAME FROM TB_CUSTOMER_INV_INFO WHERE INV_USER_ID = F1.USER_ID), 'ACI Express') AS SHIPPER_NAME,
+			ISNULL((SELECT INV_COM_TEL FROM TB_CUSTOMER_INV_INFO WHERE INV_USER_ID = F1.USER_ID), '') AS SHIPPER_TEL
+		FROM TB_ORDER_LIST F1
+		WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectArrDateMawbNo" parameterType="String" resultType="String">
+		SELECT CONCAT(SUBSTRING(ARR_DATE,1,4),'-',SUBSTRING(ARR_DATE,5,2),'-',SUBSTRING(ARR_DATE,7,2)) AS ARR_DATE
+		FROM TB_MAWB
+		WHERE MAWB_NO = #{mawbNo}
+	</select>
+	
+	<select id="selectNNObyHawbNo" parameterType="String" resultType="String">
+		SELECT NNO
+		FROM TB_ORDER_LIST
+		WHERE HAWB_NO = #{hawbNo}
+	</select>
+	
+	<select id="selectOrderExpLicenceInfo" resultType="hashMap" parameterType="String">
+		SELECT 
+			F1.NNO, 
+			F1.USER_ID,
+			F1.TRANS_CODE, 
+			F1.HAWB_NO, 
+			F1.BOX_CNT AS EXP_LICENCE_PCS, 
+			F1.WTA AS EXP_LICENCE_WEIGHT, 
+			F2.EXP_REG_NO,
+			F2.EXP_NO,  
+			F1.ORDER_NO  
+		FROM TB_HAWB F1 
+		LEFT OUTER JOIN TB_EXPLICENCE F2 ON F1.NNO = F2.NNO WHERE F1.NNO = #{nno}
+	</select>
+	
+	<select id="selectOrderExpInfo" resultType="hashMap" parameterType="String">
+		SELECT ISNULL(EXP_NO,'') AS expNo, ISNULL((SELECT HAWB_NO FROM TB_ORDER_LIST WHERE NNO = #{nno}),'') AS hawbNo
+		FROM TB_EXP_DCL WHERE NNO = #{nno}
+	</select>
+	
+	<update id="updateExpLicence" parameterType="hashMap">
+		UPDATE TB_EXP_DCL SET SEND_YN = 'S', W_DATE = GETDATE() WHERE NNO = #{nno}
+		<!-- UPDATE TB_EXPLICENCE SET SEND_YN = 'Y', API_STATUS = #{rtnMsg}, W_DATE = GETDATE() WHERE NNO = #{nno} -->
+	</update>
+	
+	<update id="updateExpLicenceN" parameterType="hashMap">
+		UPDATE TB_EXP_DCL SET SEND_YN = 'F', W_DATE = GETDATE() WHERE NNO = #{nno}
+		<!-- UPDATE TB_EXPLICENCE SET SEND_YN = 'N', API_STATUS = #{rtnMsg}, W_DATE = GETDATE() WHERE NNO = #{nno} -->
+	</update>
+	
+	<select id="selectMallInfo" parameterType="String" resultType="com.example.temp.manager.vo.FastboxInfoVO">
+		SELECT
+			TOP 1 MALL_ID, SELLER_NAME
+		FROM TB_USER_MALL_INFO
+		WHERE USER_ID = #{userId}
+		ORDER BY W_DATE DESC
+	</select>
+	
+	<select id="selectUserInfo" parameterType="String" resultType="hashMap">
+		SELECT
+			USER_ID, W_USER_IP
+		FROM TB_ORDER_LIST
+		WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectFastBoxMallInfo" parameterType="String" resultType="hashMap">
+		SELECT 
+			ISNULL(CONSUMER_KEY,'') AS consKey,
+			ISNULL(TOKEN,'') AS token,
+			ISNULL(MALL_ID,'') AS mallId,
+			ISNULL(SELLER_NAME,'') AS sellerName
+		FROM TB_USER_MALL_INFO
+		WHERE USER_ID = #{userId}
+	</select>
+	
+	<select id="selectUserId" parameterType="String" resultType="String">
+		SELECT USER_ID
+		FROM TB_ORDER_LIST
+		WHERE NNO = #{nno}
+	</select>
+	
+	<update id="updateFastboxSendYn" parameterType="hashMap">
+		UPDATE TB_CUSTOMER_FB_INFO
+		SET FB_SEND_YN = 'Y'
+		WHERE USER_ID = #{userId}
+	</update>
+	
+	<select id="selectFastboxCusInfo" parameterType="String" resultType="com.example.temp.manager.vo.FastboxUserInfoVO">
+		SELECT
+			USER_ID,
+			SELLER_NAME,
+			ISNULL(BRAND_NAME,'') AS BRAND_NAME,
+			ISNULL(ATTN_NAME,'') AS ATTN_NAME,
+			ISNULL(COM_NAME,'') AS COM_NAME,
+			ISNULL(COM_REG_NO,'') AS COM_REG_NO,
+			ISNULL(SELLER_ADDR,'') AS SELLER_ADDR,
+			ISNULL(SELLER_ADDR_DETAIL,'') AS SELLER_ADDR_DETAIL,
+			ISNULL(EXP_USE_YN,'') AS EXP_USE_YN,
+			ISNULL(EXP_UNIT_VALUE,'') AS EXP_UNIT_VALUE,
+			ISNULL(CUSTOMS_NO,'') AS CUSTOMS_NO,
+			ISNULL(SHIPPER_ZIP,'') AS SHIPPER_ZIP,
+			ISNULL(SHIPPER_ADDR,'') AS SHIPPER_ADDR,
+			ISNULL(SHIPPER_ADDR_DETAIL,'') AS SHIPPER_ADDR_DETAIL,
+			ISNULL(SHIPPER_NAME,'') AS SHIPPER_NAME
+		FROM TB_CUSTOMER_FB_INFO
+		WHERE USER_ID = #{userId} 
+	</select>
+	
+	<insert id="insertApiRespData" parameterType="hashMap">
+		INSERT INTO TB_FB_APICONN
+		(NNO, RESP_CONTENTS, W_USER_ID, W_USER_IP, W_DATE) VALUES 
+		(#{nno}, #{rtnJson}, #{wUserId}, #{wUserIp}, GETDATE())
+	</insert>
+	
+	<select id="selectFastboxViewList" resultType="hashMap">
+		SELECT NNO as nno, HAWB_NO as hawbNo, TRANS_CODE as transCode FROM VI_FB_WEIGHT;
+	</select> 
+	
+	<select id="selectMatchNumAll" resultType="hashMap">
+		SELECT HAWB_NO as hawbNo, TRANS_CODE as transCode FROM TB_HAWB
+		WHERE 
+			HAWB_NO NOT IN (SELECT HAWB_NO FROM TB_AGENCY_WT WHERE USER_ID = 'fastboxWeightThread')
+			AND HAWB_NO IN (SELECT HAWB_NO FROM TB_ORDER_LIST WHERE TRANS_CODE IN ('FB', 'FB-EMS'))
+			AND TRANS_CODE IN ('FB', 'FB-EMS')
+			AND CONVERT(CHAR(8),W_DATE,112) <![CDATA[>=]]> '20230201'
+		ORDER BY W_DATE DESC
+		<!-- SELECT TOP 100 HAWB_NO as hawbNo, TRANS_CODE as transCode FROM TB_HAWB
+		WHERE HAWB_NO IN (SELECT HAWB_NO FROM TB_ORDER_LIST)
+			AND HAWB_NO NOT IN (SELECT HAWB_NO FROM TB_AGENCY_WT WHERE TRANS_CODE IN ('FB', 'FB-EMS'))
+			AND TRANS_CODE IN ('FB', 'FB-EMS')
+			AND CONVERT(CHAR(8),W_DATE,112) <![CDATA[>=]]> '20230201' -->
+	</select>
+	
+	<select id="selectDuplicatedWeight" parameterType="String" resultType="Integer">
+		SELECT COUNT(*)
+		FROM TB_AGENCY_WT WHERE HAWB_NO = #{value}
+	</select>
+	
+	<insert id="insertFastboxWeight" parameterType="hashMap">
+		INSERT INTO TB_AGENCY_WT (ORG_STATION, USER_ID, TRANS_CODE, HAWB_NO, AGENCY_BL, WTA, WTC)
+		VALUES ('082', 'fastboxWeightThread', #{transCode}, #{agencyBl}, #{agencyBl}, #{wta}, #{wtc})
+	</insert>
+	
+	<select id="selectBlInfo" parameterType="hashMap" resultType="hashMap">
+		SELECT NNO as nno, TRANS_CODE as transCode
+		FROM TB_ORDER_LIST
+		WHERE HAWB_NO = #{hawbNo}
+	</select>
+	
+	<select id="selectBlCnt" parameterType="hashMap" resultType="Integer">
+		SELECT COUNT(*)
+		FROM TB_MATCHING_INFO
+		WHERE KEY_HAWB_NO = #{hawbNo} AND VALUE_MATCH_NO = #{agencyBl}
+	</select>
+	
+	<select id="selectAgencyBl" parameterType="hashMap" resultType="String">
+		SELECT VALUE_MATCH_NO
+		FROM TB_MATCHING_INFO
+		WHERE KEY_HAWB_NO = #{bl}
+	</select>
+	
+	<select id="selectHawbNoByNNO" parameterType="hashMap" resultType="String">
+		SELECT HAWB_NO FROM TB_ORDER_LIST WHERE NNO = #{nno}
+	</select>
+	
+	<select id="selectRequestShippingDataList" parameterType="String" resultType="hashMap">
+		SELECT
+			F1.NNO as nno, F1.HAWB_NO as hawbNo, 
+			(SELECT CONCAT(SUBSTRING(ARR_DATE,1,4),'-',SUBSTRING(ARR_DATE,5,2),'-',SUBSTRING(ARR_DATE,7,2)) FROM TB_MAWB WHERE MAWB_NO = F1.MAWB_NO) as arrDate
+		FROM TB_HAWB F1
+		LEFT JOIN TB_FB_SEND F2 ON F2.HAWB_NO = F1.HAWB_NO AND F2.NNO = F1.NNO
+		WHERE ISNULL(MAWB_NO,'') != '' AND MAWB_NO = #{mawbNo}
+			AND (F2.NNO IS NULL OR F2.SEND_YN = 'F')
+	</select>
+	
+	<select id="insertTbFastboxSend" parameterType="hashMap">
+		IF EXISTS (SELECT 1 FROM TB_FB_SEND WHERE NNO = #{nno})
+		BEGIN
+			UPDATE TB_FB_SEND SET SEND_YN = #{sendYn}, RST_MSG = #{msg}, M_DATE = GETDATE() WHERE NNO = #{nno}
+		END
+		ELSE
+		BEGIN
+			INSERT INTO TB_FB_SEND (NNO, HAWB_NO, SEND_YN, RST_MSG, W_DATE) 
+			VALUES (#{nno}, #{hawbNo}, #{sendYn}, #{msg}, GETDATE())
+		END;
+	</select>
+</mapper>

@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.api.aci.mapper.ReturnMapper">
+	<!-- <insert id="putData">
+		INSERT INTO TB_ORDER_LIST_TMP(NNO,ORG_STATION,DSTN_NATION,USER_ID) VALUES(#{nno},#{subNo},#{name},#{userId}) 
+	</insert>
+	<select id="getData" resultType="com.example.temp.api.aci.vo.ReturnVO" parameterType="String">
+		SELECT * FROM TB_ORDER_LIST_TMP
+	</select>
+	<select id="getData2" resultType="com.example.temp.api.aci.vo.ReturnVO" parameterType="String">
+		SELECT * FROM TB_ORDER_LIST_TMP WHERE NNO=#{i}
+	</select>
+	<select id="getData3" resultType="com.example.temp.api.aci.vo.ReturnVO" parameterType="hashMap">
+		SELECT * FROM TB_ORDER_LIST_TMP WHERE NNO=#{nno} AND ORG_STATION=#{orgStation}
+	</select>
+	<update id="updateData">
+		UPDATE TB_ORDER_LIST_TMP SET DSTN_NATION = #{newName} WHERE NNO=#{nno}
+	</update>
+	<update id="updateData2">
+		UPDATE TB_ORDER_LIST_TMP SET DSTN_NATION = #{newName} WHERE NNO=#{nno} AND ORG_STATION = #{orgStation}
+	</update>
+	
+	<delete id="deleteData">
+		DELETE FROM TB_ORDER_LIST_TMP WHERE NNO=#{i}
+	</delete>
+	<delete id="deleteData2">
+		DELETE FROM TB_ORDER_LIST_TMP WHERE NNO=#{nno} AND ORG_STATION=#{orgStation}
+	</delete>
+	<update id="return1">
+		UPDATE TB_ORDER_LIST_TMP
+		<trim prefix="SET" suffixOverrides="," prefixOverrides=",">
+			<if test="name != NULL and !name.equals('')">DSTN_NATION=#{name}</if>
+			<if test="userId != NULL and !userId.equals('')">,USER_ID=#{userId}</if>
+		</trim>
+		 WHERE NNO=#{nno} AND ORG_STATION=#{orgStation}
+	</update>
+	
+	
+	<insert id="putReturnData">
+		INSERT INTO 
+			TB_RETURN_ORDER(
+				NNO,
+				DSTN_NATION,
+				ORG_STATION,
+				SELLER_ID,
+				ORDER_DATE,
+				ORDER_NUMBER,
+				KOBL_NO,
+				WARE_HOUSE_MSG,
+				DELIVERY_MSG,
+				RETURN_TYPE,
+				FOOD,
+				SHIPPER_NAME,
+				SHIPPER_ZIP,
+				SHIPPER_ADDR,
+				SHIPPER_ADDR_DETAIL,
+				SHIPPER_TEL,
+				SHIPPER_HP,
+				SHIPPER_EMAIL,
+				ATTN_NAME,
+				ATTN_TEL,
+				ATTN_EMAIL,
+				PICKUP_NAME,
+				PICKUP_TEL,
+				PICKUP_ZIP,
+				PICKUP_ADDR,
+				PICKUP_ADDR_DETAIL,
+				FILE_RESON,
+				FILE_CAPTURE,
+				FILE_MESSENGER,
+				FILE_CL,
+				FILE_IC,
+				TAX_TYPE,
+				TAX_RETURN,
+				FILE_COPY_BANK
+			)
+		VALUES(
+			#{nno},
+			#{dstnNation},
+			#{orgStation},
+			#{sellerId},
+			#{orderDate}, 
+			#{orderNumber}, 
+			#{koblNo},
+			#{wareHouseMsg},
+			#{deliveryMsg},
+			#{returnType},
+			#{food},
+			#{shipperName},
+			#{shipperZip},
+			#{shipperAddr},
+			#{shipperAddrDetail},
+			#{shipperTel},
+			#{shipperHp},
+			#{shipperEmail},
+			#{attnName},
+			#{attnTel},
+			#{attnEmail},
+			#{pickupName},
+			#{pickupTel},
+			#{pickupZip},
+			#{pickupAddr},
+			#{pickupAddrDetail},
+			#{fileReson},
+			#{fileCapture},
+			#{fileMessenger},
+			#{fileCl},
+			#{fileIc},
+			#{taxType},
+			#{taxReturn},
+			#{fileCopyBank}) 
+	</insert>
+	
+	<insert id="putItem">
+		INSERT INTO 
+			TB_RETURN_ORDER_ITEM(
+				NNO,
+				SUB_NO,
+				BRAND,
+				ITEM_DETAIL,
+				NATIVE_ITEM_DETAIL,
+				ITEM_WTA,
+				WT_UNIT,
+				ITEM_CNT,
+				QTY_UNIT,
+				UNIT_VALUE,
+				ITEM_MATERIAL,
+				MAKE_CNTRY,
+				MAKE_COM,
+				CUS_ITEM_CODE,
+				HS_CODE,
+				ITEM_URL,
+				ITEM_IMG_URL
+			)
+		VALUES(
+			#{nno},
+			#{subNo},
+			#{brand},
+			#{itemDetail},
+			#{nativeItemDetail},
+			#{itemWta},
+			'KG', 
+			#{itemCnt},
+			#{qtyUnit},
+			#{unitValue},
+			#{itemMaterial},
+			#{makeCntry},
+			#{makeCom},
+			#{cusItemCode},
+			#{hsCode},
+			#{itemUrl},
+			#{itemImgUrl}
+			) 
+	</insert>
+	
+	
+	
+	<select id="getReturnItem" resultType="com.example.temp.api.aci.vo.ReturnItemVO" parameterType="String">
+		SELECT 
+			*
+		FROM 
+			TB_RETURN_ORDER_ITEM
+		WHERE 
+			NNO=#{nno}
+	</select>
+	<select id="getKolbNoByNno" parameterType = "String" resultType="String">
+		SELECT 
+			KOBL_NO
+		FROM 
+			TB_RETURN_ORDER
+		WHERE
+			NNO = #{nno}
+	</select>
+	
+	
+	<select id="getReturn" resultType="com.example.temp.api.aci.vo.ReturnVO" >
+		SELECT 
+			*
+		FROM 
+			TB_ORDER_LIST_TEST;
+		WHERE
+			NNO=#{nno}
+	</select>
+	
+	
+	<update id="updateReturn">
+		UPDATE 
+			TB_RETURN_ORDER 
+		SET
+			DSTN_NATION=#{dstnNation}
+			,ORG_STATION=#{orgStation}
+			,SELLER_ID=#{sellerId}
+			,KOBL_NO=#{koblNo}
+			,ATTN_NAME=#{attnName}
+			,ATTN_TEL=#{attnTel}
+			,PICKUP_NAME=#{pickupName}
+			,PICKUP_TEL=#{pickupTel}
+			,PICKUP_ZIP=#{pickupZip}
+			,PICKUP_ADDR=#{pickupAddr}
+			,PICKUP_ADDR_DETAIL=#{pickupAddrDetail}
+		WHERE
+			NNO=#{nno}
+	</update>
+	
+	
+	<update id="updateItem">
+		UPDATE
+			TB_RETURN_ORDER_ITEM
+		SET
+			ITEM_DETAIL = #{itemDetail},
+			BRAND = #{brand},
+			NATIVE_ITEM_DETAIL = #{nativeItemDetail},
+			ITEM_WTA = #{itemWta},
+			WT_UNIT = #{wtUnit},
+			ITEM_CNT = #{itemCnt},
+			QTY_UNIT = #{qtyUnit},
+			UNIT_VALUE = #{unitValue},
+			ITEM_MATERIAL = #{itemMaterial},
+			MAKE_CNTRY = #{makeCntry},
+			MAKE_COM = #{makeCom},
+			CUS_ITEM_CODE = #{cusItemCode},
+			HS_CODE = #{hsCode},
+			ITEM_URL = #{itemUrl},
+			ITEM_IMG_URL = #{itemImgUrl}
+		WHERE
+			NNO = #{nno} AND SUB_NO = #{subNo}
+	</update>
+	
+	<insert id="addReturnItem">
+		INSERT INTO 
+			TB_RETURN_ORDER_ITEM(
+				NNO,
+				SUB_NO,
+				BRAND,
+				ITEM_DETAIL,
+				NATIVE_ITEM_DETAIL,
+				ITEM_WTA,
+				WT_UNIT,
+				ITEM_CNT,
+				QTY_UNIT,
+				UNIT_VALUE,
+				ITEM_MATERIAL,
+				MAKE_CNTRY,
+				MAKE_COM,
+				CUS_ITEM_CODE,
+				HS_CODE,
+				ITEM_URL,
+				ITEM_IMG_URL
+			)
+		VALUES(
+			#{nno},
+			#{subNo},
+			#{brand},
+			#{itemDetail},
+			#{nativeItemDetail},
+			#{itemWta},
+			#{wtUnit}, 
+			#{itemCnt},
+			#{qtyUnit},
+			#{unitValue},
+			#{itemMaterial},
+			#{makeCntry},
+			#{makeCom},
+			#{cusItemCode},
+			#{hsCode},
+			#{itemUrl},
+			#{itemImgUrl}
+			) 
+
+	</insert>
+	
+	<select id="getReturnData" resultType="com.example.temp.api.aci.vo.ReturnFileVO" parameterType="hashMap">
+		SELECT * FROM 
+		(SELECT ROW_NUMBER() OVER(ORDER BY ORDER_DATE ASC) ROWNUM,
+			NNO,
+			ISNULL(R.DSTN_NATION,'') AS DSTN_NATION,
+			ISNULL(R.ORG_STATION,'') AS ORG_STATION,
+			ISNULL(R.HAWB_NO,'') AS HAWB_NO,
+			ISNULL(R.USER_ID,'') AS USER_ID,
+			ISNULL(R.RETURN_TYPE,'') AS RETURN_TYPE,
+			ISNULL(R.ORDER_DATE,'') AS ORDER_DATE,
+			ISNULL(R.STATE,'')AS STATE,
+			ISNULL(F.RTN_REASON_URL,'')AS RTN_REASON_URL,
+			ISNULL(F.BANK_BOOK_URL,'')AS BANK_BOOK_URL,
+			ISNULL(F.NAVER_CAP_URL,'')AS NAVER_CAP_URL,
+			ISNULL(F.TOCK_TOCK_URL,'')AS TOCK_TOCK_URL,
+			ISNULL(F.RTN_COMM_URL,'')AS RTN_COMM_URL
+			
+		FROM 
+			TB_RETURN_ORDER R
+		LEFT JOIN
+			TB_FILE_TEMP F
+		ON
+			R.HAWB_NO = F.HAWB_NO
+		
+		WHERE 1 = 1 
+
+		<if test="orgStation != null and orgStation != ''">
+			AND ORG_STATION = #{orgStation}
+		</if>
+		<if test='option!=null and option!="" and keywords!=null and keywords!="" and select!="selectAll"'>
+			AND (USER_ID like #{keywords} OR
+				R.HAWB_NO like #{keywords}) AND STATE=#{select}
+		</if>
+		<if test='option!=null and option!="" and keywords!=null and keywords!="" and select =="selectAll"'>
+			AND (R.HAWB_NO = #{keywords} OR USER_ID=#{keywords}) AND (STATE='접수' OR STATE='수거중' OR STATE='입고' OR STATE='출고' OR STATE='취소' OR STATE IS NULL) 
+		</if>
+		
+		
+		)M1 WHERE M1.ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd}
+			
+	</select> 
+
+	<select id="getReturnData2" resultType="com.example.temp.api.aci.vo.ReturnVO" parameterType="hashMap">
+		SELECT * FROM 
+		(SELECT ROW_NUMBER() OVER(ORDER BY ORDER_NO ASC) ROWNUM,
+			NNO,
+			ISNULL(DSTN_NATION,'') AS DSTN_NATION,
+			ISNULL(ORG_STATION,'') AS ORG_STATION,
+			ISNULL(HAWB_NO,'') AS HAWB_NO,
+			ISNULL(USER_ID,'') AS USER_ID,
+			ISNULL(ORDER_TYPE,'') AS ORDER_TYPE,
+			ISNULL(ORDER_NO,'') AS ORDER_NO,
+			ISNULL(ORDER_DATE,'') AS ORDER_DATE,
+			ISNULL(USER_WTC,'') AS USER_WTC,
+			ISNULL(BOX_CNT,'') AS BOX_CNT,
+			ISNULL(USER_WTA, '') AS USER_WTA
+			
+		FROM 
+			TB_ORDER_LIST_TEST 
+		
+		WHERE 1 = 1 
+		
+		<if test="orgStation != null and orgStation != ''">
+			AND ORG_STATION = #{orgStation}
+		</if>
+		<if test="option=='userId'.toString() and keywords!=null and keywords != ''">
+			AND USER_ID = #{keywords}
+		</if>
+		<if test="option=='hawbNo'.toString() and keywords!=null and keywords != ''">
+			AND HAWB_NO = #{keywords}
+		</if>
+		<if test='option!=null and option!="" and select!="" and select!="selectAll"'>
+			AND STATE=#{select}
+		</if>
+		
+		)M1 WHERE M1.ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd}
+			
+	</select>
+	
+	<select id="getReturnInfo" resultType="com.example.temp.api.aci.vo.ReturnVO" parameterType="String">
+		SELECT 
+			ISNULL(ATTN_NAME,'') AS ATTN_NAME,
+			ISNULL(ATTN_TEL,'') AS ATTN_TEL,
+			ISNULL(ATTN_EMAIL,'') AS ATTN_EMAIL,
+			ISNULL(SHIPPER_NAME,'') AS SHIPPER_NAME,
+			ISNULL(SHIPPER_ADDR,'') AS SHIPPER_ADDR,
+			ISNULL(SHIPPER_TEL,'') AS SHIPPER_TEL,
+			ISNULL(PICKUP_NAME,'') AS PICKUP_NAME,
+			ISNULL(PICKUP_ADDR,'') AS PICKUP_ADDR,
+			ISNULL(PICKUP_TEL,'') AS PICKUP_TEL,
+			ISNULL(HAWB_NO,'') AS HAWB_NO,
+			ISNULL(RETURN_TYPE,'') AS RETURN_TYPE,
+			ISNULL(CNCL, '') AS CNCL,
+			ISNULL(CNCL_TEXT,'')AS CNCL_TEXT,
+			ISNULL(COMMENT, '')AS COMMENT,
+			ISNULL(RMND, '')AS RMND
+		FROM 
+			TB_RETURN_ORDER
+		WHERE 
+			NNO=#{nno}
+	</select>
+	
+	<select id="selectReturnByUserId" resultType="com.example.temp.api.aci.vo.ReturnVO" parameterType="hashMap">
+		SELECT 
+			NNO,
+			DSTN_NATION,
+			ORG_STATION,
+			ISNULL(HAWB_NO,'') AS HAWB_NO,
+			USER_ID,
+			ORDER_TYPE,
+			ISNULL(ORDER_NO,'') AS ORDER_NO,
+			ISNULL(ORDER_DATE,'') AS ORDER_DATE,
+			ISNULL(USER_WTC,'') AS USER_WTC,
+			ISNULL(BOX_CNT,'') AS BOX_CNT,
+			ISNULL(USER_WTA, '') AS USER_WTA
+		
+		
+		<choose>
+			
+			<when test="option=='userId'.toString() and keywords!=null ">
+				FROM 
+				TB_ORDER_LIST_TEST	WHERE USER_ID = #{keywords}
+			</when>
+			<when test="option=='koblNo'.toString() and keywords!=null">
+				FROM 
+				TB_ORDER_LIST_TEST	WHERE HAWB_NO = #{keywords}
+			</when>
+			<otherwise>
+				FROM 
+				TB_ORDER_LIST_TEST
+			</otherwise>
+			
+		</choose>
+	</select>
+	
+	<select id="getReturnItemByNno" resultType="com.example.temp.api.aci.vo.ReturnItemVO" parameterType="String">
+		SELECT 
+			ISNULL(NNO,'')AS NNO,
+			ISNULL(SUB_NO,'')AS SUB_NO,
+			ISNULL(HAWB_NO,'')AS HAWB_NO,
+			ISNULL(BRAND,'')AS BRAND,
+			ISNULL(ITEM_DETAIL,'')AS ITEM_DETAIL,
+			ISNULL(NATIVE_ITEM_DETAIL,'')AS NATIVE_ITEM_DETAIL,
+			ISNULL(ITEM_MATERIAL,'')AS ITEM_MATERIAL,
+			ISNULL(WT_UNIT,'')AS WT_UNIT,
+			ISNULL(ITEM_CNT,'')AS ITEM_CNT,
+			ISNULL(QTY_UNIT,'')AS QTY_UNIT,
+			ISNULL(UNIT_VALUE,'')AS UNIT_VALUE,
+			ISNULL(MAKE_CNTRY,'')AS MAKE_CNTRY,
+			ISNULL(MAKE_COM,'')AS MAKE_COM,
+			ISNULL(HS_CODE,'')AS HS_CODE,
+			ISNULL(ITEM_URL,'')AS ITEM_URL,
+			ISNULL(ITEM_IMG_URL,'')AS ITEM_IMG_URL,
+			ISNULL(UNIT_CURRENCY,'')AS UNIT_CURRENCY 
+		FROM 
+			TB_RETURN_ORDER_ITEM
+		WHERE 
+			NNO = #{nno} ORDER BY SUB_NO ASC
+	</select>
+	
+	<select id="getTotalOrderCnt" resultType="Integer" parameterType="hashMap">
+		SELECT 
+			COUNT(*)
+		FROM 
+			TB_RETURN_ORDER
+		WHERE 1=1
+		<if test="orgStation != null and orgStation != ''">
+			AND ORG_STATION = #{orgStation}
+		</if>
+		<if test='option!=null and option!="" and keywords!=null and keywords!="" and select!="selectAll"'>
+			AND (USER_ID like #{keywords} OR
+				HAWB_NO like #{keywords}) AND STATE=#{select}
+		</if>
+		<if test='option!=null and option!="" and keywords!=null and keywords!="" and select =="selectAll"'>
+			AND (HAWB_NO = #{keywords} OR USER_ID=#{keywords}) AND (STATE='접수' OR STATE='수거중' OR STATE='입고' OR STATE='출고' OR STATE='취소' OR STATE IS NULL) 
+		</if>
+		<if test='option!=null and option!="" and select!="" and select!="selectAll"'>
+			AND STATE=#{select}
+		</if>
+		
+		
+	</select>
+	
+	<delete id="deleteReturn" parameterType="hashMap">
+		DELETE 
+		FROM 
+			TB_RETURN_ORDER
+		WHERE
+			NNO=#{nno}
+	</delete>
+	
+	<delete id="deleteItem">
+		DELETE 
+		FROM 
+			TB_RETURN_ORDER_ITEM
+		WHERE
+			NNO=#{nno}
+	</delete>
+	
+	<delete id="deleteReturnItem">
+	DELETE 
+	FROM
+		TB_RETURN_ORDER_ITEM
+	WHERE
+		NNO=#{nno} AND SUB_NO=#{subNo}
+	</delete>
+	<update id="updateOrder">
+		UPDATE 
+			TB_ORDER_LIST_TEST
+		SET
+			SHIPPER_NAME=#{shipperName},
+			SHIPPER_ZIP = #{shipperZip},
+			SHIPPER_ADDR_DETAIL = #{shipperAddrDetail},
+			CNEE_NAME = #{cneeName},
+			CNEE_ADDR = #{cneeAddr},
+			CNEE_TEL = #{cneeTel}
+		WHERE 
+			NNO = #{nno}
+			
+	</update>
+	<update id="updateAllItem">
+		UPDATE
+			TB_ORDER_ITEM_TEST
+		SET
+			
+			ITEM_DETAIL = #{itemDetail},
+			NATIVE_ITEM_DETAIL = #{nativeItemDetail},
+			BRAND = #{brand},
+			ITEM_METERIAL = #{itemMeterial},
+			WT_UNIT = #{wtUnit},
+			ITEM_CNT = #{itemCnt},
+			UNIT_VALUE = #{unitValue},
+			UNIT_CURRENCY = #{unitCurrency},
+			MAKE_CNTRY = #{makeCntry},
+			MAKE_COM = #{makeCom},
+			HS_CODE = #{hsCode},
+			ITEM_URL = #{itemUrl},
+			ITEM_IMG_URL = #{itemImgUrl}
+		WHERE 
+			NNO = #{nno} and SUB_NO = #{subNo}
+	</update>
+	<update id="updateSubNo">
+		UPDATE 
+			TB_ORDER_ITEM_TEST
+		SET
+			SUB_NO = #{updateSubNo}
+		WHERE 
+			NNO=#{nno} and SUB_NO=#{subNo}
+	</update>
+	<insert id="addDiv">
+		INSERT INTO 
+			TB_RETURN_ORDER_ITEM(
+				NNO,
+				SUB_NO
+			)
+		VALUES(
+			#{nno},
+			#{cnt}
+		)
+	</insert>
+	
+	<delete id="deleteByNno">
+		DELETE 
+		FROM
+			TB_RETURN_ORDER_ITEM
+		WHERE
+			NNO=#{nno}
+	</delete>
+	<insert id="insertByNno">
+		INSERT INTO 
+			TB_RETURN_ORDER_ITEM(
+				NNO,
+				SUB_NO,
+				ITEM_DETAIL,
+				NATIVE_ITEM_DETAIL,
+				BRAND,
+				ITEM_MATERIAL,
+				WT_UNIT,
+				ITEM_CNT,
+				UNIT_VALUE,
+				UNIT_CURRENCY,
+				MAKE_CNTRY,
+				MAKE_COM,
+				HS_CODE,
+				ITEM_URL,
+				ITEM_IMG_URL
+				)
+		VALUES(
+			#{nno},
+			#{subNo},
+			#{itemDetail},
+			#{nativeItemDetail},
+			#{brand},
+			#{itemMeterial},
+			#{wtUnit},
+			#{itemCnt},
+			#{unitValue},
+			#{unitCurrency},
+			#{makeCntry},
+			#{makeCom},
+			#{hsCode},
+			#{itemUrl},
+			#{itemImgUrl}
+			) 
+
+	</insert>
+	
+	<insert id="storedURL" parameterType="hashMap">
+		INSERT INTO TB_FILE_TEMP (
+			RTN_REASON_URL, BANK_BOOK_URL, NAVER_CAP_URL, TOCK_TOCK_URL, RTN_COMM_URL, HAWB_NO)
+			VALUES (#{rtnReason}, #{bankbook}, #{naverRtnCap}, #{tocktockCap}, #{rtnComm}, #{hawbNo});
+	</insert>
+	<select id="countOfHawbNo" parameterType="String" resultType = "int">
+		SELECT 
+			COUNT(*)
+		FROM 
+			TB_FILE_TEMP
+		WHERE
+			HAWB_NO=#{hawbNo}
+	</select>
+	<update id="updateURL">
+		UPDATE 
+			TB_FILE_TEMP 
+	   <trim prefix="SET" suffixOverrides=",">
+	      <if test="rtnReason != null">RTN_REASON_URL = #{rtnReason},</if>
+	      <if test="bankbook != null">BANK_BOOK_URL = #{bankbook},</if>
+	      <if test="naverRtnCap != null">NAVER_CAP_URL = #{naverRtnCap},</if>
+	      <if test="tocktockCap != null">TOCK_TOCK_URL = #{tocktockCap},</if>
+	      <if test="rtnComm != null">RTN_COMM_URL = #{rtnComm},</if>
+       </trim>
+		WHERE 
+			HAWB_NO = #{hawbNo}
+	</update>
+	<select id="getS3Url" parameterType="hashMap">
+		SELECT RTN_REASON_URL, BANK_BOOK_URL, NAVER_CAP_URL, TOCK_TOCK_URL, RTN_COMM_URL FROM TB_FILE_TEMP;
+	</select>
+	
+	
+	<insert id="insertReturnExcel" >
+		INSERT INTO TB_RETURN_ORDER (
+			NNO, ORG_STATION, SHIPPER_NAME, SHIPPER_TEL, SHIPPER_HP, SHIPPER_ZIP, SHIPPER_ADDR, SHIPPER_ADDR_DETAIL, SELLER_ID, KOBL_NO, STATE, TRK_NO
+		) VALUES (
+			#{nno}, #{orgStation}, #{shipperName}, #{shipperTel}, #{shipperHp}, #{shipperZip}, #{shipperAddr}, #{shipperAddrDetail}, #{sellerId}, #{koblNo}, #{state}, #{trkNo}
+		)
+	</insert>
+	
+	<update id="updateReturnExcel">
+		UPDATE TB_RETURN_ORDER
+			SET
+				HAWB_NO = #{hawbNo},
+				STATE = #{state}
+			WHERE
+				KOBL_NO = #{koblNo}
+	</update>
+	
+	<select id="selectReturnListExcel" resultType="com.example.temp.api.aci.vo.ReturnVO" parameterType="String">
+		SELECT
+			ISNULL(T1.PICKUP_NAME,'') as pickupName,
+			ISNULL(T1.PICKUP_TEL,'') as pickupTel,
+			ISNULL(T1.PICKUP_HP,'') as pickupHp,
+			ISNULL(T1.PICKUP_ZIP,'') as pickupZip,
+			ISNULL(T1.PICKUP_ADDR,'') as pickupAddr,
+			ISNULL(T1.PICKUP_ADDR_DETAIL,'') as pickupAddrDetail,
+			ISNULL(T1.HAWB_NO,'') as HawbNo,
+			ISNULL(T1.KOBL_NO,'') as koblNo,
+			ISNULL(T2.ITEM_DETAIL,'') as itemDetail,
+			ISNULL(T2.ITEM_WTA,'') as itemWta,
+			ISNULL(T2.ITEM_CNT,'') as itemCnt,
+			ISNULL(T1.RETURN_TYPE,'') as rtnType
+		FROM
+			TB_RETURN_ORDER T1
+			LEFT OUTER JOIN TB_RETURN_ORDER_ITEM T2 ON T1.NNO = T2.NNO
+	</select> -->
+	
+	
+</mapper>

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.api.shop.ShopMapper">
+
+	<insert id="insertUserShopOrderListTemp" parameterType="com.example.temp.member.vo.UserOrderListVO">
+		INSERT INTO TMP_ORDER_LIST (
+			NNO, ORG_STATION, DSTN_NATION, DSTN_STATION, [USER_ID], ORDER_TYPE, ORDER_NO, ORDER_DATE, HAWB_NO, BOX_CNT,
+			USER_WTA, USER_WTC, SHIPPER_NAME, SHIPPER_ZIP, SHIPPER_TEL, SHIPPER_HP, SHIPPER_CNTRY, SHIPPER_CITY, SHIPPER_STATE,
+			SHIPPER_ADDR, SHIPPER_ADDR_DETAIL, CNEE_NAME, CNEE_ADDR, CNEE_ZIP, CNEE_TEL, CNEE_HP, CNEE_CNTRY, CNEE_CITY, CNEE_STATE,
+			CNEE_DISTRICT, CNEE_ADDR_DETAIL, USER_LENGTH, USER_WIDTH, USER_HEIGHT, USER_EMAIL, TRANS_CODE, CNEE_EMAIL, CUSTOMS_NO,
+			NATIVE_CNEE_NAME, NATIVE_CNEE_ADDR, NATIVE_CNEE_ADDR_DETAIL, DIM_UNIT, WT_UNIT, BUY_SITE, W_USER_ID, W_USER_IP, W_DATE,
+			GET_BUY, MALL_TYPE, WH_REQ_MSG, DLV_REQ_MSG, STATUS, SHIPPER_REFERENCE, CNEE_REFERENCE1, CNEE_REFERENCE2, PAYMENT, FOOD,
+			TAX_ID, EORI_NO, DECL_TYPE, UPLOAD_TYPE)
+		VALUES (
+			#{nno}, #{orgStation}, ISNULL((SELECT NATION_CODE FROM TB_NATION_CODE WHERE NATION_E_NAME = #{dstnNation}),ISNULL(#{dstnNation},'')),
+			ISNULL((SELECT NATION_CODE FROM TB_NATION_CODE WHERE NATION_E_NAME = #{dstnNation}),ISNULL(#{dstnNation},'')),
+			#{userId}, #{orderType}, #{orderNo}, #{orderDate}, #{hawbNo}, #{boxCnt},
+			#{userWta}, #{userWtc}, #{shipperName}, #{shipperZip}, #{shipperTel}, #{shipperHp}, ISNULL((SELECT NATION_CODE FROM TB_NATION_CODE WHERE NATION_E_NAME = #{shipperCntry}),''),
+			#{shipperCity}, #{shipperState},
+			#{shipperAddr}, #{shipperAddrDetail}, #{cneeName}, #{cneeAddr}, #{cneeZip}, #{cneeTel}, #{cneeHp}, ISNULL((SELECT NATION_CODE FROM TB_NATION_CODE WHERE NATION_E_NAME = #{cneeCntry}),''), #{cneeCity}, #{cneeState},
+			#{cneeDistrict}, #{cneeAddrDetail}, #{userLength}, #{userWidth}, #{userHeight}, #{userEmail}, #{transCode}, #{cneeEmail}, #{customsNo},
+			#{nativeCneeName}, #{nativeCneeAddr}, #{nativeCneeAddrDetail}, #{dimUnit}, #{wtUnit}, #{buySite}, #{wUserId}, #{wUserIp}, #{wDate},
+			#{getBuy}, #{mallType}, #{whReqMsg}, #{dlvReqMsg}, #{status}, #{shipperReference}, #{cneeReference1}, #{cneeReference2}, #{payment}, #{food},
+			#{taxId}, #{eoriNo}, #{declType}, #{uploadType})
+	</insert>
+
+	<insert id="insertUserShopOrderItemTemp" parameterType="com.example.temp.member.vo.UserOrderItemVO">
+		INSERT INTO TMP_ORDER_ITEM (
+			NNO, SUB_NO, ORG_STATION, [USER_ID], HS_CODE, ITEM_DETAIL, UNIT_CURRENCY, ITEM_CNT, UNIT_VALUE, BRAND, MAKE_CNTRY,
+	        MAKE_COM, ITEM_DIV, WT_UNIT, QTY_UNIT, PACKAGE_UNIT, EXCHANGE_RATE, CHG_CURRENCY, ITEM_METERIAL, TAKE_IN_CODE,
+	        USER_WTA, USER_WTC, ITEM_URL, ITEM_IMG_URL, [STATUS], TRK_COM, TRK_NO, TRK_DATE, NATIVE_ITEM_DETAIL, CUS_ITEM_CODE,
+	        W_USER_ID, W_USER_IP, W_DATE)
+		VALUES (
+	        #{nno}, #{subNo}, #{orgStation}, #{userId}, #{hsCode}, #{itemDetail}, #{unitCurrency}, #{itemCnt}, #{unitValue}, #{brand},
+	        ISNULL((SELECT NATION_CODE FROM TB_NATION_CODE WHERE NATION_E_NAME = #{makeCntry}),#{makeCntry}),
+	        #{makeCom}, #{itemDiv}, #{wtUnit}, #{qtyUnit}, #{packageUnit}, #{exchangeRate}, #{chgCurrency}, #{itemMeterial}, #{takeInCode},
+	        #{userItemWta}, #{userItemWtc}, #{itemUrl}, #{itemImgUrl}, #{status}, #{trkCom}, #{trkNo}, #{trkDate}, #{nativeItemDetail}, #{cusItemCode},
+	        #{wUserId}, #{wUserIp}, #{wDate})
+	</insert>
+	
+	<insert id="insertExpLicenceInfo" parameterType="com.example.temp.api.aci.vo.ExpLicenceVO">
+		DECLARE
+			@EXP_REG_NO NVARCHAR(50), 
+			@ORDER_NO NVARCHAR(100), 
+			@EXP_NO NVARCHAR(50), 
+			@NNO NVARCHAR(200), 
+			@SEND_YN NVARCHAR(2), 
+			@EXP_BUSINESS_NUM NVARCHAR(100), 
+			@EXP_SHIPPER_CODE NVARCHAR(100), 
+			@EXP_BUSINESS_NAME NVARCHAR(200), 
+			@SIMPLE_YN NVARCHAR(2), 
+			@EXP_VALUE NVARCHAR(50),
+			@AGENCY_BUSINESS_NAME NVARCHAR(200)
+					
+			SET @EXP_REG_NO = #{expRegNo}
+			SET @ORDER_NO = #{orderNo}
+			SET @EXP_NO = #{expNo}
+			SET @NNO = #{nno}
+			SET @SEND_YN = #{sendYn}
+			SET @EXP_BUSINESS_NUM = #{expBusinessNum} 
+			SET @EXP_SHIPPER_CODE = #{expShipperCode}
+			SET @EXP_BUSINESS_NAME = #{expBusinessName}
+			SET @SIMPLE_YN = #{simpleYn}
+			SET @EXP_VALUE = #{expValue}
+			SET @AGENCY_BUSINESS_NAME = #{agencyBusinessName}
+			
+		EXEC SP_EXPLICENCE_INPUT
+			@EXP_REG_NO, 
+			@ORDER_NO, 
+			@EXP_NO, 
+			@NNO, 
+			@SEND_YN, 
+			@EXP_BUSINESS_NUM, 
+			@EXP_SHIPPER_CODE, 
+			@EXP_BUSINESS_NAME, 
+			@SIMPLE_YN, 
+			@EXP_VALUE,
+			@AGENCY_BUSINESS_NAME
+	</insert>
+	
+	<delete id="deleteTmpOrder" parameterType="String">
+		DELETE FROM TMP_ORDER_LIST WHERE NNO = #{value};
+		DELETE FROM TMP_ORDER_ITEM WHERE NNO = #{value};
+		DELETE FROM TB_EXPLICENCE WHERE NNO = #{value};
+	</delete>
+	
+	<select id="selectDuplicatedOrderCnt" parameterType="hashMap" resultType="Integer">
+		SELECT
+		CASE
+			WHEN (SELECT COUNT(*) FROM TB_ORDER_LIST WHERE USER_ID = #{userId} AND ORDER_NO = #{orderNo}) > 0 THEN 1
+			WHEN (SELECT COUNT(*) FROM TMP_ORDER_LIST WHERE USER_ID = #{userId} AND ORDER_NO = #{orderNo}) > 0 THEN 1
+			ELSE 0
+		END ORDER_CNT;
+	</select>
+
+	<select id="selectShopifyApiInfo" parameterType="hashMap" resultType="hashMap">
+		SELECT
+			ISNULL(SHOPIFY_URL,'') AS shopifyUrl,
+			ISNULL(API_KEY,'') AS apiKey,
+			ISNULL(PASSWORD,'') AS accessToken
+		FROM TB_SHOPIFY WHERE USER_ID = #{userId}
+	</select>
+	
+	<select id="selectShipperInfoByUserId" parameterType="hashMap" resultType="com.example.temp.member.vo.UserVO">
+		SELECT
+			ISNULL(COM_E_NAME,'') AS COM_E_NAME,
+			ISNULL(USER_TEL,'') AS USER_TEL,
+			ISNULL(USER_ZIP,'') AS USER_ZIP,
+			ISNULL(USER_E_STATE,'') AS USER_E_STATE,
+			ISNULL(USER_E_CITY,'') AS USER_E_CITY,
+			ISNULL(USER_E_ADDR,'') AS USER_E_ADDR,
+			ISNULL(USER_E_ADDR_DETAIL,'') AS USER_E_ADDR_DETAIL,
+			ISNULL(USER_HP,'') AS USER_HP,
+			ISNULL(USER_EMAIL,'') AS USER_EMAIL,
+			ISNULL(STORE_URL,'') AS STORE_URL,
+			ISNULL((SELECT ORG_NATION FROM TB_USER_TRANS_COM WHERE USER_ID = F1.USER_ID GROUP BY ORG_NATION),'') AS ORG_STATION
+		FROM TB_CUSTOMER F1 WHERE USER_ID = #{userId}
+	</select>
+
+	<insert id="insertShopifyFulfillment" parameterType="hashMap">
+		INSERT INTO TB_SHOPIFY_FULFILLMENT (NNO, USER_ID, ORDER_NO, ORDER_ID, FULFILL_ORDER_ID, W_DATE, UPDATE_YN) VALUES
+		(#{nno}, #{userId}, #{orderNo}, #{orderId}, #{fulfillOrderId}, GETDATE(), 'N');
+	</insert>
+	
+	<delete id="deleteShopifyFulfillment" parameterType="hashMap">
+		DELETE FROM TB_SHOPIFY_FULFILLMENT WHERE NNO = #{nno};
+	</delete>
+	
+	<select id="selectShopifyFulfillInfo" parameterType="hashMap" resultType="hashMap">
+		SELECT
+			NNO AS nno,
+			ISNULL(ORDER_NO,'') AS orderNo,
+			ISNULL(ORDER_ID,'') AS orderId,
+			ISNULL(FULFILL_ORDER_ID,'') AS fulfillOrderId,
+			ISNULL(UPDATE_YN,'') AS updateYn,
+			ISNULL(SHOPIFY_URL,'') AS shopifyUrl,
+			ISNULL(API_KEY,'') AS apiKey,
+			ISNULL(PASSWORD,'') AS accessToken,
+			ISNULL((SELECT TRK_NO FROM TB_DELIVERY_INFO WHERE NNO = F1.NNO),(SELECT HAWB_NO FROM TB_ORDER_LIST WHERE NNO = F1.NNO)) AS hawbNo
+		FROM TB_SHOPIFY_FULFILLMENT F1, TB_SHOPIFY F2
+		WHERE NNO = #{nno} AND F1.USER_ID = #{userId} AND F1.USER_ID = F2.USER_ID
+	</select>
+
+	<update id="updateShopifyFulfillment" parameterType="hashMap">
+		UPDATE TB_SHOPIFY_FULFILLMENT SET UPDATE_YN = 'Y', FULFILLMENT_ID = #{fulfillmentId} WHERE NNO = #{nno} AND USER_ID = #{userId}
+	</update>
+	
+	<insert id="insertShopeeAccessToken" parameterType="hashMap">
+		INSERT INTO TB_SHOPEE_TOKEN (USER_ID, MAIN_ACCOUNT_ID, MERCHANT_ID, SHOP_ID, ACCESS_TOKEN, REFRESH_TOKEN, W_DATE) VALUES
+		(#{userId}, #{mainAccountId}, #{merchantId}, #{shopId}, #{accessToken}, #{refreshToken}, GETDATE())
+	</insert>
+	
+	<select id="putShopAccessToken" parameterType="hashMap">
+		IF EXISTS (SELECT 1 FROM TB_SHOPEE_SHOP WHERE SHOP_ID = #{shop_id} AND USER_ID = #{user_id})
+		BEGIN
+		    UPDATE TB_SHOPEE_SHOP
+		    SET 
+		    	ACCESS_TOKEN = #{access_token}, 
+		    	REFRESH_TOKEN = #{refresh_token}, 
+		    	M_DATE = GETDATE()
+		    WHERE 
+		        SHOP_ID = #{shop_id} AND USER_ID = #{user_id}
+		END
+		ELSE
+		BEGIN
+		    INSERT INTO TB_SHOPEE_SHOP (USER_ID, SHOP_ID, ACCESS_TOKEN, REFRESH_TOKEN, W_DATE)
+		    VALUES (#{user_id}, #{shop_id}, #{access_token}, #{refresh_token}, GETDATE())
+		END;
+	</select>
+
+</mapper>

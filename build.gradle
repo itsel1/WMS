@@ -1,0 +1,141 @@
+plugins {
+   id 'org.springframework.boot' version '2.2.6.RELEASE'
+   id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+   id 'java'
+   id 'war'
+   id 'org.asciidoctor.convert' version '1.5.3'
+}
+
+asciidoctor {
+	dependsOn test
+}
+
+bootWar{
+   	archiveBaseName ='test'
+   	archiveFileName = 'WMS.war'
+   	archiveVersion = "0.0.0"
+   	dependsOn asciidoctor
+   	from ("${asciidoctor.outputDir}/html5") {
+   		into "static/docs"
+   	}
+}
+
+group = 'com'
+version = '0.0.1-SNAPSHOT' 
+sourceCompatibility = '1.8'
+
+configurations {
+   developmentOnly
+   runtimeClasspath {
+      extendsFrom developmentOnly
+   }
+   compileOnly {
+      extendsFrom annotationProcessor
+   }
+}
+
+repositories {
+   mavenCentral()
+}
+
+dependencies {
+   implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+   implementation 'org.springframework.boot:spring-boot-starter-security'
+   implementation 'org.springframework.boot:spring-boot-starter-web'
+   implementation 'org.springframework.security:spring-security-taglibs'
+   implementation group: 'fr.w3blog', name: 'zebra-zpl', version: '0.0.3'
+   implementation group: 'com.jcraft', name: 'jsch', version: '0.1.42'
+   implementation 'com.oracle.database.jdbc:ojdbc6:11.2.0.4'
+   implementation 'fr.opensagres.xdocreport:org.apache.poi.xwpf.converter.pdf:1.0.6'
+   
+   
+   providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+   testImplementation('org.springframework.boot:spring-boot-starter-test') {
+      exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+   }
+   /*testImplementation 'org.springframework.security:spring-security-test'*/
+   
+   /*add dependency - db*/
+   compile('org.mybatis.spring.boot:mybatis-spring-boot-starter:1.3.2')
+   compile('com.microsoft.sqlserver:mssql-jdbc')
+   
+   /*add dependency - etc*/
+   compile('org.apache.tomcat.embed:tomcat-embed-jasper')
+   compile('javax.servlet:jstl:1.2')
+   developmentOnly 'org.springframework.boot:spring-boot-devtools'
+   compile('org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4:1.16')
+   compile('org.slf4j:slf4j-api:1.7.25')
+   compile ('org.apache.poi:poi:3.7')
+   compile ('org.apache.poi:poi-ooxml:3.7') 
+   compile files("libs/Spire.Xls.jar")
+   compile group: 'commons-codec', name: 'commons-codec', version: '1.13'
+   compile group: 'com.itextpdf', name: 'itextpdf', version: '5.5.13.1'
+   compile group: 'com.itextpdf.tool', name: 'xmlworker', version: '5.5.13.1'
+   compile group: 'net.sourceforge.barbecue', name: 'barbecue', version: '1.5-beta1'
+   compile group: 'com.openhtmltopdf', name: 'openhtmltopdf-core', version: '1.0.0'
+   compile group: 'com.openhtmltopdf', name: 'openhtmltopdf-pdfbox', version: '1.0.0'
+   compile group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.16'
+   compile group: 'com.moebiusgames', name: 'pdfbox-table', version: '1.1.1'
+   compile group: 'org.json', name: 'json', version: '20160810'
+   compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.815'
+   compile group: 'org.apache.axis', name: 'axis', version: '1.4'
+   compile group: 'commons-logging', name: 'commons-logging', version: '1.0.4'
+   compile group: 'commons-discovery', name: 'commons-discovery', version: '0.2'
+   compile group: 'axis', name: 'axis-jaxrpc', version: '1.4'
+   compile group: 'wsdl4j', name: 'wsdl4j', version: '1.5.1'
+   compile group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
+   compile group: 'com.google.zxing', name: 'javase', version: '3.4.0'
+   
+   //implementation group: 'com.google.zxing', name: 'core', version: '3.4.1'
+ 
+
+   compile ('commons-net:commons-net:3.7')
+   
+   /*add dependency - lombok*/
+   compileOnly "org.projectlombok:lombok:1.18.12"
+   annotationProcessor "org.projectlombok:lombok:1.18.12"
+   // https://mvnrepository.com/artifact/com.google.code.gson/gson
+   compile group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
+   compile group: 'org.jsoup', name: 'jsoup', version: '1.11.3'
+
+	// https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
+	implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.3'
+	
+	// https://mvnrepository.com/artifact/commons-io/commons-io
+	implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
+	
+	// aws s3
+	compile group: 'org.springframework.cloud', name: 'spring-cloud-aws', version: '2.2.1.RELEASE', ext: 'pom'
+	
+	// https://mvnrepository.com/artifact/com.sun.jersey/jersey-client
+	implementation group: 'com.sun.jersey', name: 'jersey-client', version: '1.19.4'
+	
+	// 2022-03-04 add 
+	//implementation group: 'org.apache.poi', name: 'poi', version: '5.2.0'
+	//implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '5.2.0'
+	
+	// https://mvnrepository.com/artifact/net.sf.json-lib/json-lib
+	implementation group: 'net.sf.json-lib', name: 'json-lib', version: '2.4', classifier: 'jdk15'
+	
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.1'
+	
+	// 4. mockMVC에 rest docs 추가하기
+	testImplementation('org.springframework.restdocs:spring-restdocs-mockmvc')
+	
+	// 5. *.adoc 파일의 {snippets}를 자동으로 설정 - 아래에서 자세히 설명
+	asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.3.RELEASE'
+	
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	
+	// https://mvnrepository.com/artifact/org.apache.commons/commons-csv
+	implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
+
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+}
+
+test {
+   useJUnitPlatform()
+}
+

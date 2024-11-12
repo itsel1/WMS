@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.trans.comn.ComnApiMapper">
+	<select id="selectOrderInfo" parameterType="String" resultType="hashMap">
+		SELECT 
+			ORDER_NO as orderNo,
+			HAWB_NO as hawbNo 
+		FROM TB_ORDER_LIST WHERE NNO = #{nno}
+	</select>
+	<insert id="insertPodRecord" parameterType="hashMap">
+		DECLARE
+			@RST_STATUS NVARCHAR(50),
+			@RST_CODE NVARCHAR(50),
+			@RST_MSG NVARCHAR(100)
+			
+		exec
+		    SP_OZON_TRACKING_SET #{reference},
+		    #{hawbNo},
+		    @RST_STATUS output,
+		    @RST_CODE output,
+		    @RST_MSG output
+		
+		select
+		    @RST_STATUS as RST_STATUS,
+		    @RST_CODE as RST_CODE,
+		    @RST_MSG as RST_MSG
+	</insert>
+	
+</mapper>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.manager.mapper.ManagerAramexMapper">
+	
+	
+	<insert id="insertAramexExcelUpload" parameterType="com.example.temp.manager.vo.AramexListVO">
+	INSERT INTO TB_ARAMEX_LIST ( Airline,Consol,Origin,Destination,FLT1ETD,FinalETA,
+	                             AWB,PickupDate,PCS,Weight,Unit,CommodityDescription,Customs,
+	                             CustomsCurrency,ShipperName,ShipperAddress,ShipperTel,OriginCity,OriginZipCode,OriginCountry,ConsigneeName,ConsigneeAddress,ConsigneeTel,ConsigneeEmail,DestCity,DestState,DestZipCode,DestCountry,
+	                             ChargingWeight,HS_CODE,FLT1Carrier,FLT1Number
+	                              )
+						VALUES(#{airline},
+								#{consol},
+								#{origin},
+								#{destination},
+								#{flt1etd},
+								#{finaleta},
+								#{awb},
+								#{pickupdate},
+								#{pcs},
+								#{weight},
+								#{unit},
+								#{commoditydescription},
+								#{customs},
+								#{customscurrency},
+								#{shippername},
+								#{shipperaddress},
+								#{shippertel},
+								#{origincity},
+								#{originzipcode},
+								#{origincountry},
+								#{consigneename},
+								#{consigneeaddress},
+								#{consigneetel},
+								#{consigneeemail},
+								#{destcity},
+								#{deststate},
+								#{destzipcode},
+								#{destcountry},
+								#{chargingweight},
+								#{hsCode},
+								#{flt1carrier},
+								#{flt1number}
+								);
+	</insert>
+	
+
+	<select id="selectTotalCountAramex" parameterType="hashMap" resultType="integer">
+		SELECT COUNT(*)
+			FROM (
+			SELECT ROW_NUMBER() OVER(ORDER BY F1.AWB ASC) ROWNUM,
+			       ROW_NUMBER() OVER(ORDER BY F1.AWB DESC) NUM,
+			       AIRLINE,CONSOL,ORIGIN,DESTINATION,
+			       FLT1ETD,FINALETA,AWB,PICKUPDATE,
+			       PCS,WEIGHT,UNIT,COMMODITYDESCRIPTION,CUSTOMS,CUSTOMSCURRENCY,
+			       SHIPPERNAME,SHIPPERADDRESS,SHIPPERTEL,ORIGINCITY,ORIGINZIPCODE,ORIGINCOUNTRY,
+			       CONSIGNEENAME,CONSIGNEEADDRESS,CONSIGNEETEL,CONSIGNEEEMAIL,DESTCITY,DESTSTATE,DESTZIPCODE,DESTCOUNTRY,CHARGINGWEIGHT,HS_CODE 
+			  FROM TB_ARAMEX_LIST F1
+			  WHERE 1=1
+			  <if test='errorYn != null and errorYn != ""'>
+					AND F1.ERROR_YN = #{errorYn}
+			   </if>
+			   <if test='hsCodeYn != null and hsCodeYn != ""'>
+					AND F1.HS_CODE = #{hsCodeYn}
+			   </if>
+			  ) M1
+	</select>
+	
+	<select id="selectAramexList" parameterType="hashMap" resultType="com.example.temp.manager.vo.AramexListVO">
+		SELECT ROWNUM,
+		       (SELECT COUNT(*) FROM TB_ORDER_LIST WHERE HAWB_NO = M1.AWB) AS RES_YN,
+		       (SELECT COUNT(*) FROM TB_ARAMEX_LIST WHERE AWB = M1.AWB) AS DUP_YN,
+		       NUM,
+		       AIRLINE,
+		       CONSOL,
+		       CONCAT(AIRLINE,'-',CONSOL) AS MAWBNO,
+		       ORIGIN,
+		       DESTINATION,
+		       FLT1ETD,
+		       FINALETA,
+		       AWB,
+		       PICKUPDATE,
+		       PCS,
+		       WEIGHT,
+		       UNIT,
+		       COMMODITYDESCRIPTION,
+		       CUSTOMS,
+		       CUSTOMSCURRENCY,
+		       SHIPPERNAME,
+		       SHIPPERADDRESS,
+		       SHIPPERTEL,
+		       ORIGINCITY,
+		       ORIGINZIPCODE,
+		       ORIGINCOUNTRY,
+		       CONSIGNEENAME,
+		       CONSIGNEEADDRESS,
+		       CONSIGNEETEL,
+		       CONSIGNEEEMAIL,
+		       DESTCITY,
+		       DESTSTATE,
+		       DESTZIPCODE,
+		       DESTCOUNTRY,
+		       CHARGINGWEIGHT,
+		       HS_CODE
+		FROM (
+		SELECT ROW_NUMBER() OVER(ORDER BY F1.AWB ASC) ROWNUM,
+		       ROW_NUMBER() OVER(ORDER BY F1.AWB DESC) NUM,
+		       Airline,Consol,Origin,Destination,
+		       FLT1ETD,FinalETA,AWB,PickupDate,
+		       PCS,Weight,Unit,CommodityDescription,Customs,CustomsCurrency,
+		       ShipperName,ShipperAddress,ShipperTel,OriginCity,OriginZipCode,OriginCountry,
+		       ConsigneeName,ConsigneeAddress,ConsigneeTel,ConsigneeEmail,DestCity,DestState,DestZipCode,DestCountry,ChargingWeight,HS_CODE 
+		  FROM TB_ARAMEX_LIST F1
+		  WHERE 1=1
+		    <if test='errorYn != null and errorYn != ""'>
+					AND F1.ERROR_YN = #{errorYn}
+			   </if>
+			   <if test='hsCodeYn != null and hsCodeYn != ""'>
+					AND F1.HS_CODE = #{hsCodeYn}
+			   </if>
+		  ) M1
+		WHERE M1.ROWNUM BETWEEN #{paging.boardStart} and #{paging.boardEnd}
+		ORDER BY ROWNUM 
+	</select>
+	
+	<update id="updateAramexListError" parameterType="HashMap">
+		UPDATE TB_ARAMEX_LIST SET ERROR_YN = #{errorcode} where AWB =#{awb}
+	</update>
+	
+	
+	<select id="applyAramex" parameterType="hashMap" resultType="hashMap" statementType="CALLABLE">
+		DECLARE
+		@ORG_STATION NVARCHAR(3) ,
+		@W_USER_ID NVARCHAR(50),
+		@W_USER_IP NVARCHAR(50),
+		@RST_STATUS NVARCHAR(10),
+		@RST_CODE NVARCHAR(10),
+		@RST_MSG NVARCHAR(100)
+		
+		SET @ORG_STATION = #{orgStation}
+		SET @W_USER_ID = #{userId}
+		SET @W_USER_IP = #{userIp}
+		
+		
+		EXEC SP_ARAMEX_MAWB_APPLY
+		@ORG_STATION,
+		@W_USER_ID,
+		@W_USER_IP,
+		@RST_STATUS OUTPUT ,
+		@RST_CODE OUTPUT ,
+		@RST_MSG OUTPUT
+		
+		
+		SELECT @RST_STATUS AS RST_STATUS , @RST_CODE AS RST_CODE , @RST_MSG AS RST_MSG;
+	</select>
+
+
+	<select id="selectPodBlInfo" parameterType="hashMap" resultType="hashMap" statementType="CALLABLE">
+		SELECT ISNULL(F1.HAWB_NO,'') AS  Bl ,
+               ISNULL(F1.ORDER_NO,'') AS  OrderNo ,
+               ISNULL((SELECT NATION_CODE FROM TB_USER_TRANS_COM WHERE TRANS_CODE = F1.TRANS_CODE AND USER_ID = F1.USER_ID AND ORG_NATION = (SELECT NATION_CODE FROM TB_STATION WHERE STATION_CODE = F1.ORG_STATION) AND DSTN_NATION = F1.DSTN_NATION),'') AS DeliveryCompany ,
+               ISNULL(CONCAT(substring(F1.CNEE_NAME,1,1),'*',substring(F1.CNEE_NAME,3,5)),'')  Consignee ,
+               ISNULL(CONCAT(substring(F1.NATIVE_CNEE_NAME,1,1),'*',substring(F1.CNEE_NAME,3,5)),'')  nativeConsignee ,
+               ISNULL(CASE WHEN ISNULL((SELECT CONVERT(NVARCHAR(8),MIN(W_DATE),112) FROM TB_STOCK WHERE OUT_NNO = F1.NNO AND ORG_STATION = F1.ORG_STATION AND USER_ID = F1.USER_ID),'') = '' 
+                    THEN  (SELECT CONVERT(NVARCHAR(8), W_DATE,112) FROM TB_HAWB WHERE HAWB_NO = F1.HAWB_NO) 
+                    ELSE (SELECT CONVERT(NVARCHAR(8),MIN(W_DATE),112) FROM TB_STOCK WHERE OUT_NNO = F1.NNO AND ORG_STATION = F1.ORG_STATION AND USER_ID = F1.USER_ID)
+               END,'') AS   WarehousingDate,
+               ISNULL((SELECT DEP_DATE FROM TB_MAWB WHERE MAWB_NO = (SELECT MAWB_NO FROM TB_HAWB WHERE HAWB_NO = F1.HAWB_NO AND ORG_STATION = F1.ORG_STATION)),'') ShippingDate,
+               ISNULL(CONVERT(DATETIME, SUBSTRING(W_DATE,0,9) + ' ' + STUFF(STUFF(SUBSTRING(W_DATE,9,6),3,0, ':'),6,0,':'),120),'') RegistDate,
+               ISNULL((SELECT W_DATE FROM TB_HAWB WHERE NNO = F1.NNO AND USER_ID = F1.USER_ID AND ORG_STATION = F1.ORG_STATION),'') HawbInDate,
+               ISNULL((SELECT TRK_NO FROM TB_DELIVERY_INFO WHERE NNO = F1.NNO AND HAWB_NO = F1.HAWB_NO AND TRANS_CODE = F1.TRANS_CODE),'') trkNo,
+               ISNULL(F1.USER_ID,'') userId
+         FROM TB_ORDER_LIST F1 
+        WHERE F1.HAWB_NO = #{bl}
+	</select>
+	
+	<select id="selectAramexHawbList" resultType="com.example.temp.manager.vo.HawbVO">
+		SELECT hawb_NO, BOX_CNT, WTA, WTC,W_DATE,
+			(SELECT TOP 1 LENGTH FROM TB_VOLUME WHERE NNO = F1.NNO) AS LENGTH,
+			(SELECT TOP 1 WIDTH FROM TB_VOLUME WHERE NNO = F1.NNO) AS WIDTH,
+			(SELECT TOP 1 HEIGHT FROM TB_VOLUME WHERE NNO = F1.NNO) AS HEIGHT
+		FROM TB_HAWB F1 WHERE TRANS_CODE ='ARA' 
+			--AND W_DATE BETWEEN DATEADD( hh,-24,getdate()) AND DATEADD(hh,48,getdate())
+			AND MAWB_NO IN (
+				select MAWB_NO FROM TB_MAWB WHERE DEP_DATE BETWEEN DATEADD( hh,-36,getdate()) AND DATEADD(hh,48,getdate())
+	 		)
+			AND HAWB_NO IN (SELECT HAWB_NO FROM TB_VOLUME WHERE ISNULL(WIDTH,'0.0') != '0.0' and ISNULL(HEIGHT,'0.0') != '0.0' and ISNULL(LENGTH,'0.0') != '0.0');
+		--FROM TB_HAWB F1 WHERE TRANS_CODE ='ARA' AND W_DATE BETWEEN DATEADD( hh,-24,'2021-05-24 00:00:00') AND DATEADD(hh,48,'2021-05-24 00:00:00');		
+		
+	</select>
+	
+</mapper>

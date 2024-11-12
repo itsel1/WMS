@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.temp.security.SecurityMapper">
+
+	<select id="getSelectMeberInfo" resultType="com.example.temp.common.vo.MemberVO" parameterType="String">
+		SELECT USER_ID  AS username,
+			USER_PW AS password,
+			'' AS orgStation,
+			[ROLE] AS role,
+			ETPR_YN AS etprYn,
+			APRV_YN as aprvYn
+		FROM TB_CUSTOMER WHERE USER_ID = #{value}
+	</select>
+	<select id="getSelectMeberInfoAdmin" resultType="com.example.temp.common.vo.MemberVO" parameterType="String">
+		SELECT ADMIN_ID  AS username,
+			ADMIN_PW AS password,
+			ORG_STATION AS orgStation,
+			[ROLE] AS role,
+			'' AS etprYn,
+			'Y' AS aprvYn
+		FROM TB_ADMIN WHERE ADMIN_ID = #{value}
+	</select>
+	
+	<insert id = "insertSessionInfo" parameterType="hashMap">
+		INSERT INTO HIS_LOGIN (LOGIN_ID ,SESSION_KEY, ACCESS_IP) VALUES (#{loginId},#{sessionKey},#{accessIp});
+	</insert>
+</mapper>
